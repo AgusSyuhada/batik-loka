@@ -1,0 +1,15 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.BatikLoka" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+        <!-- Background Utama -->
+        <item name="android:windowBackground">@color/ivory_white</item>
+
+        <!-- Status Bar -->
+        <item name="android:statusBarColor">@color/black</item>
+    </style>
+
+    <style name="Theme.BatikLoka" parent="Base.Theme.BatikLoka" />
+</resources>
