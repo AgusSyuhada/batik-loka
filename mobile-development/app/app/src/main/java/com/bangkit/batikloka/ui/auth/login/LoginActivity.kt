@@ -11,8 +11,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.bangkit.batikloka.R
-import com.bangkit.batikloka.ui.auth.ForgotPasswordActivity
-import com.bangkit.batikloka.ui.home.MainActivity
+import com.bangkit.batikloka.ui.auth.EmailVerificationActivity
+import com.bangkit.batikloka.ui.main.MainActivity
 import com.bangkit.batikloka.ui.auth.register.RegisterActivity
 
 class LoginActivity : AppCompatActivity() {
@@ -80,7 +80,7 @@ class LoginActivity : AppCompatActivity() {
         // Forgot Password
         tvForgotPassword.setOnClickListener {
             // Implementasi lupa password
-            startActivity(Intent(this, ForgotPasswordActivity::class.java))
+            startActivity(Intent(this, EmailVerificationActivity::class.java))
         }
     }
 
@@ -103,9 +103,6 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun performLogin(email: String, password: String) {
-        // Implementasi login
-        // Misalnya, panggil API atau validasi lokal
-        Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
         // Pindah ke activity berikutnya setelah login
         startActivity(Intent(this, MainActivity::class.java))
         finish()

@@ -30,17 +30,17 @@ class TourActivity : AppCompatActivity() {
         TourItem(
             imageResId = R.drawable.tour_slide_1,
             titleText = "Scan Batik With Camera",
-            descriptionText = "Lorem Ipsum is simply dummy text of the printing and typesetting industry"
+            descriptionText = "Discover batik patterns and types simply by scanning with your camera"
         ),
         TourItem(
             imageResId = R.drawable.tour_slide_2,
             titleText = "Explore Batik in One Hand",
-            descriptionText = "Lorem Ipsum is simply dummy text of the printing and typesetting industry"
+            descriptionText = "Explore various collections and the stories behind batik right from your hand"
         ),
         TourItem(
             imageResId = R.drawable.tour_slide_3,
             titleText = "Get Batik News Everyday",
-            descriptionText = "Lorem Ipsum is simply dummy text of the printing and typesetting industry"
+            descriptionText = "Stay updated with the latest news and daily inspiration about batik"
         )
     )
 

@@ -16,7 +16,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.bangkit.batikloka.R
 import com.bangkit.batikloka.ui.adapter.ImageSourceAdapter
-import com.bangkit.batikloka.ui.home.MainActivity
+import com.bangkit.batikloka.ui.main.MainActivity
+import com.yalantis.ucrop.UCrop
+import java.io.File
 
 class StartProfileActivity : AppCompatActivity() {
     private lateinit var ivProfilePicture: ImageView
@@ -40,9 +42,10 @@ class StartProfileActivity : AppCompatActivity() {
         }
 
         btnNext.setOnClickListener {
-            // Implementasi logika untuk melanjutkan ke activity berikutnya
-            Toast.makeText(this, "Next clicked", Toast.LENGTH_SHORT).show()
-             startActivity(Intent(this, MainActivity::class.java))
+            // Pindah ke MainActivity dan kirim informasi bahwa ini adalah pendaftaran
+            startActivity(Intent(this, MainActivity::class.java).apply {
+                putExtra("action", "register") // Menandakan bahwa ini adalah pendaftaran
+            })
         }
     }
 
@@ -50,7 +53,7 @@ class StartProfileActivity : AppCompatActivity() {
         Log.d("StartProfileActivity", "showImageSourceOptions called")
 
         val options = arrayOf("Camera", "Gallery")
-        val icons = intArrayOf(R.drawable.ic_camera, R.drawable.ic_insert_photo) // Ganti dengan ikon yang sesuai
+        val icons = intArrayOf(R.drawable.ic_camera_filled, R.drawable.ic_photo) // Ganti dengan ikon yang sesuai
 
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Choose Image Source")
@@ -105,13 +108,39 @@ class StartProfileActivity : AppCompatActivity() {
             when (requestCode) {
                 PICK_IMAGE_REQUEST -> {
                     val imageUri: Uri? = data?.data
-                    ivProfilePicture.setImageURI(imageUri)
+                    imageUri?.let { startCrop(it) }
                 }
                 CAMERA_REQUEST -> {
                     val bitmap: Bitmap = data?.extras?.get("data") as Bitmap
-                    ivProfilePicture.setImageBitmap(bitmap)
+                    val uri = getImageUri(bitmap)
+                    startCrop(uri)
+                }
+                UCrop.REQUEST_CROP -> {
+                    val resultUri = UCrop.getOutput(data!!)
+                    if (resultUri != null) {
+                        ivProfilePicture.setImageURI(resultUri)
+                    } else {
+                        Toast.makeText(this, "Crop failed", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                UCrop.RESULT_ERROR -> {
+                    val cropError = UCrop.getError(data!!)
+                    Toast.makeText(this, cropError?.message, Toast.LENGTH_SHORT).show()
                 }
             }
         }
+    }
+
+    private fun startCrop(uri: Uri) {
+        val destinationUri = Uri.fromFile(File(cacheDir, "cropped_image.jpg"))
+        UCrop.of(uri, destinationUri)
+            .withAspectRatio(1f, 1f)
+            .withMaxResultSize(500, 500)
+            .start(this)
+    }
+
+    private fun getImageUri(bitmap: Bitmap): Uri {
+        val path = MediaStore.Images.Media.insertImage(contentResolver, bitmap, "Title", null)
+        return Uri.parse(path)
     }
 }

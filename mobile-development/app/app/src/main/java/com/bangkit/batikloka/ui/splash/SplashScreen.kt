@@ -7,7 +7,6 @@ import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import com.bangkit.batikloka.R
-import com.bangkit.batikloka.ui.home.MainActivity
 import com.bangkit.batikloka.ui.tour.TourActivity
 
 @SuppressLint("CustomSplashScreen")

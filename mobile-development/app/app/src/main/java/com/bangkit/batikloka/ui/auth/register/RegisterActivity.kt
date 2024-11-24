@@ -2,6 +2,8 @@ package com.bangkit.batikloka.ui.auth.register
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.InputType
 import android.util.Patterns
 import android.widget.Button
@@ -9,8 +11,10 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.bangkit.batikloka.R
+import com.bangkit.batikloka.ui.auth.VerificationActivity
 import com.bangkit.batikloka.ui.auth.login.LoginActivity
 
 class RegisterActivity : AppCompatActivity() {
@@ -141,14 +145,46 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-    private fun performRegister(name: String, email: String, password: String) {
-        // Implementasi register
-        // Misalnya, panggil API atau validasi lokal
-        Toast.makeText(this, "Registration successful", Toast.LENGTH_SHORT).show()
+    private fun showCustomAlertDialog(title: String) {
+        // Inflate layout kustom
+        val dialogView = layoutInflater.inflate(R.layout.dialog_checkmark, null)
+        val titleTextView = dialogView.findViewById<TextView>(R.id.dialog_title)
+        titleTextView.text = title
 
-        // Pindah ke ConfirmOtpActivity setelah register
-        startActivity(Intent(this, VerificationActivity::class.java))
-        finish()
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(true) // Memungkinkan dialog ditutup dengan mengklik di luar
+            .create()
+
+        dialog.setOnShowListener {
+            // Mengatur latar belakang dialog dengan drawable kustom
+            dialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
+
+            // Menangani klik di luar dialog untuk menutup dialog
+            dialog.setCanceledOnTouchOutside(true)
+        }
+
+        dialog.setOnDismissListener {
+            // Pindah ke VerificationActivity setelah dialog ditutup
+            val intent = Intent(this, VerificationActivity::class.java)
+            intent.putExtra("action", "register") // Menandakan bahwa ini adalah pendaftaran
+            startActivity(intent)
+            finish()
+        }
+
+        dialog.show()
+
+        // Menambahkan delay sebelum dialog ditutup
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (dialog.isShowing) {
+                dialog.dismiss() // Menutup dialog setelah delay
+            }
+        }, 3000) // Delay selama 3000 ms (3 detik)
+    }
+
+    private fun performRegister(name: String, email: String, password: String) {
+        // Panggil alert dialog untuk menginformasikan bahwa OTP telah dikirim
+        showCustomAlertDialog("OTP has been sent to your email!")
     }
 
     private fun performGoogleRegister() {
