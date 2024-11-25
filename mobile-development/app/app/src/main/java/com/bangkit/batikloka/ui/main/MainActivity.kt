@@ -6,7 +6,13 @@ import android.os.Looper
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import com.bangkit.batikloka.R
+import com.bangkit.batikloka.ui.catalog.CatalogFragment
+import com.bangkit.batikloka.ui.home.HomeFragment
+import com.bangkit.batikloka.ui.news.NewsFragment
+import com.bangkit.batikloka.ui.user.UserFragment
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
 
@@ -16,12 +22,33 @@ class MainActivity : AppCompatActivity() {
 
         // Menampilkan dialog berdasarkan tindakan yang dilakukan
         val action = intent.getStringExtra("action")
-        if (action == "login") {
-            showCustomAlertDialog("Welcome back to BatikLoka!")
-        } else if (action == "register") {
-            showCustomAlertDialog("Welcome to BatikLoka! Thank you for registering")
-        } else {
-            showCustomAlertDialog("Welcome to BatikLoka")
+        when (action) {
+            "login" -> showCustomAlertDialog("Welcome back to BatikLoka!")
+            "register" -> showCustomAlertDialog("Welcome to BatikLoka! Thank you for registering")
+            else -> showCustomAlertDialog("Welcome to BatikLoka")
+        }
+
+        // Setup BottomNavigationView
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNavigationView.setOnItemSelectedListener { menuItem ->
+            val fragment: Fragment = when (menuItem.itemId) {
+                R.id.home -> HomeFragment()
+                R.id.news -> NewsFragment()
+                R.id.catalog -> CatalogFragment()
+                R.id.user -> UserFragment()
+                else -> HomeFragment()
+            }
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .commit()
+            true
+        }
+
+        // Set default fragment
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, HomeFragment())
+                .commit()
         }
     }
 
@@ -51,6 +78,6 @@ class MainActivity : AppCompatActivity() {
             if (dialog.isShowing) {
                 dialog.dismiss() // Menutup dialog setelah delay
             }
-        }, 3000) // Delay selama 3000 ms (3 detik)
+        }, 3000)
     }
 }

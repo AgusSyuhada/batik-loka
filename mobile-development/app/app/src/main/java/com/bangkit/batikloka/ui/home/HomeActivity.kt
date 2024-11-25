@@ -1,5 +1,18 @@
-package com.bangkit.batikloka.ui.home;
-//made by rajahafiz//
-//cobalagi//
-public class HomeActivity {
+package com.bangkit.batikloka.ui.home
+
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import com.bangkit.batikloka.R
+
+class HomeActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_home)
+
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, HomeFragment())
+                .commit()
+        }
+    }
 }
