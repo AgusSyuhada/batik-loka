@@ -1,5 +1,5 @@
 package com.bangkit.batikloka.ui.home
-
+//by rajahafiz//
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View

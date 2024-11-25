@@ -1,5 +1,5 @@
 package com.bangkit.batikloka.ui.main
-
+//by rajahafiz//
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
