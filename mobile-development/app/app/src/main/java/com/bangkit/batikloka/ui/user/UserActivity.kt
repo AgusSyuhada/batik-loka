@@ -1,21 +1,54 @@
 package com.bangkit.batikloka.ui.user
-//byrajahafiz//
+
+import android.content.Intent
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
+import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.bangkit.batikloka.R
+import com.bangkit.batikloka.ui.auth.login.LoginActivity
+import com.bangkit.batikloka.utils.PreferencesManager
 
 class UserActivity : AppCompatActivity() {
+    private lateinit var preferencesManager: PreferencesManager
+    private lateinit var logoutContainer: View
+    private lateinit var icLogout: ImageView
+    private lateinit var tvLogout: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_user)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+
+        preferencesManager = PreferencesManager(this)
+
+        logoutContainer = findViewById(R.id.logoutContainer)
+        icLogout = findViewById(R.id.icLogout)
+        tvLogout = findViewById(R.id.tvLogout)
+
+        setupLogoutListener()
+    }
+
+    private fun setupLogoutListener() {
+        logoutContainer.setOnClickListener {
+            performLogout()
         }
+
+        icLogout.setOnClickListener {
+            performLogout()
+        }
+
+        tvLogout.setOnClickListener {
+            performLogout()
+        }
+    }
+
+    private fun performLogout() {
+        preferencesManager.clearUserData()
+
+        val intent = Intent(this, LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
     }
 }

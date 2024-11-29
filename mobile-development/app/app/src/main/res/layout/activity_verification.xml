@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="64dp"
-        android:text="Verification"
+        android:text="@string/verification_title"
         android:textColor="@color/caramel_gold"
         android:textSize="32sp"
         android:textStyle="bold"
@@ -25,7 +25,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:text="Enter verification code that was sent to your email"
+        android:text="@string/verification_subtitle"
+        android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvVerificationTitle" />
@@ -43,13 +44,14 @@
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:background="@drawable/custom_edittext_background"
-            android:hint="Enter Verification Code"
+            android:hint="@string/enter_verification_code_hint"
             android:inputType="number"
             android:textAlignment="center"
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="Autofill" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnVerifyAccount"
@@ -57,7 +59,7 @@
             android:layout_height="50dp"
             android:layout_marginTop="20dp"
             android:background="@drawable/btn_primary"
-            android:text="Verify Account"
+            android:text="@string/verify_account_button"
             android:textAllCaps="false"
             android:textColor="@color/white"
             android:textSize="16sp"

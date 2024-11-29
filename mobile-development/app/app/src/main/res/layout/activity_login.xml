@@ -13,14 +13,18 @@
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toTopOf="@+id/constraintLayout3"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
         tools:ignore="MissingConstraints"
         tools:layout_editor_absoluteX="24dp">
 
         <TextView
             android:id="@+id/tvLoginTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Welcome Back!"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:text="@string/welcome_back"
+            android:textAlignment="center"
             android:textColor="@color/caramel_gold"
             android:textSize="32sp"
             android:textStyle="bold"
@@ -33,7 +37,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="Please enter your details"
+            android:text="@string/please_enter_details"
             android:textColor="@color/black"
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -61,13 +65,14 @@
                 android:layout_width="0dp"
                 android:layout_height="50dp"
                 android:background="@drawable/custom_edittext_background"
-                android:hint="Email"
+                android:hint="@string/email_hint"
                 android:inputType="textEmailAddress"
                 android:paddingStart="20dp"
                 android:textSize="14sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="Autofill,RtlSymmetry" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/constraintLayout5"
@@ -81,14 +86,15 @@
                     android:layout_width="0dp"
                     android:layout_height="50dp"
                     android:background="@drawable/custom_edittext_background"
-                    android:hint="Password"
+                    android:hint="@string/password_hint"
                     android:inputType="textPassword"
                     android:paddingStart="20dp"
                     android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="Autofill,RtlSymmetry" />
 
                 <ImageView
                     android:id="@+id/ivShowPassword"
@@ -100,7 +106,8 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="1.0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/etPassword" />
+                    app:layout_constraintTop_toTopOf="@+id/etPassword"
+                    tools:ignore="ContentDescription" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -109,7 +116,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="Forgot Password?"
+                android:text="@string/forgot_password"
                 android:textColor="@color/caramel_gold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/constraintLayout5" />
@@ -122,7 +129,7 @@
             android:layout_height="50dp"
             android:layout_marginTop="20dp"
             android:background="@drawable/btn_primary"
-            android:text="Log In"
+            android:text="@string/login_button"
             android:textAllCaps="false"
             android:textColor="@color/white"
             android:textSize="16sp"
@@ -146,7 +153,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
-                android:text="Or log in with"
+                android:text="@string/or_log_in_with"
                 android:textColor="@color/caramel_gold"
                 android:textStyle="bold" />
 
@@ -161,7 +168,7 @@
             android:drawableStart="@drawable/google_icon"
             android:drawablePadding="8dp"
             android:paddingHorizontal="128dp"
-            android:text="Google"
+            android:text="@string/google"
             android:textAllCaps="false"
             android:textColor="@color/black"
             android:textSize="16sp"
@@ -183,18 +190,16 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Don't have an account? " />
+                android:text="@string/dont_have_account" />
 
             <TextView
                 android:id="@+id/tvLogin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Register"
+                android:text="@string/register"
                 android:textColor="@color/caramel_gold"
                 android:textStyle="bold" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <!-- Divider -->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

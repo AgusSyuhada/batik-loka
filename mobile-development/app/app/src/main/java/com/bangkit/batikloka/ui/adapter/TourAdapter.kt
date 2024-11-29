@@ -31,8 +31,8 @@ class TourAdapter(private val tourItems: List<TourItem>) :
 
         fun bind(item: TourItem) {
             imageView.setImageResource(item.imageResId)
-            titleTextView.text = item.titleText
-            descriptionTextView.text = item.descriptionText
+            titleTextView.text = itemView.context.getString(item.titleText)
+            descriptionTextView.text = itemView.context.getString(item.descriptionText)
         }
     }
 }

@@ -13,9 +13,12 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.bangkit.batikloka.R
-import com.bangkit.batikloka.ui.auth.VerificationActivity
+import com.bangkit.batikloka.ui.auth.codeverification.VerificationActivity
 import com.bangkit.batikloka.ui.auth.login.LoginActivity
+import com.bangkit.batikloka.ui.viewmodel.AppViewModelFactory
+import com.bangkit.batikloka.utils.PreferencesManager
 
 class RegisterActivity : AppCompatActivity() {
     private lateinit var etName: EditText
@@ -29,12 +32,19 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var btnRegister: Button
     private lateinit var btnRegisterGoogle: Button
     private lateinit var tvLogin: TextView
+    private lateinit var viewModel: RegisterViewModel
+    private lateinit var preferencesManager: PreferencesManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
-        // Inisialisasi View
+        preferencesManager = PreferencesManager(this)
+        viewModel = ViewModelProvider(
+            this,
+            AppViewModelFactory(preferencesManager)
+        )[RegisterViewModel::class.java]
+
         etName = findViewById(R.id.etName)
         etEmail = findViewById(R.id.etEmail)
         etPassword = findViewById(R.id.etPassword)
@@ -45,151 +55,129 @@ class RegisterActivity : AppCompatActivity() {
         btnRegisterGoogle = findViewById(R.id.btnRegisterGoogle)
         tvLogin = findViewById(R.id.tvLogin)
 
-        // Setup Listeners
         setupClickListeners()
     }
 
     private fun setupClickListeners() {
-        // Show Password
         ivShowPassword.setOnClickListener {
             isPasswordVisible = !isPasswordVisible
             if (isPasswordVisible) {
                 etPassword.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                ivShowPassword.setImageResource(R.drawable.ic_visibility) // Ganti dengan ikon mata terbuka
+                ivShowPassword.setImageResource(R.drawable.ic_visibility)
             } else {
-                etPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                ivShowPassword.setImageResource(R.drawable.ic_visibility_off) // Ganti dengan ikon mata tertutup
+                etPassword.inputType =
+                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                ivShowPassword.setImageResource(R.drawable.ic_visibility_off)
             }
-            etPassword.setSelection(etPassword.text.length) // Memindahkan kursor ke akhir
+            etPassword.setSelection(etPassword.text.length)
         }
 
-        // Show Confirm Password
         ivShowConfirmPassword.setOnClickListener {
             isConfirmPasswordVisible = !isConfirmPasswordVisible
             if (isConfirmPasswordVisible) {
                 etConfirmPassword.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                ivShowConfirmPassword.setImageResource(R.drawable.ic_visibility) // Ganti dengan ikon mata terbuka
+                ivShowConfirmPassword.setImageResource(R.drawable.ic_visibility)
             } else {
-                etConfirmPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                ivShowConfirmPassword.setImageResource(R.drawable.ic_visibility_off) // Ganti dengan ikon mata tertutup
+                etConfirmPassword.inputType =
+                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                ivShowConfirmPassword.setImageResource(R.drawable.ic_visibility_off)
             }
-            etConfirmPassword.setSelection(etConfirmPassword.text.length) // Memindahkan kursor ke akhir
+            etConfirmPassword.setSelection(etConfirmPassword.text.length)
         }
 
-        // Register Button
         btnRegister.setOnClickListener {
             val name = etName.text.toString().trim()
             val email = etEmail.text.toString().trim()
             val password = etPassword.text.toString().trim()
             val confirmPassword = etConfirmPassword.text.toString().trim()
 
-            // Validasi input
-            if (validateInput(name, email, password, confirmPassword)) {
+            if (viewModel.validateInput(name, email, password, confirmPassword)) {
                 performRegister(name, email, password)
+            } else {
+                showValidationErrors(name, email, password, confirmPassword)
             }
         }
 
-        // Google Register
         btnRegisterGoogle.setOnClickListener {
-            // Implementasi register dengan Google
-            performGoogleRegister()
+            viewModel.performGoogleRegister()
+            Toast.makeText(this, getString(R.string.login_google_clicked), Toast.LENGTH_SHORT)
+                .show()
         }
 
-        // Login Navigation
         tvLogin.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
     }
 
-    private fun validateInput(
+    private fun showValidationErrors(
         name: String,
         email: String,
         password: String,
-        confirmPassword: String
-    ): Boolean {
-        return when {
-            name.isEmpty() -> {
-                etName.error = "Name cannot be empty"
-                false
-            }
-            name.length < 3 -> {
-                etName.error = "Name must be at least 3 characters"
-                false
-            }
-            email.isEmpty() -> {
-                etEmail.error = "Email cannot be empty"
-                false
-            }
-            !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
-                etEmail.error = "Invalid email format"
-                false
-            }
-            password.isEmpty() -> {
-                etPassword.error = "Password cannot be empty"
-                false
-            }
-            password.length < 6 -> {
-                etPassword.error = "Password must be at least 6 characters"
-                false
-            }
-            confirmPassword.isEmpty() -> {
-                etConfirmPassword.error = "Confirm password cannot be empty"
-                false
-            }
-            password != confirmPassword -> {
-                etConfirmPassword.error = "Passwords do not match"
-                false
-            }
-            else -> true
+        confirmPassword: String,
+    ) {
+        if (name.isEmpty()) {
+            etName.error = getString(R.string.error_name_empty)
+        } else if (name.length < 3) {
+            etName.error = getString(R.string.error_name_length)
+        }
+
+        if (email.isEmpty()) {
+            etEmail.error = getString(R.string.error_email_empty)
+        } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            etEmail.error = getString(R.string.error_email_invalid)
+        }
+
+        if (password.isEmpty()) {
+            etPassword.error = getString(R.string.error_password_empty)
+        } else if (password.length < 6) {
+            etPassword.error = getString(R.string.error_password_length)
+        }
+
+        if (confirmPassword.isEmpty()) {
+            etConfirmPassword.error = getString(R.string.error_confirm_password_empty)
+        } else if (password != confirmPassword) {
+            etConfirmPassword.error = getString(R.string.error_password_mismatch)
         }
     }
 
     private fun showCustomAlertDialog(title: String) {
-        // Inflate layout kustom
         val dialogView = layoutInflater.inflate(R.layout.dialog_checkmark, null)
         val titleTextView = dialogView.findViewById<TextView>(R.id.dialog_title)
         titleTextView.text = title
 
         val dialog = AlertDialog.Builder(this)
             .setView(dialogView)
-            .setCancelable(true) // Memungkinkan dialog ditutup dengan mengklik di luar
+            .setCancelable(true)
             .create()
 
         dialog.setOnShowListener {
-            // Mengatur latar belakang dialog dengan drawable kustom
             dialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
-
-            // Menangani klik di luar dialog untuk menutup dialog
             dialog.setCanceledOnTouchOutside(true)
         }
 
         dialog.setOnDismissListener {
-            // Pindah ke VerificationActivity setelah dialog ditutup
             val intent = Intent(this, VerificationActivity::class.java)
-            intent.putExtra("action", "register") // Menandakan bahwa ini adalah pendaftaran
+            intent.putExtra("action", "register")
             startActivity(intent)
             finish()
         }
 
         dialog.show()
 
-        // Menambahkan delay sebelum dialog ditutup
         Handler(Looper.getMainLooper()).postDelayed({
             if (dialog.isShowing) {
-                dialog.dismiss() // Menutup dialog setelah delay
+                dialog.dismiss()
             }
-        }, 3000) // Delay selama 3000 ms (3 detik)
+        }, 3000)
     }
 
     private fun performRegister(name: String, email: String, password: String) {
-        // Panggil alert dialog untuk menginformasikan bahwa OTP telah dikirim
-        showCustomAlertDialog("OTP has been sent to your email!")
-    }
+        showCustomAlertDialog(getString(R.string.registration_successful))
 
-    private fun performGoogleRegister() {
-        // Implementasi register dengan Google
-        Toast.makeText(this, "Google register clicked", Toast.LENGTH_SHORT).show()
-        // Tambahkan logika untuk register dengan Google
+        val preferencesManager = PreferencesManager(this)
+        preferencesManager.saveUserEmail(email)
+
+        startActivity(Intent(this, VerificationActivity::class.java))
     }
 }

@@ -1,0 +1,74 @@
+<resources>
+    <string name="app_name">Batik Loka</string>
+    <string name="project">Proyek Capstone Bangkit @2024</string>
+    <string name="hello_blank_fragment">Halo fragmen kosong</string>
+
+    <!-- Tour -->
+    <string name="tour_slide_1_title">Pindai Batik dengan Kamera</string>
+    <string name="tour_slide_1_description">Temukan pola dan jenis batik hanya dengan memindai menggunakan kamera</string>
+    <string name="tour_slide_2_title">Jelajahi Batik dalam Genggaman</string>
+    <string name="tour_slide_2_description">Jelajahi berbagai koleksi dan cerita di balik batik langsung dari genggaman Anda</string>
+    <string name="tour_slide_3_title">Dapatkan Berita Batik Setiap Hari</string>
+    <string name="tour_slide_3_description">Tetap update dengan berita terbaru dan inspirasi harian tentang batik</string>
+    <string name="skip_tour_dialog_title">Lewati Tur Selamat Datang</string>
+    <string name="skip_tour_dialog_message">Apakah anda yakin ingin melewati tur selamat datang?</string>
+    <string name="dialog_yes">Ya</string>
+    <string name="dialog_no">Tidak</string>
+    <string name="btn_next">Selanjutnya</string>
+    <string name="btn_get_started">Mulai</string>
+    <string name="btn_skip">Lewati</string>
+    <string name="login_hint">Sudah Punya Akun? <b><font color="#CD9933">Login Di Sini</font></b></string>
+
+    <!-- Auth -->
+    <string name="error_name_empty">Nama tidak boleh kosong</string>
+    <string name="error_name_length">Nama harus terdiri dari minimal 3 karakter</string>
+    <string name="error_email_empty">Email tidak boleh kosong</string>
+    <string name="error_email_invalid">Format email tidak valid</string>
+    <string name="error_password_empty">Password tidak boleh kosong</string>
+    <string name="error_password_length">Password harus terdiri dari minimal 6 karakter</string>
+    <string name="error_confirm_password_empty">Konfirmasi password tidak boleh kosong</string>
+    <string name="error_password_mismatch">Password tidak cocok</string>
+    <string name="registration_successful">OTP telah dikirim ke email Anda!</string>
+    <string name="login_google_clicked">Pendaftaran Google diklik</string>
+    <string name="welcome_back">Selamat Datang Kembali!</string>
+    <string name="please_enter_details">Silakan masukkan detail Anda</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Kata Sandi</string>
+    <string name="new_password_hint">Kata Sandi Baru</string>
+    <string name="forgot_password">Lupa Kata Sandi?</string>
+    <string name="login_button">Masuk</string>
+    <string name="or_log_in_with">Atau masuk dengan</string>
+    <string name="google">Google</string>
+    <string name="dont_have_account">Belum punya akun? </string>
+    <string name="register">Daftar</string>
+    <string name="create_account">Buat Akun</string>
+    <string name="create_account_description">Buat akun agar Anda dapat menjelajahi semua Batik di dunia</string>
+    <string name="full_name_hint">Nama Lengkap</string>
+    <string name="confirm_password_hint">Konfirmasi Kata Sandi</string>
+    <string name="confirm_new_password_hint">Konfirmasi Kata Sandi Baru</string>
+    <string name="create_account_button">Buat Akun</string>
+    <string name="or_create_account_with">Atau buat akun dengan</string>
+    <string name="already_have_account">Sudah punya akun? </string>
+    <string name="login">Masuk</string>
+    <string name="error_otp_empty">OTP tidak boleh kosong</string>
+    <string name="error_otp_length">OTP harus 6 digit</string>
+    <string name="verification_title">Verifikasi</string>
+    <string name="verification_subtitle">Masukkan kode verifikasi yang telah dikirim ke email Anda</string>
+    <string name="enter_verification_code_hint">Masukkan Kode Verifikasi</string>
+    <string name="verify_account_button">Verifikasi Akun</string>
+    <string name="error_new_password_empty">Password baru tidak boleh kosong</string>
+    <string name="error_new_password_length">Password harus minimal 6 karakter</string>
+    <string name="error_passwords_do_not_match">Password tidak cocok</string>
+    <string name="create_new_password_title">Buat Password Baru</string>
+    <string name="create_new_password_subtitle">Silakan masukkan password baru Anda</string>
+    <string name="new_password_created_successfully">Password baru berhasil dibuat!</string>
+    <string name="create_new_password_button">Buat Password Baru</string>
+    <string name="email_verification_title">Verifikasi Email</string>
+    <string name="email_verification_subtitle">Silakan masukkan email Anda untuk memverifikasi akun Anda</string>
+    <string name="otp_sent_message">OTP telah dikirim ke email Anda!</string>
+    <string name="verify_email_button">Verifikasi Email</string>
+    <string name="setup_new_account">Atur Akun Baru</string>
+    <string name="choose_profile_picture">Pilih foto profil Anda</string>
+    <string name="next_button">Selanjutnya</string>
+    <string name="choose_image_source">Pilih Sumber Gambar</string>
+</resources>

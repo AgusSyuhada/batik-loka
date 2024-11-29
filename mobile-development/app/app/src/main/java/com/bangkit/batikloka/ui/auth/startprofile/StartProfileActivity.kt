@@ -1,11 +1,10 @@
-package com.bangkit.batikloka.ui.auth.register
+package com.bangkit.batikloka.ui.auth.startprofile
 
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.ListView
@@ -14,51 +13,57 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import com.bangkit.batikloka.R
 import com.bangkit.batikloka.ui.adapter.ImageSourceAdapter
-import com.bangkit.batikloka.ui.main.MainActivity
+import com.bangkit.batikloka.ui.user.UserActivity
+import com.bangkit.batikloka.ui.viewmodel.AppViewModelFactory
+import com.bangkit.batikloka.utils.PreferencesManager
 import com.yalantis.ucrop.UCrop
 import java.io.File
 
 class StartProfileActivity : AppCompatActivity() {
     private lateinit var ivProfilePicture: ImageView
     private lateinit var btnNext: Button
+    private lateinit var viewModel: StartProfileViewModel
 
-    private val PICK_IMAGE_REQUEST = 1
-    private val CAMERA_REQUEST = 2
+    companion object {
+        private val PICK_IMAGE_REQUEST = 1
+        private val CAMERA_REQUEST = 2
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_start_profile)
 
-        // Inisialisasi View
+        viewModel = ViewModelProvider(
+            this,
+            AppViewModelFactory()
+        )[StartProfileViewModel::class.java]
+
         ivProfilePicture = findViewById(R.id.ivProfilePicture)
         btnNext = findViewById(R.id.btnNext)
 
-        // Setup Click Listeners
         ivProfilePicture.setOnClickListener {
-            Log.d("StartProfileActivity", "ivProfilePicture clicked")
+            viewModel.logImageSourceSelection("Profile Picture")
             showImageSourceOptions()
         }
 
         btnNext.setOnClickListener {
-            // Pindah ke MainActivity dan kirim informasi bahwa ini adalah pendaftaran
-            startActivity(Intent(this, MainActivity::class.java).apply {
-                putExtra("action", "register") // Menandakan bahwa ini adalah pendaftaran
-            })
+            val preferencesManager = PreferencesManager(this)
+            preferencesManager.setUserRegistered()
+            startActivity(Intent(this, UserActivity::class.java))
+            finish()
         }
     }
 
     private fun showImageSourceOptions() {
-        Log.d("StartProfileActivity", "showImageSourceOptions called")
-
         val options = arrayOf("Camera", "Gallery")
-        val icons = intArrayOf(R.drawable.ic_camera_filled, R.drawable.ic_photo) // Ganti dengan ikon yang sesuai
+        val icons = intArrayOf(R.drawable.ic_camera_filled, R.drawable.ic_photo)
 
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Choose Image Source")
 
-        // Menggunakan layout kustom untuk dialog
         val dialogView = layoutInflater.inflate(R.layout.dialog_image_source, null)
         val listView: ListView = dialogView.findViewById(R.id.listView)
 
@@ -67,29 +72,26 @@ class StartProfileActivity : AppCompatActivity() {
 
         builder.setView(dialogView)
 
-        // Buat dialog
         val dialog = builder.create()
 
-        // Mengatur latar belakang dialog dengan drawable kustom
         dialog.setOnShowListener { dialogInterface ->
             val alertDialog = dialogInterface as AlertDialog
             alertDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
 
-            // Mengubah warna teks judul
-            val titleTextView = alertDialog.window?.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)
+            val titleTextView =
+                alertDialog.window?.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)
             titleTextView?.setTextColor(ContextCompat.getColor(this, R.color.caramel_gold))
         }
 
-        // Set listener untuk item di ListView
         listView.setOnItemClickListener { _, _, position, _ ->
             when (position) {
-                0 -> openCamera() // Camera
-                1 -> openGallery() // Gallery
+                0 -> openCamera()
+                1 -> openGallery()
             }
-            dialog.dismiss() // Tutup dialog setelah memilih
+            dialog.dismiss()
         }
 
-        dialog.show() // Tampilkan dialog
+        dialog.show()
     }
 
     private fun openCamera() {
@@ -110,11 +112,13 @@ class StartProfileActivity : AppCompatActivity() {
                     val imageUri: Uri? = data?.data
                     imageUri?.let { startCrop(it) }
                 }
+
                 CAMERA_REQUEST -> {
                     val bitmap: Bitmap = data?.extras?.get("data") as Bitmap
                     val uri = getImageUri(bitmap)
                     startCrop(uri)
                 }
+
                 UCrop.REQUEST_CROP -> {
                     val resultUri = UCrop.getOutput(data!!)
                     if (resultUri != null) {
@@ -123,6 +127,7 @@ class StartProfileActivity : AppCompatActivity() {
                         Toast.makeText(this, "Crop failed", Toast.LENGTH_SHORT).show()
                     }
                 }
+
                 UCrop.RESULT_ERROR -> {
                     val cropError = UCrop.getError(data!!)
                     Toast.makeText(this, cropError?.message, Toast.LENGTH_SHORT).show()

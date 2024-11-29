@@ -20,7 +20,7 @@
             android:id="@+id/tvRegisterTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Create Account"
+            android:text="@string/create_account"
             android:textColor="@color/caramel_gold"
             android:textSize="32sp"
             android:textStyle="bold"
@@ -35,7 +35,7 @@
             android:layout_marginStart="54dp"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="54dp"
-            android:text="Create an account so you can explore all Batik in world"
+            android:text="@string/create_account_description"
             android:textAlignment="center"
             android:textAllCaps="false"
             android:textColor="@color/black"
@@ -67,13 +67,13 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Already have an account? " />
+                android:text="@string/already_have_account" />
 
             <TextView
                 android:id="@+id/tvLogin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Log In"
+                android:text="@string/login"
                 android:textColor="@color/caramel_gold"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -89,13 +89,14 @@
                 android:layout_width="0dp"
                 android:layout_height="50dp"
                 android:background="@drawable/custom_edittext_background"
-                android:hint="Full Name"
+                android:hint="@string/full_name_hint"
                 android:inputType="textPersonName"
                 android:paddingStart="20dp"
                 android:textSize="14sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="Autofill,RtlSymmetry" />
 
             <EditText
                 android:id="@+id/etEmail"
@@ -103,13 +104,14 @@
                 android:layout_height="50dp"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/custom_edittext_background"
-                android:hint=" Email"
+                android:hint="@string/email_hint"
                 android:inputType="textEmailAddress"
                 android:paddingStart="20dp"
                 android:textSize="14sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/etName" />
+                app:layout_constraintTop_toBottomOf="@+id/etName"
+                tools:ignore="Autofill,RtlSymmetry" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/constraintLayout5"
@@ -123,14 +125,15 @@
                     android:layout_width="0dp"
                     android:layout_height="50dp"
                     android:background="@drawable/custom_edittext_background"
-                    android:hint="Password"
+                    android:hint="@string/password_hint"
                     android:inputType="textPassword"
                     android:paddingStart="20dp"
                     android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="Autofill,RtlSymmetry" />
 
                 <ImageView
                     android:id="@+id/ivShowPassword"
@@ -142,7 +145,8 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="1.0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/etPassword" />
+                    app:layout_constraintTop_toTopOf="@+id/etPassword"
+                    tools:ignore="ContentDescription" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -158,14 +162,15 @@
                     android:layout_width="0dp"
                     android:layout_height="50dp"
                     android:background="@drawable/custom_edittext_background"
-                    android:hint="Confirm Password"
+                    android:hint="@string/confirm_password_hint"
                     android:inputType="textPassword"
                     android:paddingStart="20dp"
                     android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="Autofill,RtlSymmetry" />
 
                 <ImageView
                     android:id="@+id/ivShowConfirmPassword"
@@ -177,7 +182,8 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="1.0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/etConfirmPassword" />
+                    app:layout_constraintTop_toTopOf="@+id/etConfirmPassword"
+                    tools:ignore="ContentDescription" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -187,7 +193,7 @@
                 android:layout_height="50dp"
                 android:layout_marginTop="30dp"
                 android:background="@drawable/btn_primary"
-                android:text="Create an Account"
+                android:text="@string/create_account_button"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
                 android:textSize="16sp"
@@ -211,7 +217,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
-                android:text="Or create account with"
+                android:text="@string/or_create_account_with"
                 android:textColor="@color/caramel_gold"
                 android:textStyle="bold" />
 
@@ -225,11 +231,11 @@
             android:background="@drawable/btn_accent"
             android:drawableStart="@drawable/google_icon"
             android:drawablePadding="8dp"
-            android:text="Google"
+            android:paddingHorizontal="128dp"
+            android:text="@string/google"
             android:textAllCaps="false"
             android:textColor="@color/black"
             android:textSize="16sp"
-            android:paddingHorizontal="128dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/dividerLayout" />

@@ -26,7 +26,7 @@
             android:exported="false" />
 
         <activity
-            android:name=".ui.auth.CreateNewPasswordActivity"
+            android:name=".ui.auth.createnewpassword.CreateNewPasswordActivity"
             android:exported="false" />
         <activity
             android:name=".ui.news.DetailNewsActivity"
@@ -41,13 +41,13 @@
             android:name=".ui.user.UserActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.auth.register.StartProfileActivity"
+            android:name=".ui.auth.startprofile.StartProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.auth.VerificationActivity"
+            android:name=".ui.auth.codeverification.VerificationActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.auth.EmailVerificationActivity"
+            android:name=".ui.auth.emailverification.EmailVerificationActivity"
             android:exported="false" />
         <activity
             android:name=".ui.auth.register.RegisterActivity"

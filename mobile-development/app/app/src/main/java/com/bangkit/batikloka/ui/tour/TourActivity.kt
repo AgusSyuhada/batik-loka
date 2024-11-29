@@ -11,12 +11,15 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.bangkit.batikloka.R
-import com.bangkit.batikloka.data.local.entity.TourItem
 import com.bangkit.batikloka.ui.adapter.TourAdapter
 import com.bangkit.batikloka.ui.auth.login.LoginActivity
 import com.bangkit.batikloka.ui.auth.register.RegisterActivity
+import com.bangkit.batikloka.ui.user.UserActivity
+import com.bangkit.batikloka.ui.viewmodel.AppViewModelFactory
+import com.bangkit.batikloka.utils.PreferencesManager
 
 class TourActivity : AppCompatActivity() {
 
@@ -25,40 +28,32 @@ class TourActivity : AppCompatActivity() {
     private lateinit var btnSkip: TextView
     private lateinit var tourAdapter: TourAdapter
     private lateinit var dotsIndicator: LinearLayout
-
-    private val tourItems = listOf(
-        TourItem(
-            imageResId = R.drawable.tour_slide_1,
-            titleText = "Scan Batik With Camera",
-            descriptionText = "Discover batik patterns and types simply by scanning with your camera"
-        ),
-        TourItem(
-            imageResId = R.drawable.tour_slide_2,
-            titleText = "Explore Batik in One Hand",
-            descriptionText = "Explore various collections and the stories behind batik right from your hand"
-        ),
-        TourItem(
-            imageResId = R.drawable.tour_slide_3,
-            titleText = "Get Batik News Everyday",
-            descriptionText = "Stay updated with the latest news and daily inspiration about batik"
-        )
-    )
+    private lateinit var viewModel: TourViewModel
+    private lateinit var preferencesManager: PreferencesManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tour)
 
-        // Inisialisasi View
+        preferencesManager = PreferencesManager(this)
+
+        if (preferencesManager.isUserLoggedIn()) {
+            startActivity(Intent(this, UserActivity::class.java))
+            finish()
+            return
+        }
+
+        val viewModelFactory = AppViewModelFactory()
+        viewModel = ViewModelProvider(this, viewModelFactory)[TourViewModel::class.java]
+
         viewPager = findViewById(R.id.viewPagerWelcomeTour)
         btnNext = findViewById(R.id.btnNext)
         btnSkip = findViewById(R.id.btnSkip)
         dotsIndicator = findViewById(R.id.dotsIndicator)
 
-        // Setup Adapter
-        tourAdapter = TourAdapter(tourItems)
+        tourAdapter = TourAdapter(viewModel.tourItems)
         viewPager.adapter = tourAdapter
 
-        // Setup Dots Indicator
         setupDotsIndicator()
 
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
@@ -69,24 +64,19 @@ class TourActivity : AppCompatActivity() {
             }
         })
 
-        // Setup Button Next
         btnNext.setOnClickListener {
-            if (viewPager.currentItem < tourItems.size - 1) {
+            if (viewPager.currentItem < viewModel.getTourItemCount() - 1) {
                 viewPager.currentItem++
             } else {
-                // Pindah ke RegisterActivity saat di slide terakhir
                 startActivity(Intent(this, RegisterActivity::class.java))
                 finish()
             }
         }
 
-        // Setup Button Skip
         btnSkip.setOnClickListener {
-            if (viewPager.currentItem < tourItems.size - 1) {
-                // Saat di slide biasa, tampilkan dialog konfirmasi
+            if (viewPager.currentItem < viewModel.getTourItemCount() - 1) {
                 showSkipConfirmationDialog()
             } else {
-                // Saat di slide terakhir, pindah ke LoginActivity
                 startActivity(Intent(this, LoginActivity::class.java))
                 finish()
             }
@@ -94,14 +84,14 @@ class TourActivity : AppCompatActivity() {
     }
 
     private fun setupDotsIndicator() {
-        for (i in tourItems.indices) {
+        for (i in 0 until viewModel.getTourItemCount()) {
             val dot = TextView(this)
             dot.text = "•"
             dot.textSize = 36f
             dot.setTextColor(ContextCompat.getColor(this, R.color.light_sand))
             dotsIndicator.addView(dot)
         }
-        updateDotsIndicator(0) // Set initial state
+        updateDotsIndicator(0)
     }
 
     private fun updateDotsIndicator(position: Int) {
@@ -113,25 +103,22 @@ class TourActivity : AppCompatActivity() {
 
     private fun showSkipConfirmationDialog() {
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("Skip Welcome Tour")
-            .setMessage("Are you sure you want to skip the welcome tour?")
-            .setPositiveButton("Yes") { _, _ ->
-                viewPager.currentItem = tourItems.size - 1
+        builder.setTitle(R.string.skip_tour_dialog_title)
+            .setMessage(R.string.skip_tour_dialog_message)
+            .setPositiveButton(R.string.dialog_yes) { _, _ ->
+                viewPager.currentItem = viewModel.getTourItemCount() - 1
             }
-            .setNegativeButton("No", null)
+            .setNegativeButton(R.string.dialog_no, null)
 
         val dialog = builder.create()
 
         dialog.setOnShowListener { dialogInterface ->
             val alertDialog = dialogInterface as AlertDialog
-            // Mengatur latar belakang dialog dengan drawable kustom
             alertDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
 
-            // Mengubah warna tombol
             alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(ContextCompat.getColor(this, R.color.caramel_gold))
             alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(ContextCompat.getColor(this, R.color.black))
 
-            // Mengubah warna teks judul
             val titleTextView = alertDialog.window?.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)
             titleTextView?.setTextColor(ContextCompat.getColor(this, R.color.caramel_gold))
         }
@@ -140,45 +127,44 @@ class TourActivity : AppCompatActivity() {
     }
 
     private fun updateButtonState(position: Int) {
-        // Update button state berdasarkan posisi slide
-        if (position == tourItems.size - 1) {
-            // Slide terakhir
-            btnNext.text = "Get Started"
+        if (position == viewModel.getTourItemCount() - 1) {
+            btnNext.text = getString(R.string.btn_get_started)
 
-            // Mengubah warna teks "Login Here" menjadi caramel_gold dan bold
-            val loginText = "Already Have Account? Login Here"
-            val spannableString = SpannableString(loginText)
+            val fullText = getString(R.string.login_hint)
+            val loginHereText =
+                if (fullText.contains("Login Here")) "Login Here" else "Login Di Sini"
 
-            // Membuat span untuk warna caramel_gold
+            val spannableString = SpannableString(fullText)
+
             val colorSpan = ForegroundColorSpan(
                 ContextCompat.getColor(this, R.color.caramel_gold)
             )
 
-            // Membuat span untuk bold
             val boldSpan = android.text.style.StyleSpan(android.graphics.Typeface.BOLD)
 
-            val startIndex = loginText.indexOf("Login Here")
-            val endIndex = startIndex + "Login Here".length
+            val startIndex = fullText.indexOf(loginHereText)
+            if (startIndex != -1) {
+                val endIndex = startIndex + loginHereText.length
 
-            // Menerapkan kedua span pada bagian "Login Here"
-            spannableString.setSpan(
-                colorSpan,
-                startIndex,
-                endIndex,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-            spannableString.setSpan(
-                boldSpan,
-                startIndex,
-                endIndex,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
+                spannableString.setSpan(
+                    colorSpan,
+                    startIndex,
+                    endIndex,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+
+                spannableString.setSpan(
+                    boldSpan,
+                    startIndex,
+                    endIndex,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
 
             btnSkip.text = spannableString
         } else {
-            // Slide biasa
-            btnNext.text = "Next"
-            btnSkip.text = "Skip"
+            btnNext.text = getString(R.string.btn_next)
+            btnSkip.text = getString(R.string.btn_skip)
         }
     }
 }
