@@ -23,8 +23,8 @@ class UserActivity : AppCompatActivity() {
         preferencesManager = PreferencesManager(this)
 
         logoutContainer = findViewById(R.id.logoutContainer)
-        icLogout = findViewById(R.id.icLogout)
-        tvLogout = findViewById(R.id.tvLogout)
+        icLogout = findViewById(R.id.ic_logout)
+        tvLogout = findViewById(R.id.tv_logout)
 
         setupLogoutListener()
     }
