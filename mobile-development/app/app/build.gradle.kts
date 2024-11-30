@@ -55,4 +55,7 @@ dependencies {
 
     // Image Circle
     implementation(libs.circleimageview)
+
+    // Card View
+    implementation(libs.androidx.cardview)
 }

@@ -11,6 +11,8 @@ class PreferencesManager(context: Context) {
         private const val KEY_USER_EMAIL = "user_email"
         private const val KEY_IS_LOGGED_IN = "is_logged_in"
         private const val KEY_IS_REGISTERED = "is_registered"
+        private const val KEY_IS_LOGGED_OUT = "is_logged_out"
+        private const val KEY_IS_TOUR_COMPLETED = "is_tour_completed"
     }
 
     fun saveUserEmail(email: String) {
@@ -23,6 +25,22 @@ class PreferencesManager(context: Context) {
 
     fun getUserEmail(): String? {
         return sharedPreferences.getString(KEY_USER_EMAIL, null)
+    }
+
+    fun clearUserData() {
+        val editor = sharedPreferences.edit()
+        editor.clear()
+        editor.apply()
+    }
+
+    fun setUserLoggedOut() {
+        val editor = sharedPreferences.edit()
+        editor.putBoolean(KEY_IS_LOGGED_OUT, true)
+        editor.apply()
+    }
+
+    fun isUserLoggedOut(): Boolean {
+        return sharedPreferences.getBoolean(KEY_IS_LOGGED_OUT, false)
     }
 
     fun isUserLoggedIn(): Boolean {
@@ -39,11 +57,13 @@ class PreferencesManager(context: Context) {
         editor.apply()
     }
 
-    fun clearUserData() {
+    fun setTourCompleted() {
         val editor = sharedPreferences.edit()
-        editor.remove(KEY_USER_EMAIL)
-        editor.putBoolean(KEY_IS_LOGGED_IN, false)
-        editor.putBoolean(KEY_IS_REGISTERED, false)
+        editor.putBoolean(KEY_IS_TOUR_COMPLETED, true)
         editor.apply()
+    }
+
+    fun isTourCompleted(): Boolean {
+        return sharedPreferences.getBoolean(KEY_IS_TOUR_COMPLETED, false)
     }
 }

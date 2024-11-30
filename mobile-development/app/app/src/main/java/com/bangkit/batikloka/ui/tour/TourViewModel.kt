@@ -3,8 +3,9 @@ package com.bangkit.batikloka.ui.tour
 import androidx.lifecycle.ViewModel
 import com.bangkit.batikloka.R
 import com.bangkit.batikloka.data.local.entity.TourItem
+import com.bangkit.batikloka.utils.PreferencesManager
 
-class TourViewModel : ViewModel() {
+class TourViewModel(private val preferencesManager: PreferencesManager) : ViewModel() {
     private val _tourItems = listOf(
         TourItem(
             imageResId = R.drawable.tour_slide_1,

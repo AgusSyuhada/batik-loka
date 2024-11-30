@@ -8,6 +8,7 @@ import com.bangkit.batikloka.ui.auth.emailverification.EmailVerificationViewMode
 import com.bangkit.batikloka.ui.auth.login.LoginViewModel
 import com.bangkit.batikloka.ui.auth.register.RegisterViewModel
 import com.bangkit.batikloka.ui.auth.startprofile.StartProfileViewModel
+import com.bangkit.batikloka.ui.splash.SplashScreenViewModel
 import com.bangkit.batikloka.ui.tour.TourViewModel
 import com.bangkit.batikloka.utils.PreferencesManager
 
@@ -17,6 +18,10 @@ class AppViewModelFactory(
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when {
+            modelClass.isAssignableFrom(SplashScreenViewModel::class.java) -> {
+                SplashScreenViewModel(preferencesManager!!) as T
+            }
+
             modelClass.isAssignableFrom(VerificationViewModel::class.java) -> {
                 VerificationViewModel(preferencesManager!!) as T
             }
@@ -42,7 +47,7 @@ class AppViewModelFactory(
             }
 
             modelClass.isAssignableFrom(TourViewModel::class.java) -> {
-                TourViewModel() as T
+                TourViewModel(preferencesManager!!) as T
             }
 
             else -> throw IllegalArgumentException("Unknown ViewModel class")

@@ -44,6 +44,8 @@ class UserActivity : AppCompatActivity() {
     }
 
     private fun performLogout() {
+        preferencesManager.setUserLoggedOut()
+
         preferencesManager.clearUserData()
 
         val intent = Intent(this, LoginActivity::class.java)

@@ -175,9 +175,6 @@ class RegisterActivity : AppCompatActivity() {
     private fun performRegister(name: String, email: String, password: String) {
         showCustomAlertDialog(getString(R.string.registration_successful))
 
-        val preferencesManager = PreferencesManager(this)
         preferencesManager.saveUserEmail(email)
-
-        startActivity(Intent(this, VerificationActivity::class.java))
     }
 }

@@ -14,7 +14,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.bangkit.batikloka.R
 import com.bangkit.batikloka.ui.auth.emailverification.EmailVerificationActivity
 import com.bangkit.batikloka.ui.auth.register.RegisterActivity
-import com.bangkit.batikloka.ui.user.UserActivity
+import com.bangkit.batikloka.ui.main.MainActivity
 import com.bangkit.batikloka.ui.viewmodel.AppViewModelFactory
 import com.bangkit.batikloka.utils.PreferencesManager
 
@@ -41,7 +41,7 @@ class LoginActivity : AppCompatActivity() {
             AppViewModelFactory(preferencesManager)
         )[LoginViewModel::class.java]
         if (viewModel.isUserLoggedIn()) {
-            startActivity(Intent(this, UserActivity::class.java))
+            startActivity(Intent(this, MainActivity::class.java))
             finish()
             return
         }
@@ -111,7 +111,7 @@ class LoginActivity : AppCompatActivity() {
     private fun performLogin(email: String) {
         viewModel.performLogin(email)
 
-        startActivity(Intent(this, UserActivity::class.java))
+        startActivity(Intent(this, MainActivity::class.java))
         finish()
     }
 }

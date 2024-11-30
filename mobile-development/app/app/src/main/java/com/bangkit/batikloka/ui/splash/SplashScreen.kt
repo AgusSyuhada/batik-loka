@@ -6,31 +6,57 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.bangkit.batikloka.R
+import com.bangkit.batikloka.ui.auth.login.LoginActivity
+import com.bangkit.batikloka.ui.main.MainActivity
 import com.bangkit.batikloka.ui.tour.TourActivity
+import com.bangkit.batikloka.ui.viewmodel.AppViewModelFactory
+import com.bangkit.batikloka.utils.PreferencesManager
 
 @SuppressLint("CustomSplashScreen")
 class SplashScreen : AppCompatActivity() {
+    private lateinit var splashViewModel: SplashScreenViewModel
+    private lateinit var preferencesManager: PreferencesManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash_screen)
 
+        preferencesManager = PreferencesManager(this)
+        splashViewModel = ViewModelProvider(
+            this,
+            AppViewModelFactory(preferencesManager)
+        )[SplashScreenViewModel::class.java]
+
         hideActionBar()
-        navigateToMainActivity()
+        navigateToNextActivity()
     }
 
     private fun hideActionBar() {
         supportActionBar?.hide()
     }
 
-    private fun navigateToMainActivity() {
+    private fun navigateToNextActivity() {
         Handler(Looper.getMainLooper()).postDelayed({
-            startActivity(Intent(this, TourActivity::class.java))
+            when {
+                splashViewModel.isUserLoggedIn() -> {
+                    startActivity(Intent(this, MainActivity::class.java))
+                }
+
+                preferencesManager.isTourCompleted() -> {
+                    startActivity(Intent(this, LoginActivity::class.java))
+                }
+
+                else -> {
+                    startActivity(Intent(this, TourActivity::class.java))
+                }
+            }
             finish()
         }, SPLASH_SCREEN_DURATION)
     }
 
     companion object {
-        private const val SPLASH_SCREEN_DURATION = 3000L
+        private const val SPLASH_SCREEN_DURATION = 2000L
     }
 }

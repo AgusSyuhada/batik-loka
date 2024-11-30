@@ -25,7 +25,6 @@ class LoginViewModel(private val preferencesManager: PreferencesManager) : ViewM
     }
 
     fun performLogin(email: String) {
-        // Simpan status login di SharedPreferences
         preferencesManager.saveUserEmail(email)
     }
 

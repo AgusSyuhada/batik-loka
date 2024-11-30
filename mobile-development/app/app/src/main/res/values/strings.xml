@@ -71,4 +71,6 @@
     <string name="choose_profile_picture">Choose your profile picture</string>
     <string name="next_button">Next</string>
     <string name="choose_image_source">Choose Image Source</string>
+
+    <string name="news_image_desc">News short description</string>
 </resources>

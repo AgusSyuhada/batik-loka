@@ -16,7 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.bangkit.batikloka.R
 import com.bangkit.batikloka.ui.adapter.ImageSourceAdapter
-import com.bangkit.batikloka.ui.user.UserActivity
+import com.bangkit.batikloka.ui.main.MainActivity
 import com.bangkit.batikloka.ui.viewmodel.AppViewModelFactory
 import com.bangkit.batikloka.utils.PreferencesManager
 import com.yalantis.ucrop.UCrop
@@ -52,7 +52,7 @@ class StartProfileActivity : AppCompatActivity() {
         btnNext.setOnClickListener {
             val preferencesManager = PreferencesManager(this)
             preferencesManager.setUserRegistered()
-            startActivity(Intent(this, UserActivity::class.java))
+            startActivity(Intent(this, MainActivity::class.java))
             finish()
         }
     }

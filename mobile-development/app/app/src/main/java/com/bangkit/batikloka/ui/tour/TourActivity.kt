@@ -17,7 +17,6 @@ import com.bangkit.batikloka.R
 import com.bangkit.batikloka.ui.adapter.TourAdapter
 import com.bangkit.batikloka.ui.auth.login.LoginActivity
 import com.bangkit.batikloka.ui.auth.register.RegisterActivity
-import com.bangkit.batikloka.ui.user.UserActivity
 import com.bangkit.batikloka.ui.viewmodel.AppViewModelFactory
 import com.bangkit.batikloka.utils.PreferencesManager
 
@@ -28,7 +27,7 @@ class TourActivity : AppCompatActivity() {
     private lateinit var btnSkip: TextView
     private lateinit var tourAdapter: TourAdapter
     private lateinit var dotsIndicator: LinearLayout
-    private lateinit var viewModel: TourViewModel
+    private lateinit var tourViewModel: TourViewModel
     private lateinit var preferencesManager: PreferencesManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,22 +35,18 @@ class TourActivity : AppCompatActivity() {
         setContentView(R.layout.activity_tour)
 
         preferencesManager = PreferencesManager(this)
+        tourViewModel = ViewModelProvider(
+            this,
+            AppViewModelFactory(preferencesManager)
+        )[TourViewModel::class.java]
 
-        if (preferencesManager.isUserLoggedIn()) {
-            startActivity(Intent(this, UserActivity::class.java))
-            finish()
-            return
-        }
-
-        val viewModelFactory = AppViewModelFactory()
-        viewModel = ViewModelProvider(this, viewModelFactory)[TourViewModel::class.java]
 
         viewPager = findViewById(R.id.viewPagerWelcomeTour)
         btnNext = findViewById(R.id.btnNext)
         btnSkip = findViewById(R.id.btnSkip)
         dotsIndicator = findViewById(R.id.dotsIndicator)
 
-        tourAdapter = TourAdapter(viewModel.tourItems)
+        tourAdapter = TourAdapter(tourViewModel.tourItems)
         viewPager.adapter = tourAdapter
 
         setupDotsIndicator()
@@ -65,18 +60,20 @@ class TourActivity : AppCompatActivity() {
         })
 
         btnNext.setOnClickListener {
-            if (viewPager.currentItem < viewModel.getTourItemCount() - 1) {
+            if (viewPager.currentItem < tourViewModel.getTourItemCount() - 1) {
                 viewPager.currentItem++
             } else {
+                preferencesManager.setTourCompleted()
                 startActivity(Intent(this, RegisterActivity::class.java))
                 finish()
             }
         }
 
         btnSkip.setOnClickListener {
-            if (viewPager.currentItem < viewModel.getTourItemCount() - 1) {
+            if (viewPager.currentItem < tourViewModel.getTourItemCount() - 1) {
                 showSkipConfirmationDialog()
             } else {
+                preferencesManager.setTourCompleted()
                 startActivity(Intent(this, LoginActivity::class.java))
                 finish()
             }
@@ -84,7 +81,7 @@ class TourActivity : AppCompatActivity() {
     }
 
     private fun setupDotsIndicator() {
-        for (i in 0 until viewModel.getTourItemCount()) {
+        for (i in 0 until tourViewModel.getTourItemCount()) {
             val dot = TextView(this)
             dot.text = "•"
             dot.textSize = 36f
@@ -97,7 +94,12 @@ class TourActivity : AppCompatActivity() {
     private fun updateDotsIndicator(position: Int) {
         for (i in 0 until dotsIndicator.childCount) {
             val dot = dotsIndicator.getChildAt(i) as TextView
-            dot.setTextColor(if (i == position) ContextCompat.getColor(this, R.color.caramel_gold) else ContextCompat.getColor(this, R.color.light_sand))
+            dot.setTextColor(
+                if (i == position) ContextCompat.getColor(
+                    this,
+                    R.color.caramel_gold
+                ) else ContextCompat.getColor(this, R.color.light_sand)
+            )
         }
     }
 
@@ -106,7 +108,7 @@ class TourActivity : AppCompatActivity() {
         builder.setTitle(R.string.skip_tour_dialog_title)
             .setMessage(R.string.skip_tour_dialog_message)
             .setPositiveButton(R.string.dialog_yes) { _, _ ->
-                viewPager.currentItem = viewModel.getTourItemCount() - 1
+                viewPager.currentItem = tourViewModel.getTourItemCount() - 1
             }
             .setNegativeButton(R.string.dialog_no, null)
 
@@ -116,10 +118,13 @@ class TourActivity : AppCompatActivity() {
             val alertDialog = dialogInterface as AlertDialog
             alertDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
 
-            alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(ContextCompat.getColor(this, R.color.caramel_gold))
-            alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(ContextCompat.getColor(this, R.color.black))
+            alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                ?.setTextColor(ContextCompat.getColor(this, R.color.caramel_gold))
+            alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+                ?.setTextColor(ContextCompat.getColor(this, R.color.black))
 
-            val titleTextView = alertDialog.window?.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)
+            val titleTextView =
+                alertDialog.window?.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)
             titleTextView?.setTextColor(ContextCompat.getColor(this, R.color.caramel_gold))
         }
 
@@ -127,7 +132,7 @@ class TourActivity : AppCompatActivity() {
     }
 
     private fun updateButtonState(position: Int) {
-        if (position == viewModel.getTourItemCount() - 1) {
+        if (position == tourViewModel.getTourItemCount() - 1) {
             btnNext.text = getString(R.string.btn_get_started)
 
             val fullText = getString(R.string.login_hint)
