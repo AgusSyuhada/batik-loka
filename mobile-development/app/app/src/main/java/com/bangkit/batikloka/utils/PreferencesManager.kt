@@ -19,7 +19,7 @@ class PreferencesManager(context: Context) {
         val editor = sharedPreferences.edit()
         editor.putString(KEY_USER_EMAIL, email)
         editor.putBoolean(KEY_IS_LOGGED_IN, true)
-        editor.putBoolean(KEY_IS_REGISTERED, false)
+        editor.putBoolean(KEY_IS_REGISTERED, true)
         editor.apply()
     }
 
@@ -51,9 +51,9 @@ class PreferencesManager(context: Context) {
         return sharedPreferences.getBoolean(KEY_IS_REGISTERED, false)
     }
 
-    fun setUserRegistered() {
+    fun setUserRegistered(isRegistered: Boolean) {
         val editor = sharedPreferences.edit()
-        editor.putBoolean(KEY_IS_REGISTERED, true)
+        editor.putBoolean(KEY_IS_REGISTERED, isRegistered)
         editor.apply()
     }
 

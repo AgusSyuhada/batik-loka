@@ -1,10 +1,14 @@
 package com.bangkit.batikloka.ui.auth.emailverification
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 
-class EmailVerificationViewModel : ViewModel() {
-
+@SuppressLint("StaticFieldLeak")
+class EmailVerificationViewModel(
+    private val context: Context,
+) : ViewModel() {
     fun validateEmail(email: String): Boolean {
         return when {
             email.isEmpty() -> {

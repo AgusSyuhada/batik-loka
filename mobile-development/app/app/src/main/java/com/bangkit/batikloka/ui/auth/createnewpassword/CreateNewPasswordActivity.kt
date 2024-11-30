@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.bangkit.batikloka.R
 import com.bangkit.batikloka.ui.auth.login.LoginActivity
 import com.bangkit.batikloka.ui.viewmodel.AppViewModelFactory
+import com.bangkit.batikloka.utils.PreferencesManager
 
 class CreateNewPasswordActivity : AppCompatActivity() {
     private lateinit var etNewPassword: EditText
@@ -25,6 +26,7 @@ class CreateNewPasswordActivity : AppCompatActivity() {
     private var isNewPasswordVisible = false
     private var isConfirmNewPasswordVisible = false
     private lateinit var viewModel: CreateNewPasswordViewModel
+    private lateinit var preferencesManager: PreferencesManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,7 +34,7 @@ class CreateNewPasswordActivity : AppCompatActivity() {
 
         viewModel = ViewModelProvider(
             this,
-            AppViewModelFactory()
+            AppViewModelFactory(this, preferencesManager)
         )[CreateNewPasswordViewModel::class.java]
 
         etNewPassword = findViewById(R.id.etNewPassword)

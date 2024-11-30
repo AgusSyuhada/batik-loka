@@ -1,8 +1,14 @@
 package com.bangkit.batikloka.ui.auth.createnewpassword
 
+import android.annotation.SuppressLint
+import android.content.Context
 import androidx.lifecycle.ViewModel
+import com.bangkit.batikloka.R
 
-class CreateNewPasswordViewModel : ViewModel() {
+@SuppressLint("StaticFieldLeak")
+class CreateNewPasswordViewModel(
+    private val context: Context,
+) : ViewModel() {
 
     fun validateNewPassword(newPassword: String, confirmNewPassword: String): Boolean {
         return when {
@@ -27,6 +33,6 @@ class CreateNewPasswordViewModel : ViewModel() {
     }
 
     fun saveNewPassword(newPassword: String): String {
-        return "New password created successfully!"
+        return context.getString(R.string.new_password_created_successfully)
     }
 }

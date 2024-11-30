@@ -34,6 +34,7 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var tvLogin: TextView
     private lateinit var viewModel: RegisterViewModel
     private lateinit var preferencesManager: PreferencesManager
+    private var isRegistering = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +43,7 @@ class RegisterActivity : AppCompatActivity() {
         preferencesManager = PreferencesManager(this)
         viewModel = ViewModelProvider(
             this,
-            AppViewModelFactory(preferencesManager)
+            AppViewModelFactory(this, preferencesManager)
         )[RegisterViewModel::class.java]
 
         etName = findViewById(R.id.etName)
@@ -92,6 +93,7 @@ class RegisterActivity : AppCompatActivity() {
             val confirmPassword = etConfirmPassword.text.toString().trim()
 
             if (viewModel.validateInput(name, email, password, confirmPassword)) {
+                isRegistering = true
                 performRegister(name, email, password)
             } else {
                 showValidationErrors(name, email, password, confirmPassword)
@@ -176,5 +178,21 @@ class RegisterActivity : AppCompatActivity() {
         showCustomAlertDialog(getString(R.string.registration_successful))
 
         preferencesManager.saveUserEmail(email)
+        preferencesManager.setUserRegistered(true)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (isRegistering) {
+            preferencesManager.setUserRegistered(false)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!preferencesManager.isUserRegistered()) {
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
+        }
     }
 }

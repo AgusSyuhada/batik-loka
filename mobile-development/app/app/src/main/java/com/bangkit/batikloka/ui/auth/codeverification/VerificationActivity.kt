@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -13,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.bangkit.batikloka.R
 import com.bangkit.batikloka.ui.auth.createnewpassword.CreateNewPasswordActivity
+import com.bangkit.batikloka.ui.auth.login.LoginActivity
 import com.bangkit.batikloka.ui.auth.startprofile.StartProfileActivity
 import com.bangkit.batikloka.ui.viewmodel.AppViewModelFactory
 import com.bangkit.batikloka.utils.PreferencesManager
@@ -22,6 +22,7 @@ class VerificationActivity : AppCompatActivity() {
     private lateinit var btnVerifyAccount: Button
     private lateinit var viewModel: VerificationViewModel
     private lateinit var preferencesManager: PreferencesManager
+    private var isVerifying = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,7 +31,7 @@ class VerificationActivity : AppCompatActivity() {
         preferencesManager = PreferencesManager(this)
         viewModel = ViewModelProvider(
             this,
-            AppViewModelFactory(preferencesManager)
+            AppViewModelFactory(this, preferencesManager)
         )[VerificationViewModel::class.java]
 
         etVerification = findViewById(R.id.etVerification)
@@ -50,6 +51,7 @@ class VerificationActivity : AppCompatActivity() {
                     etVerification.error = getString(R.string.error_otp_length)
                 }
             } else {
+                isVerifying = true
                 confirmOtp(otp)
             }
         }
@@ -60,7 +62,7 @@ class VerificationActivity : AppCompatActivity() {
         showCustomAlertDialog(confirmationMessage)
 
         val preferencesManager = PreferencesManager(this)
-        preferencesManager.setUserRegistered()
+        preferencesManager.setUserRegistered(true)
     }
 
     private fun showCustomAlertDialog(title: String) {
@@ -80,7 +82,6 @@ class VerificationActivity : AppCompatActivity() {
 
         dialog.setOnDismissListener {
             val action = intent.getStringExtra("action")
-            Log.d("VerificationActivity", "Action received: $action")
             val intent = when (action) {
                 "register" -> Intent(this, StartProfileActivity::class.java)
                 "forgot_password" -> Intent(this, CreateNewPasswordActivity::class.java)
@@ -97,5 +98,20 @@ class VerificationActivity : AppCompatActivity() {
                 dialog.dismiss()
             }
         }, 3000)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (isVerifying) {
+            preferencesManager.setUserRegistered(false)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!preferencesManager.isUserRegistered()) {
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
+        }
     }
 }

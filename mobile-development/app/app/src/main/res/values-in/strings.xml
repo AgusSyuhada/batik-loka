@@ -73,4 +73,7 @@
     <string name="choose_image_source">Pilih Sumber Gambar</string>
 
     <string name="news_image_desc">Deskripsi singkat berita</string>
+
+    <string name="otp_confirmed_successfully">OTP berhasil dikonfirmasi!</string>
+    <string name="welcome_back_to_batikloka">Selamat datang kembali di BatikLoka!</string>
 </resources>

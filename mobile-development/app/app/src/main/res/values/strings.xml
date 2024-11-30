@@ -73,4 +73,7 @@
     <string name="choose_image_source">Choose Image Source</string>
 
     <string name="news_image_desc">News short description</string>
+
+    <string name="otp_confirmed_successfully">OTP confirmed successfully!</string>
+    <string name="welcome_back_to_batikloka">Welcome back to BatikLoka!</string>
 </resources>
