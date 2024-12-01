@@ -28,21 +28,6 @@ Our app provides features such as batik pattern scanning, detailed information a
 - **Image Handling**: Coil
 - **Dependency Injection**: Hilt
 - **Data Loading**: Paging
-
-#### **Cloud Computing**
-
-- **Storage & Deployment**: Google Cloud Storage, Cloud Run, Docker
-- **Database**: Cloud SQL
-- **Authentication & User Management**: Cloud IAM, JSON Web Token
-- **Development Tools**: Visual Studio Code, JavaScript, Node.js, Express.js
-
-#### **Machine Learning**
-
-- **Programming**: Python
-- **Development Tools**: Visual Studio Code
-- **Frameworks**: TensorFlow, Keras
-- **Libraries**: Numpy, OS
-
 ---
 
 ### 🧑‍🤝‍🧑 Team Members
@@ -51,11 +36,6 @@ Our app provides features such as batik pattern scanning, detailed information a
 | ---- | ------------ | --------------------------- | ---------------- | ------ |
 | MD   | A308B4KY0184 | Agus Syuhada                | Universitas Riau | Active |
 | MD   | A308B4KY3663 | Raja Hafiza Ramanda Putra   | Universitas Riau | Active |
-| ML   | M308B4KY2903 | Muhammad Ikram Syafwan      | Universitas Riau | Active |
-| ML   | M308B4KX0253 | Aini Nurul Amri             | Universitas Riau | Active |
-| ML   | M308B4KY1774 | Hidayat Hatta Irsyad        | Universitas Riau | Active |
-| CC   | C308B4KY4593 | Zain M. Haqqo               | Universitas Riau | Active |
-| CC   | C308B4KY3278 | Naufal Al Mahdy Amara Putra | Universitas Riau | Active |
 
 ---
 
