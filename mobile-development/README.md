@@ -17,9 +17,7 @@ Our app provides features such as batik pattern scanning, detailed information a
 
 ---
 
-### 🛠️ Tech Stack
-
-#### **Android Development**
+### 🛠️ Tech Stack Mobile Development
 
 - **UI Design**: Figma, Jetpack Compose
 - **Development Tools**: Android Studio, Kotlin Coroutine
@@ -30,7 +28,7 @@ Our app provides features such as batik pattern scanning, detailed information a
 - **Data Loading**: Paging
 ---
 
-### 🧑‍🤝‍🧑 Team Members
+### 🧑‍🤝‍🧑 Mobile Development Members
 
 | Role | ID           | Name                        | Institution      | Status |
 | ---- | ------------ | --------------------------- | ---------------- | ------ |
