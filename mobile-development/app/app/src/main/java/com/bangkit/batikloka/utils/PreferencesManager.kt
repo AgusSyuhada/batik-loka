@@ -2,6 +2,7 @@ package com.bangkit.batikloka.utils
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.bangkit.batikloka.R
 
 class PreferencesManager(context: Context) {
     private val sharedPreferences: SharedPreferences =
@@ -15,6 +16,23 @@ class PreferencesManager(context: Context) {
         private const val KEY_IS_TOUR_COMPLETED = "is_tour_completed"
         private const val KEY_REGISTRATION_STEP = "registration_step"
         private const val KEY_IS_RESET_PASSWORD = "is_reset_password"
+        private const val KEY_LAST_SELECTED_MENU_ITEM = "last_selected_menu_item"
+    }
+
+    fun saveLastSelectedMenuItem(menuItemId: Int) {
+        val editor = sharedPreferences.edit()
+        editor.putInt(KEY_LAST_SELECTED_MENU_ITEM, menuItemId)
+        editor.apply()
+    }
+
+    fun getLastSelectedMenuItem(): Int {
+        return sharedPreferences.getInt(KEY_LAST_SELECTED_MENU_ITEM, R.id.home)
+    }
+
+    fun clearLastSelectedMenuItem() {
+        val editor = sharedPreferences.edit()
+        editor.remove(KEY_LAST_SELECTED_MENU_ITEM)
+        editor.apply()
     }
 
     fun resetTourStatus() {

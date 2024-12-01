@@ -11,6 +11,7 @@ import com.bangkit.batikloka.ui.auth.register.RegisterViewModel
 import com.bangkit.batikloka.ui.auth.startprofile.StartProfileViewModel
 import com.bangkit.batikloka.ui.splash.SplashScreenViewModel
 import com.bangkit.batikloka.ui.tour.TourViewModel
+import com.bangkit.batikloka.ui.user.UserActivityViewModel
 import com.bangkit.batikloka.utils.PreferencesManager
 
 @Suppress("UNCHECKED_CAST")
@@ -46,6 +47,10 @@ class AppViewModelFactory(
 
             modelClass.isAssignableFrom(StartProfileViewModel::class.java) -> {
                 StartProfileViewModel() as T
+            }
+
+            modelClass.isAssignableFrom(UserActivityViewModel::class.java) -> {
+                UserActivityViewModel() as T
             }
 
             modelClass.isAssignableFrom(TourViewModel::class.java) -> {
