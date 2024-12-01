@@ -13,18 +13,56 @@ class PreferencesManager(context: Context) {
         private const val KEY_IS_REGISTERED = "is_registered"
         private const val KEY_IS_LOGGED_OUT = "is_logged_out"
         private const val KEY_IS_TOUR_COMPLETED = "is_tour_completed"
+        private const val KEY_REGISTRATION_STEP = "registration_step"
+        private const val KEY_IS_RESET_PASSWORD = "is_reset_password"
+    }
+
+    fun resetTourStatus() {
+        val editor = sharedPreferences.edit()
+        editor.remove(KEY_IS_TOUR_COMPLETED)
+        editor.apply()
+    }
+
+    fun setResetPasswordStatus(isReset: Boolean, email: String? = null) {
+        val editor = sharedPreferences.edit()
+        editor.putBoolean(KEY_IS_RESET_PASSWORD, isReset)
+        email?.let {
+            editor.putString("reset_password_email", it)
+        }
+        editor.apply()
+    }
+
+    fun getResetPasswordEmail(): String? {
+        return sharedPreferences.getString("reset_password_email", null)
+    }
+
+    fun clearResetPasswordData() {
+        val editor = sharedPreferences.edit()
+        editor.remove(KEY_IS_RESET_PASSWORD)
+        editor.remove("reset_password_email")
+        editor.apply()
+    }
+
+    fun isResetPassword(): Boolean {
+        return sharedPreferences.getBoolean(KEY_IS_RESET_PASSWORD, false)
     }
 
     fun saveUserEmail(email: String) {
         val editor = sharedPreferences.edit()
         editor.putString(KEY_USER_EMAIL, email)
         editor.putBoolean(KEY_IS_LOGGED_IN, true)
-        editor.putBoolean(KEY_IS_REGISTERED, true)
+        editor.putBoolean(KEY_IS_REGISTERED, false)
         editor.apply()
     }
 
     fun getUserEmail(): String? {
         return sharedPreferences.getString(KEY_USER_EMAIL, null)
+    }
+
+    fun clearLogoutStatus() {
+        val editor = sharedPreferences.edit()
+        editor.remove(KEY_IS_LOGGED_OUT)
+        editor.apply()
     }
 
     fun clearUserData() {
@@ -36,6 +74,7 @@ class PreferencesManager(context: Context) {
     fun setUserLoggedOut() {
         val editor = sharedPreferences.edit()
         editor.putBoolean(KEY_IS_LOGGED_OUT, true)
+        editor.putBoolean(KEY_IS_LOGGED_IN, false)
         editor.apply()
     }
 
@@ -51,9 +90,27 @@ class PreferencesManager(context: Context) {
         return sharedPreferences.getBoolean(KEY_IS_REGISTERED, false)
     }
 
-    fun setUserRegistered(isRegistered: Boolean) {
+    fun setUserRegistered() {
         val editor = sharedPreferences.edit()
-        editor.putBoolean(KEY_IS_REGISTERED, isRegistered)
+        editor.putBoolean(KEY_IS_REGISTERED, true)
+        editor.apply()
+    }
+
+    fun saveRegistrationStep(step: String) {
+        val editor = sharedPreferences.edit()
+        editor.putString(KEY_REGISTRATION_STEP, step)
+        editor.apply()
+    }
+
+    fun getRegistrationStep(): String? {
+        return sharedPreferences.getString(KEY_REGISTRATION_STEP, null)
+    }
+
+    fun resetRegistrationProcess() {
+        val editor = sharedPreferences.edit()
+        editor.remove(KEY_REGISTRATION_STEP)
+        editor.remove(KEY_USER_EMAIL)
+        editor.remove(KEY_IS_REGISTERED)
         editor.apply()
     }
 

@@ -48,6 +48,7 @@ class EmailVerificationActivity : AppCompatActivity() {
     }
 
     private fun sendVerificationEmail(email: String) {
+        preferencesManager.setResetPasswordStatus(true, email)
         showCustomAlertDialog(viewModel.sendVerificationEmail(email))
     }
 

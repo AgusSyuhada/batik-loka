@@ -12,4 +12,9 @@ class SplashScreenViewModel(private val preferencesManager: PreferencesManager) 
     fun isUserRegistered(): Boolean {
         return preferencesManager.isUserRegistered()
     }
+
+    fun isRegistrationInProgress(): Boolean {
+        val registrationStep = preferencesManager.getRegistrationStep()
+        return registrationStep != null
+    }
 }

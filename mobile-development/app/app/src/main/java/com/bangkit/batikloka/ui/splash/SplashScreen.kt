@@ -8,7 +8,11 @@ import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.bangkit.batikloka.R
+import com.bangkit.batikloka.ui.auth.codeverification.VerificationActivity
+import com.bangkit.batikloka.ui.auth.login.LoginActivity
+import com.bangkit.batikloka.ui.auth.startprofile.StartProfileActivity
 import com.bangkit.batikloka.ui.main.MainActivity
+import com.bangkit.batikloka.ui.tour.TourActivity
 import com.bangkit.batikloka.ui.viewmodel.AppViewModelFactory
 import com.bangkit.batikloka.utils.PreferencesManager
 
@@ -37,28 +41,42 @@ class SplashScreen : AppCompatActivity() {
 
     private fun navigateToNextActivity() {
         Handler(Looper.getMainLooper()).postDelayed({
-            /*
             when {
                 preferencesManager.isUserLoggedOut() -> {
                     startActivity(Intent(this, LoginActivity::class.java))
+                    finish()
+                    return@postDelayed
                 }
+
                 splashViewModel.isUserLoggedIn() -> {
-                    if (!preferencesManager.isUserRegistered()) {
-                        startActivity(Intent(this, RegisterActivity::class.java))
-                    } else {
-                        startActivity(Intent(this, MainActivity::class.java))
+                    when (preferencesManager.getRegistrationStep()) {
+                        "email_registered" -> startActivity(
+                            Intent(
+                                this,
+                                VerificationActivity::class.java
+                            )
+                        )
+
+                        "otp_verified" -> startActivity(
+                            Intent(
+                                this,
+                                StartProfileActivity::class.java
+                            )
+                        )
+
+                        else -> startActivity(Intent(this, MainActivity::class.java))
                     }
                 }
+
                 preferencesManager.isTourCompleted() -> {
                     startActivity(Intent(this, LoginActivity::class.java))
                 }
+
                 else -> {
                     startActivity(Intent(this, TourActivity::class.java))
                 }
             }
-            */
             finish()
-            startActivity(Intent(this, MainActivity::class.java))
         }, SPLASH_SCREEN_DURATION)
     }
 

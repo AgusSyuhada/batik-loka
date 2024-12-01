@@ -17,7 +17,8 @@ class VerificationViewModel(
     }
 
     fun confirmOtp(otp: String): String {
-        preferencesManager.setUserRegistered(true)
+        preferencesManager.setUserRegistered()
+        preferencesManager.saveRegistrationStep("otp_verified")
         return context.getString(R.string.otp_confirmed_successfully)
     }
 }

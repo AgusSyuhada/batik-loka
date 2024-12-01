@@ -29,7 +29,7 @@ class AppViewModelFactory(
             }
 
             modelClass.isAssignableFrom(CreateNewPasswordViewModel::class.java) -> {
-                CreateNewPasswordViewModel(context) as T
+                CreateNewPasswordViewModel(context, preferencesManager) as T
             }
 
             modelClass.isAssignableFrom(EmailVerificationViewModel::class.java) -> {

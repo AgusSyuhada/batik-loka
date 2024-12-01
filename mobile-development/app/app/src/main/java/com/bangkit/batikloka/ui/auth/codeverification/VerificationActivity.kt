@@ -7,12 +7,14 @@ import android.os.Looper
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.bangkit.batikloka.R
 import com.bangkit.batikloka.ui.auth.createnewpassword.CreateNewPasswordActivity
 import com.bangkit.batikloka.ui.auth.login.LoginActivity
+import com.bangkit.batikloka.ui.auth.register.RegisterActivity
 import com.bangkit.batikloka.ui.auth.startprofile.StartProfileActivity
 import com.bangkit.batikloka.ui.viewmodel.AppViewModelFactory
 import com.bangkit.batikloka.utils.PreferencesManager
@@ -22,7 +24,6 @@ class VerificationActivity : AppCompatActivity() {
     private lateinit var btnVerifyAccount: Button
     private lateinit var viewModel: VerificationViewModel
     private lateinit var preferencesManager: PreferencesManager
-    private var isVerifying = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +34,8 @@ class VerificationActivity : AppCompatActivity() {
             this,
             AppViewModelFactory(this, preferencesManager)
         )[VerificationViewModel::class.java]
+
+        checkRegistrationValidity()
 
         etVerification = findViewById(R.id.etVerification)
         btnVerifyAccount = findViewById(R.id.btnVerifyAccount)
@@ -51,18 +54,47 @@ class VerificationActivity : AppCompatActivity() {
                     etVerification.error = getString(R.string.error_otp_length)
                 }
             } else {
-                isVerifying = true
                 confirmOtp(otp)
             }
         }
     }
 
+    private fun checkRegistrationValidity() {
+        val registrationStep = preferencesManager.getRegistrationStep()
+        val action = intent.getStringExtra("action")
+
+        when (action) {
+            "register" -> {
+                if (registrationStep == null || registrationStep != "email_registered") {
+                    Toast.makeText(this, "Invalid registration process", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this, RegisterActivity::class.java))
+                    finish()
+                    return
+                }
+            }
+
+            "forgot_password" -> {
+                if (!preferencesManager.isResetPassword()) {
+                    Toast.makeText(this, "Invalid password reset process", Toast.LENGTH_SHORT)
+                        .show()
+                    startActivity(Intent(this, LoginActivity::class.java))
+                    finish()
+                    return
+                }
+            }
+        }
+    }
+
     private fun confirmOtp(otp: String) {
+        val action = intent.getStringExtra("action")
+        if (action == "forgot_password") {
+            preferencesManager.setResetPasswordStatus(false)
+        } else {
+            preferencesManager.saveRegistrationStep("otp_verified")
+        }
+
         val confirmationMessage = viewModel.confirmOtp(otp)
         showCustomAlertDialog(confirmationMessage)
-
-        val preferencesManager = PreferencesManager(this)
-        preferencesManager.setUserRegistered(true)
     }
 
     private fun showCustomAlertDialog(title: String) {
@@ -98,20 +130,5 @@ class VerificationActivity : AppCompatActivity() {
                 dialog.dismiss()
             }
         }, 3000)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        if (isVerifying) {
-            preferencesManager.setUserRegistered(false)
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (!preferencesManager.isUserRegistered()) {
-            startActivity(Intent(this, LoginActivity::class.java))
-            finish()
-        }
     }
 }

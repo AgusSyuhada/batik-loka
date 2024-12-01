@@ -40,6 +40,7 @@ class TourActivity : AppCompatActivity() {
             AppViewModelFactory(this, preferencesManager)
         )[TourViewModel::class.java]
 
+
         viewPager = findViewById(R.id.viewPagerWelcomeTour)
         btnNext = findViewById(R.id.btnNext)
         btnSkip = findViewById(R.id.btnSkip)

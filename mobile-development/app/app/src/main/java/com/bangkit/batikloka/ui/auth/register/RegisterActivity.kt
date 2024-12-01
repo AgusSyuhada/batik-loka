@@ -34,7 +34,6 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var tvLogin: TextView
     private lateinit var viewModel: RegisterViewModel
     private lateinit var preferencesManager: PreferencesManager
-    private var isRegistering = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +44,8 @@ class RegisterActivity : AppCompatActivity() {
             this,
             AppViewModelFactory(this, preferencesManager)
         )[RegisterViewModel::class.java]
+
+        checkPendingRegistration()
 
         etName = findViewById(R.id.etName)
         etEmail = findViewById(R.id.etEmail)
@@ -93,7 +94,6 @@ class RegisterActivity : AppCompatActivity() {
             val confirmPassword = etConfirmPassword.text.toString().trim()
 
             if (viewModel.validateInput(name, email, password, confirmPassword)) {
-                isRegistering = true
                 performRegister(name, email, password)
             } else {
                 showValidationErrors(name, email, password, confirmPassword)
@@ -143,6 +143,21 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
+    private fun checkPendingRegistration() {
+        val registrationStep = preferencesManager.getRegistrationStep()
+        if (registrationStep != null) {
+            preferencesManager.resetRegistrationProcess()
+            Toast.makeText(this, "Registration process was interrupted", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun performRegister(name: String, email: String, password: String) {
+        preferencesManager.saveRegistrationStep("email_registered")
+
+        showCustomAlertDialog(getString(R.string.registration_successful))
+        preferencesManager.saveUserEmail(email)
+    }
+
     private fun showCustomAlertDialog(title: String) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_checkmark, null)
         val titleTextView = dialogView.findViewById<TextView>(R.id.dialog_title)
@@ -172,27 +187,5 @@ class RegisterActivity : AppCompatActivity() {
                 dialog.dismiss()
             }
         }, 3000)
-    }
-
-    private fun performRegister(name: String, email: String, password: String) {
-        showCustomAlertDialog(getString(R.string.registration_successful))
-
-        preferencesManager.saveUserEmail(email)
-        preferencesManager.setUserRegistered(true)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        if (isRegistering) {
-            preferencesManager.setUserRegistered(false)
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (!preferencesManager.isUserRegistered()) {
-            startActivity(Intent(this, LoginActivity::class.java))
-            finish()
-        }
     }
 }

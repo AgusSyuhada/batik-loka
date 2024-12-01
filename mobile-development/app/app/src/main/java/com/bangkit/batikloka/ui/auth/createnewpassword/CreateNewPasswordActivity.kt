@@ -32,6 +32,8 @@ class CreateNewPasswordActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_new_password)
 
+        preferencesManager = PreferencesManager(this)
+
         viewModel = ViewModelProvider(
             this,
             AppViewModelFactory(this, preferencesManager)

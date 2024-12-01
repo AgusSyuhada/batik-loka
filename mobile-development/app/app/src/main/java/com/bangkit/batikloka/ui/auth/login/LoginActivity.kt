@@ -48,9 +48,6 @@ class LoginActivity : AppCompatActivity() {
             startActivity(Intent(this, MainActivity::class.java))
             finish()
             return
-        } else if (!preferencesManager.isUserRegistered()) {
-            startActivity(Intent(this, RegisterActivity::class.java))
-            finish()
         }
 
         etEmail = findViewById(R.id.etEmail)
@@ -138,6 +135,7 @@ class LoginActivity : AppCompatActivity() {
 
         dialog.setOnShowListener {
             dialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
+
             dialog.setCanceledOnTouchOutside(true)
         }
 
