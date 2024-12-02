@@ -1,5 +1,5 @@
-package com.bangkit.batikloka.ui.home
-//by rajahafiz//
+package com.bangkit.batikloka.ui.main.catalog
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,11 +7,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.bangkit.batikloka.R
 
-class HomeFragment : Fragment() {
+class CatalogFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        return inflater.inflate(R.layout.fragment_home, container, false)
+        savedInstanceState: Bundle?,
+    ): View? {
+        return inflater.inflate(R.layout.fragment_catalog, container, false)
     }
 }

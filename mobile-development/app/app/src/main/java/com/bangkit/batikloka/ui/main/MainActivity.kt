@@ -5,10 +5,10 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.bangkit.batikloka.R
-import com.bangkit.batikloka.ui.catalog.CatalogFragment
-import com.bangkit.batikloka.ui.home.HomeFragment
-import com.bangkit.batikloka.ui.news.NewsFragment
-import com.bangkit.batikloka.ui.user.UserActivity
+import com.bangkit.batikloka.ui.main.catalog.CatalogFragment
+import com.bangkit.batikloka.ui.main.home.HomeFragment
+import com.bangkit.batikloka.ui.main.news.NewsFragment
+import com.bangkit.batikloka.ui.main.user.UserActivity
 import com.bangkit.batikloka.utils.PreferencesManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 

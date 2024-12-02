@@ -28,16 +28,16 @@
             android:name=".ui.auth.createnewpassword.CreateNewPasswordActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.news.DetailNewsActivity"
+            android:name=".ui.main.news.DetailNewsActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.catalog.DetailCatalogActivity"
+            android:name=".ui.main.catalog.DetailCatalogActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.scan.ScanActivity"
+            android:name=".ui.main.scan.ScanActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.user.UserActivity"
+            android:name=".ui.main.user.UserActivity"
             android:exported="false" />
         <activity
             android:name=".ui.auth.startprofile.StartProfileActivity"

@@ -1,4 +1,4 @@
-package com.bangkit.batikloka.ui.scan
+package com.bangkit.batikloka.ui.main.scan
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge

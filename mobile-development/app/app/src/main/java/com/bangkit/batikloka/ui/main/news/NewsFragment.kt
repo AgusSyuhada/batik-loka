@@ -1,4 +1,4 @@
-package com.bangkit.batikloka.ui.news
+package com.bangkit.batikloka.ui.main.news
 
 import android.os.Bundle
 import android.view.LayoutInflater

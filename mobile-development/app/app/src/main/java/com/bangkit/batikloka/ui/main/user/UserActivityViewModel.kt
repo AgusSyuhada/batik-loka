@@ -1,4 +1,4 @@
-package com.bangkit.batikloka.ui.user
+package com.bangkit.batikloka.ui.main.user
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

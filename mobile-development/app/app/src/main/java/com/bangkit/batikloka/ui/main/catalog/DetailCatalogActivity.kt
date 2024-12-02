@@ -1,10 +1,7 @@
-package com.bangkit.batikloka.ui.catalog
+package com.bangkit.batikloka.ui.main.catalog
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.bangkit.batikloka.R
 
 class DetailCatalogActivity : AppCompatActivity() {
