@@ -8,7 +8,9 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
+import android.text.InputType
 import android.view.View
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
@@ -16,6 +18,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.bangkit.batikloka.R
@@ -32,10 +35,13 @@ import java.io.File
 class UserActivity : AppCompatActivity() {
     private lateinit var ivProfilePicture: ImageView
     private lateinit var tvShowEmail: TextView
+    private lateinit var tvUsername: TextView
     private lateinit var viewModel: UserActivityViewModel
     private lateinit var preferencesManager: PreferencesManager
     private lateinit var logoutContainer: View
     private lateinit var toolbar: Toolbar
+    private lateinit var layoutEditName: ConstraintLayout
+    private lateinit var layoutChangePassword: ConstraintLayout
 
     companion object {
         private val PICK_IMAGE_REQUEST = 1
@@ -62,10 +68,21 @@ class UserActivity : AppCompatActivity() {
         logoutContainer = findViewById(R.id.layout_logout)
         ivProfilePicture = findViewById(R.id.iv_profile_picture)
         tvShowEmail = findViewById(R.id.tv_show_email)
+        tvUsername = findViewById(R.id.text_username)
 
         ivProfilePicture.setOnClickListener {
             viewModel.logImageSourceSelection("Profile Picture")
             showImageSourceOptions()
+        }
+
+        layoutEditName = findViewById(R.id.layout_edit_name)
+        layoutEditName.setOnClickListener {
+            showEditNameDialog()
+        }
+
+        layoutChangePassword = findViewById(R.id.layout_change_password)
+        layoutChangePassword.setOnClickListener {
+            showChangePasswordDialog()
         }
 
         setupLogoutListener()
@@ -79,6 +96,7 @@ class UserActivity : AppCompatActivity() {
         }
 
         displayUserEmail()
+        displayUsername()
         loadSavedProfilePicture()
     }
 
@@ -88,6 +106,15 @@ class UserActivity : AppCompatActivity() {
             tvShowEmail.text = userEmail
         } else {
             tvShowEmail.text = "Email not found"
+        }
+    }
+
+    private fun displayUsername() {
+        val username = preferencesManager.getUserName()
+        if (username != null) {
+            tvUsername.text = username
+        } else {
+            tvUsername.text = "Username not found"
         }
     }
 
@@ -185,6 +212,189 @@ class UserActivity : AppCompatActivity() {
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .skipMemoryCache(true)
                 .into(ivProfilePicture)
+        }
+    }
+
+    private fun showEditNameDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_edit_name, null)
+        val etName = dialogView.findViewById<EditText>(R.id.etEditName)
+        val btnSave = dialogView.findViewById<TextView>(R.id.btnSaveName)
+        val tvCancel = dialogView.findViewById<TextView>(R.id.tvCancel)
+
+        val currentName = preferencesManager.getUserName() ?: ""
+        etName.setText(currentName)
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
+        }
+
+        btnSave.setOnClickListener {
+            val newName = etName.text.toString().trim()
+
+            if (newName.isEmpty()) {
+                etName.error = "Name cannot be empty"
+                return@setOnClickListener
+            }
+
+            if (newName.length < 3) {
+                etName.error = "Name must be at least 3 characters"
+                return@setOnClickListener
+            }
+
+            preferencesManager.saveUserName(newName)
+
+            showCustomAlertDialog("Name successfully updated") {
+                // Optional: Update TextView nama di activity
+                // tvUserName.text = newName
+            }
+
+            dialog.dismiss()
+        }
+
+        tvCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun showChangePasswordDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_change_password, null)
+
+        val etCurrentPassword = dialogView.findViewById<EditText>(R.id.et_current_password)
+        val etNewPassword = dialogView.findViewById<EditText>(R.id.et_new_password)
+        val etConfirmNewPassword = dialogView.findViewById<EditText>(R.id.et_confirm_new_password)
+
+        val ivShowCurrentPassword =
+            dialogView.findViewById<ImageView>(R.id.iv_show_current_password)
+        val ivShowNewPassword = dialogView.findViewById<ImageView>(R.id.iv_show_new_password)
+        val ivShowConfirmPassword =
+            dialogView.findViewById<ImageView>(R.id.iv_show_confirm_password)
+
+        val btnSavePassword = dialogView.findViewById<TextView>(R.id.btn_save_password)
+        val tvCancel = dialogView.findViewById<TextView>(R.id.tv_cancel_change_password)
+
+        var isCurrentPasswordVisible = false
+        var isNewPasswordVisible = false
+        var isConfirmPasswordVisible = false
+
+        ivShowCurrentPassword.setOnClickListener {
+            isCurrentPasswordVisible = !isCurrentPasswordVisible
+            togglePasswordVisibility(
+                etCurrentPassword,
+                ivShowCurrentPassword,
+                isCurrentPasswordVisible
+            )
+        }
+
+        ivShowNewPassword.setOnClickListener {
+            isNewPasswordVisible = !isNewPasswordVisible
+            togglePasswordVisibility(
+                etNewPassword,
+                ivShowNewPassword,
+                isNewPasswordVisible
+            )
+        }
+
+        ivShowConfirmPassword.setOnClickListener {
+            isConfirmPasswordVisible = !isConfirmPasswordVisible
+            togglePasswordVisibility(
+                etConfirmNewPassword,
+                ivShowConfirmPassword,
+                isConfirmPasswordVisible
+            )
+        }
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
+        }
+
+        btnSavePassword.setOnClickListener {
+            val currentPassword = etCurrentPassword.text.toString().trim()
+            val newPassword = etNewPassword.text.toString().trim()
+            val confirmNewPassword = etConfirmNewPassword.text.toString().trim()
+            etCurrentPassword.error = null
+            etNewPassword.error = null
+            etConfirmNewPassword.error = null
+
+            when {
+                currentPassword.isEmpty() -> {
+                    etCurrentPassword.error = "Current password cannot be empty"
+                    return@setOnClickListener
+                }
+
+                newPassword.isEmpty() -> {
+                    etNewPassword.error = "New password cannot be empty"
+                    return@setOnClickListener
+                }
+
+                newPassword.length < 6 -> {
+                    etNewPassword.error = "Password must be at least 6 characters"
+                    return@setOnClickListener
+                }
+
+                newPassword == currentPassword -> {
+                    etNewPassword.error = "New password must be different from current password"
+                    return@setOnClickListener
+                }
+
+                newPassword != confirmNewPassword -> {
+                    etConfirmNewPassword.error = "Passwords do not match"
+                    return@setOnClickListener
+                }
+
+                !isCurrentPasswordCorrect(currentPassword) -> {
+                    etCurrentPassword.error = "Current password is incorrect"
+                    return@setOnClickListener
+                }
+            }
+
+            updatePassword(newPassword)
+            dialog.dismiss()
+        }
+
+        tvCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun togglePasswordVisibility(
+        editText: EditText,
+        imageView: ImageView,
+        isVisible: Boolean,
+    ) {
+        if (isVisible) {
+            editText.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+            imageView.setImageResource(R.drawable.ic_visibility)
+        } else {
+            editText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            imageView.setImageResource(R.drawable.ic_visibility_off)
+        }
+        editText.setSelection(editText.text.length)
+    }
+
+    private fun isCurrentPasswordCorrect(currentPassword: String): Boolean {
+        val storedPassword = preferencesManager.getStoredPassword()
+        return currentPassword == storedPassword
+    }
+
+    private fun updatePassword(newPassword: String) {
+        preferencesManager.savePassword(newPassword)
+
+        showCustomAlertDialog("Password successfully changed") {
+            // Aksi tambahan jika diperlukan
         }
     }
 

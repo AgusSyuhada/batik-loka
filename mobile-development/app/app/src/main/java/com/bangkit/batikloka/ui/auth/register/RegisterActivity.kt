@@ -156,6 +156,7 @@ class RegisterActivity : AppCompatActivity() {
 
         showCustomAlertDialog(getString(R.string.registration_successful))
         preferencesManager.saveUserEmail(email)
+        preferencesManager.saveUserName(name)
     }
 
     private fun showCustomAlertDialog(title: String) {
