@@ -17,6 +17,17 @@ class PreferencesManager(context: Context) {
         private const val KEY_REGISTRATION_STEP = "registration_step"
         private const val KEY_IS_RESET_PASSWORD = "is_reset_password"
         private const val KEY_LAST_SELECTED_MENU_ITEM = "last_selected_menu_item"
+        private const val KEY_PROFILE_PICTURE_URI = "profile_picture_uri"
+    }
+
+    fun saveProfilePictureUri(uriString: String) {
+        val editor = sharedPreferences.edit()
+        editor.putString(KEY_PROFILE_PICTURE_URI, uriString)
+        editor.apply()
+    }
+
+    fun getProfilePictureUri(): String? {
+        return sharedPreferences.getString(KEY_PROFILE_PICTURE_URI, null)
     }
 
     fun saveLastSelectedMenuItem(menuItemId: Int) {

@@ -58,4 +58,8 @@ dependencies {
 
     // Card View
     implementation(libs.androidx.cardview)
+
+    // Glide
+    implementation(libs.glide)
+    annotationProcessor(libs.glide.compiler)
 }

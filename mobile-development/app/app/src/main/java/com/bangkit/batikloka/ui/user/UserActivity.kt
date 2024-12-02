@@ -24,11 +24,14 @@ import com.bangkit.batikloka.ui.auth.login.LoginActivity
 import com.bangkit.batikloka.ui.main.MainActivity
 import com.bangkit.batikloka.ui.viewmodel.AppViewModelFactory
 import com.bangkit.batikloka.utils.PreferencesManager
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.yalantis.ucrop.UCrop
 import java.io.File
 
 class UserActivity : AppCompatActivity() {
     private lateinit var ivProfilePicture: ImageView
+    private lateinit var tvShowEmail: TextView
     private lateinit var viewModel: UserActivityViewModel
     private lateinit var preferencesManager: PreferencesManager
     private lateinit var logoutContainer: View
@@ -58,6 +61,7 @@ class UserActivity : AppCompatActivity() {
 
         logoutContainer = findViewById(R.id.layout_logout)
         ivProfilePicture = findViewById(R.id.iv_profile_picture)
+        tvShowEmail = findViewById(R.id.tv_show_email)
 
         ivProfilePicture.setOnClickListener {
             viewModel.logImageSourceSelection("Profile Picture")
@@ -72,6 +76,18 @@ class UserActivity : AppCompatActivity() {
             }
             startActivity(intent)
             finish()
+        }
+
+        displayUserEmail()
+        loadSavedProfilePicture()
+    }
+
+    private fun displayUserEmail() {
+        val userEmail = preferencesManager.getUserEmail()
+        if (userEmail != null) {
+            tvShowEmail.text = userEmail
+        } else {
+            tvShowEmail.text = "Email not found"
         }
     }
 
@@ -115,8 +131,8 @@ class UserActivity : AppCompatActivity() {
     }
 
     private fun showImageSourceOptions() {
-        val options = arrayOf("Camera", "Gallery")
-        val icons = intArrayOf(R.drawable.ic_camera_filled, R.drawable.ic_photo)
+        val options = arrayOf("Take photo from camera", "Choose from gallery")
+        val icons = intArrayOf(R.drawable.ic_camera_outlined, R.drawable.ic_photo)
 
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Choose Image Source")
@@ -137,7 +153,7 @@ class UserActivity : AppCompatActivity() {
 
             val titleTextView =
                 alertDialog.window?.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)
-            titleTextView?.setTextColor(ContextCompat.getColor(this, R.color.caramel_gold))
+            titleTextView?.setTextColor(ContextCompat.getColor(this, R.color.black))
         }
 
         listView.setOnItemClickListener { _, _, position, _ ->
@@ -161,6 +177,17 @@ class UserActivity : AppCompatActivity() {
         startActivityForResult(intent, PICK_IMAGE_REQUEST)
     }
 
+    private fun loadSavedProfilePicture() {
+        val savedProfilePictureUri = preferencesManager.getProfilePictureUri()
+        savedProfilePictureUri?.let { uriString ->
+            Glide.with(this)
+                .load(Uri.parse(uriString))
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .skipMemoryCache(true)
+                .into(ivProfilePicture)
+        }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == RESULT_OK) {
@@ -179,7 +206,13 @@ class UserActivity : AppCompatActivity() {
                 UCrop.REQUEST_CROP -> {
                     val resultUri = UCrop.getOutput(data!!)
                     if (resultUri != null) {
-                        ivProfilePicture.setImageURI(resultUri)
+                        preferencesManager.saveProfilePictureUri(resultUri.toString())
+
+                        Glide.with(this)
+                            .load(resultUri)
+                            .diskCacheStrategy(DiskCacheStrategy.NONE)
+                            .skipMemoryCache(true)
+                            .into(ivProfilePicture)
                     } else {
                         Toast.makeText(this, "Crop failed", Toast.LENGTH_SHORT).show()
                     }
@@ -207,12 +240,15 @@ class UserActivity : AppCompatActivity() {
     }
 
     private fun performLogout() {
-        preferencesManager.setUserLoggedOut()
+        showCustomAlertDialog("Logout Successful! See you next time") {
+            preferencesManager.setUserLoggedOut()
+            preferencesManager.resetRegistrationProcess()
 
-        val intent = Intent(this, LoginActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
-        finish()
+            val intent = Intent(this, LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {

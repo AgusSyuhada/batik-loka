@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.ListView
@@ -22,6 +23,8 @@ import com.bangkit.batikloka.ui.auth.register.RegisterActivity
 import com.bangkit.batikloka.ui.main.MainActivity
 import com.bangkit.batikloka.ui.viewmodel.AppViewModelFactory
 import com.bangkit.batikloka.utils.PreferencesManager
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.yalantis.ucrop.UCrop
 import java.io.File
 
@@ -59,6 +62,15 @@ class StartProfileActivity : AppCompatActivity() {
 
         btnNext.setOnClickListener {
             completeRegistration()
+        }
+
+        val savedProfilePictureUri = preferencesManager.getProfilePictureUri()
+        savedProfilePictureUri?.let { uriString ->
+            Glide.with(this)
+                .load(Uri.parse(uriString))
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .skipMemoryCache(true)
+                .into(ivProfilePicture)
         }
     }
 
@@ -111,8 +123,8 @@ class StartProfileActivity : AppCompatActivity() {
     }
 
     private fun showImageSourceOptions() {
-        val options = arrayOf("Camera", "Gallery")
-        val icons = intArrayOf(R.drawable.ic_camera_filled, R.drawable.ic_photo)
+        val options = arrayOf("Take photo from camera", "Choose from gallery")
+        val icons = intArrayOf(R.drawable.ic_camera_outlined, R.drawable.ic_photo)
 
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Choose Image Source")
@@ -133,7 +145,7 @@ class StartProfileActivity : AppCompatActivity() {
 
             val titleTextView =
                 alertDialog.window?.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)
-            titleTextView?.setTextColor(ContextCompat.getColor(this, R.color.caramel_gold))
+            titleTextView?.setTextColor(ContextCompat.getColor(this, R.color.black))
         }
 
         listView.setOnItemClickListener { _, _, position, _ ->
@@ -163,7 +175,10 @@ class StartProfileActivity : AppCompatActivity() {
             when (requestCode) {
                 PICK_IMAGE_REQUEST -> {
                     val imageUri: Uri? = data?.data
-                    imageUri?.let { startCrop(it) }
+                    imageUri?.let {
+                        Log.d("ImagePicker", "Selected image URI: $imageUri")
+                        startCrop(it)
+                    }
                 }
 
                 CAMERA_REQUEST -> {
@@ -175,7 +190,13 @@ class StartProfileActivity : AppCompatActivity() {
                 UCrop.REQUEST_CROP -> {
                     val resultUri = UCrop.getOutput(data!!)
                     if (resultUri != null) {
-                        ivProfilePicture.setImageURI(resultUri)
+                        Glide.with(this)
+                            .load(resultUri)
+                            .diskCacheStrategy(DiskCacheStrategy.NONE)
+                            .skipMemoryCache(true)
+                            .into(ivProfilePicture)
+
+                        saveProfilePictureUri(resultUri)
                     } else {
                         Toast.makeText(this, "Crop failed", Toast.LENGTH_SHORT).show()
                     }
@@ -187,6 +208,10 @@ class StartProfileActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun saveProfilePictureUri(uri: Uri) {
+        preferencesManager.saveProfilePictureUri(uri.toString())
     }
 
     private fun startCrop(uri: Uri) {
