@@ -11,16 +11,17 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
         android:padding="8dp">
 
-        <ImageView
-            android:id="@+id/item_image"
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profilePicture"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_marginEnd="8dp"
-            android:contentDescription="dayat"
-            android:src="@drawable/circle_background" />
+            android:background="@drawable/circle_background"
+            android:contentDescription="dayat" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -29,29 +30,29 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/DeveloperName"
+                android:id="@+id/developerName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Name"
-                android:textStyle="bold"
-                android:textSize="16sp"
-                android:textColor="@color/black" />
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/LearningPath"
+                android:id="@+id/learningPath"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Learning Path"
-                android:textSize="14sp"
-                android:textColor="@color/black" />
+                android:textColor="@color/black"
+                android:textSize="12sp" />
 
             <TextView
                 android:id="@+id/university"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="University"
-                android:textSize="12sp"
-                android:textColor="@color/black" />
+                android:textColor="@color/black"
+                android:textSize="12sp" />
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

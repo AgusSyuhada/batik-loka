@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id("com.google.devtools.ksp")
     id("kotlin-kapt")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -36,6 +37,7 @@ android {
         jvmTarget = "11"
     }
     buildFeatures {
+        dataBinding = true
         viewBinding = true
         mlModelBinding = true
     }
@@ -65,6 +67,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+
+    // Gson
+    implementation(libs.gson)
 
     // UCrop
     implementation(libs.yalantis.ucrop)

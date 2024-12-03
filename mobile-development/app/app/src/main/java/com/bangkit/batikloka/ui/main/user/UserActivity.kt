@@ -27,6 +27,8 @@ import com.bangkit.batikloka.data.local.database.AppDatabase
 import com.bangkit.batikloka.ui.adapter.ImageSourceAdapter
 import com.bangkit.batikloka.ui.auth.login.LoginActivity
 import com.bangkit.batikloka.ui.main.MainActivity
+import com.bangkit.batikloka.ui.main.user.aboutdev.AboutDeveloperActivity
+import com.bangkit.batikloka.ui.main.user.privpol.PrivacyPolicyActivity
 import com.bangkit.batikloka.ui.viewmodel.AppViewModelFactory
 import com.bangkit.batikloka.utils.PreferencesManager
 import com.bumptech.glide.Glide
@@ -80,6 +82,12 @@ class UserActivity : AppCompatActivity() {
             showImageSourceOptions()
         }
 
+        val ivEditProfilePicture: ImageView = findViewById(R.id.ivEditProfilePicture)
+        ivEditProfilePicture.setOnClickListener {
+            viewModel.logImageSourceSelection("Profile Picture Edit Icon")
+            showImageSourceOptions()
+        }
+
         layoutEditName = findViewById(R.id.layout_edit_name)
         layoutEditName.setOnClickListener {
             showEditNameDialog()
@@ -88,6 +96,18 @@ class UserActivity : AppCompatActivity() {
         layoutChangePassword = findViewById(R.id.layout_change_password)
         layoutChangePassword.setOnClickListener {
             showChangePasswordDialog()
+        }
+
+        val layoutAboutDeveloper: ConstraintLayout = findViewById(R.id.layout_about_developer)
+        layoutAboutDeveloper.setOnClickListener {
+            val intent = Intent(this, AboutDeveloperActivity::class.java)
+            startActivity(intent)
+        }
+
+        val layoutPrivacyPolicyActivity: ConstraintLayout = findViewById(R.id.layout_privacy_policy)
+        layoutPrivacyPolicyActivity.setOnClickListener {
+            val intent = Intent(this, PrivacyPolicyActivity::class.java)
+            startActivity(intent)
         }
 
         setupLogoutListener()
@@ -255,9 +275,7 @@ class UserActivity : AppCompatActivity() {
             }
 
             viewModel.updateUsername(newName)
-
             preferencesManager.saveUserName(newName)
-
             tvUsername.text = newName
 
             showCustomAlertDialog("Name successfully updated") {
