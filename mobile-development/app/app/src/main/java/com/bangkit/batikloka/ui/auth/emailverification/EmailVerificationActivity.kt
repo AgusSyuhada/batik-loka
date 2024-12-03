@@ -10,25 +10,31 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.bangkit.batikloka.R
+import com.bangkit.batikloka.data.local.database.AppDatabase
 import com.bangkit.batikloka.ui.auth.codeverification.VerificationActivity
 import com.bangkit.batikloka.ui.viewmodel.AppViewModelFactory
 import com.bangkit.batikloka.utils.PreferencesManager
+import kotlinx.coroutines.launch
 
 class EmailVerificationActivity : AppCompatActivity() {
     private lateinit var etEmail: EditText
     private lateinit var btnVerifyEmail: Button
     private lateinit var viewModel: EmailVerificationViewModel
     private lateinit var preferencesManager: PreferencesManager
+    private lateinit var database: AppDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_email_verification)
 
         preferencesManager = PreferencesManager(this)
+        database = AppDatabase.getDatabase(this)
+
         viewModel = ViewModelProvider(
             this,
-            AppViewModelFactory(this, preferencesManager)
+            AppViewModelFactory(this, preferencesManager, database)
         )[EmailVerificationViewModel::class.java]
 
         etEmail = findViewById(R.id.etEmail)
@@ -42,7 +48,16 @@ class EmailVerificationActivity : AppCompatActivity() {
             val email = etEmail.text.toString().trim()
 
             if (viewModel.validateEmail(email)) {
-                sendVerificationEmail(email)
+                lifecycleScope.launch {
+                    val isEmailExists = viewModel.isEmailExists(email)
+                    if (isEmailExists) {
+                        sendVerificationEmail(email)
+                    } else {
+                        etEmail.error = "Email not registered"
+                    }
+                }
+            } else {
+                etEmail.error = "Invalid email format"
             }
         }
     }

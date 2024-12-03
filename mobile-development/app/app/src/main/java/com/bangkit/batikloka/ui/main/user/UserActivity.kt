@@ -21,7 +21,9 @@ import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.bangkit.batikloka.R
+import com.bangkit.batikloka.data.local.database.AppDatabase
 import com.bangkit.batikloka.ui.adapter.ImageSourceAdapter
 import com.bangkit.batikloka.ui.auth.login.LoginActivity
 import com.bangkit.batikloka.ui.main.MainActivity
@@ -30,6 +32,7 @@ import com.bangkit.batikloka.utils.PreferencesManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.yalantis.ucrop.UCrop
+import kotlinx.coroutines.launch
 import java.io.File
 
 class UserActivity : AppCompatActivity() {
@@ -42,6 +45,7 @@ class UserActivity : AppCompatActivity() {
     private lateinit var toolbar: Toolbar
     private lateinit var layoutEditName: ConstraintLayout
     private lateinit var layoutChangePassword: ConstraintLayout
+    private lateinit var database: AppDatabase
 
     companion object {
         private val PICK_IMAGE_REQUEST = 1
@@ -53,10 +57,11 @@ class UserActivity : AppCompatActivity() {
         setContentView(R.layout.activity_user)
 
         preferencesManager = PreferencesManager(this)
+        database = AppDatabase.getDatabase(this)
 
         viewModel = ViewModelProvider(
             this,
-            AppViewModelFactory(this, preferencesManager)
+            AppViewModelFactory(this, preferencesManager, database)
         )[UserActivityViewModel::class.java]
 
         toolbar = findViewById(R.id.toolbar)
@@ -205,13 +210,16 @@ class UserActivity : AppCompatActivity() {
     }
 
     private fun loadSavedProfilePicture() {
-        val savedProfilePictureUri = preferencesManager.getProfilePictureUri()
-        savedProfilePictureUri?.let { uriString ->
-            Glide.with(this)
-                .load(Uri.parse(uriString))
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .skipMemoryCache(true)
-                .into(ivProfilePicture)
+        lifecycleScope.launch {
+            val profileBitmap = viewModel.retrieveProfilePicture()
+
+            profileBitmap?.let { bitmap ->
+                Glide.with(this@UserActivity)
+                    .load(bitmap)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .skipMemoryCache(true)
+                    .into(ivProfilePicture)
+            }
         }
     }
 
@@ -246,11 +254,14 @@ class UserActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            viewModel.updateUsername(newName)
+
             preferencesManager.saveUserName(newName)
 
+            tvUsername.text = newName
+
             showCustomAlertDialog("Name successfully updated") {
-                // Optional: Update TextView nama di activity
-                // tvUserName.text = newName
+                // Aksi tambahan jika diperlukan
             }
 
             dialog.dismiss()
@@ -323,44 +334,53 @@ class UserActivity : AppCompatActivity() {
             val currentPassword = etCurrentPassword.text.toString().trim()
             val newPassword = etNewPassword.text.toString().trim()
             val confirmNewPassword = etConfirmNewPassword.text.toString().trim()
-            etCurrentPassword.error = null
-            etNewPassword.error = null
-            etConfirmNewPassword.error = null
 
-            when {
-                currentPassword.isEmpty() -> {
-                    etCurrentPassword.error = "Current password cannot be empty"
-                    return@setOnClickListener
-                }
+            val userEmail = preferencesManager.getUserEmail() ?: return@setOnClickListener
 
-                newPassword.isEmpty() -> {
-                    etNewPassword.error = "New password cannot be empty"
-                    return@setOnClickListener
-                }
+            lifecycleScope.launch {
+                when {
+                    currentPassword.isEmpty() -> {
+                        etCurrentPassword.error = "Current password cannot be empty"
+                        return@launch
+                    }
 
-                newPassword.length < 6 -> {
-                    etNewPassword.error = "Password must be at least 6 characters"
-                    return@setOnClickListener
-                }
+                    newPassword.isEmpty() -> {
+                        etNewPassword.error = "New password cannot be empty"
+                        return@launch
+                    }
 
-                newPassword == currentPassword -> {
-                    etNewPassword.error = "New password must be different from current password"
-                    return@setOnClickListener
-                }
+                    newPassword.length < 6 -> {
+                        etNewPassword.error = "Password must be at least 6 characters"
+                        return@launch
+                    }
 
-                newPassword != confirmNewPassword -> {
-                    etConfirmNewPassword.error = "Passwords do not match"
-                    return@setOnClickListener
-                }
+                    newPassword == currentPassword -> {
+                        etNewPassword.error = "New password must be different from current password"
+                        return@launch
+                    }
 
-                !isCurrentPasswordCorrect(currentPassword) -> {
-                    etCurrentPassword.error = "Current password is incorrect"
-                    return@setOnClickListener
+                    newPassword != confirmNewPassword -> {
+                        etConfirmNewPassword.error = "Passwords do not match"
+                        return@launch
+                    }
+
+                    else -> {
+                        val isPasswordUpdated =
+                            viewModel.updatePassword(userEmail, currentPassword, newPassword)
+
+                        if (isPasswordUpdated) {
+                            preferencesManager.savePassword(newPassword)
+
+                            showCustomAlertDialog("Password successfully changed") {
+                                // Aksi tambahan jika diperlukan
+                            }
+                            dialog.dismiss()
+                        } else {
+                            etCurrentPassword.error = "Current password is incorrect"
+                        }
+                    }
                 }
             }
-
-            updatePassword(newPassword)
-            dialog.dismiss()
         }
 
         tvCancel.setOnClickListener {
@@ -416,6 +436,8 @@ class UserActivity : AppCompatActivity() {
                 UCrop.REQUEST_CROP -> {
                     val resultUri = UCrop.getOutput(data!!)
                     if (resultUri != null) {
+                        viewModel.updateProfilePicture(resultUri)
+
                         preferencesManager.saveProfilePictureUri(resultUri.toString())
 
                         Glide.with(this)

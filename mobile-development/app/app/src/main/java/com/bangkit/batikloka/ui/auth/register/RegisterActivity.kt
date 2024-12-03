@@ -14,11 +14,14 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.bangkit.batikloka.R
+import com.bangkit.batikloka.data.local.database.AppDatabase
 import com.bangkit.batikloka.ui.auth.codeverification.VerificationActivity
 import com.bangkit.batikloka.ui.auth.login.LoginActivity
 import com.bangkit.batikloka.ui.viewmodel.AppViewModelFactory
 import com.bangkit.batikloka.utils.PreferencesManager
+import kotlinx.coroutines.launch
 
 class RegisterActivity : AppCompatActivity() {
     private lateinit var etName: EditText
@@ -34,18 +37,14 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var tvLogin: TextView
     private lateinit var viewModel: RegisterViewModel
     private lateinit var preferencesManager: PreferencesManager
+    private lateinit var database: AppDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
         preferencesManager = PreferencesManager(this)
-        viewModel = ViewModelProvider(
-            this,
-            AppViewModelFactory(this, preferencesManager)
-        )[RegisterViewModel::class.java]
-
-        checkPendingRegistration()
+        database = AppDatabase.getDatabase(this)
 
         etName = findViewById(R.id.etName)
         etEmail = findViewById(R.id.etEmail)
@@ -57,6 +56,12 @@ class RegisterActivity : AppCompatActivity() {
         btnRegisterGoogle = findViewById(R.id.btnRegisterGoogle)
         tvLogin = findViewById(R.id.tvLogin)
 
+        viewModel = ViewModelProvider(
+            this,
+            AppViewModelFactory(this, preferencesManager, database)
+        )[RegisterViewModel::class.java]
+
+        checkPendingRegistration()
         setupClickListeners()
     }
 
@@ -98,12 +103,6 @@ class RegisterActivity : AppCompatActivity() {
             } else {
                 showValidationErrors(name, email, password, confirmPassword)
             }
-        }
-
-        btnRegisterGoogle.setOnClickListener {
-            viewModel.performGoogleRegister()
-            Toast.makeText(this, getString(R.string.login_google_clicked), Toast.LENGTH_SHORT)
-                .show()
         }
 
         tvLogin.setOnClickListener {
@@ -152,11 +151,19 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun performRegister(name: String, email: String, password: String) {
-        preferencesManager.saveRegistrationStep("email_registered")
-
-        showCustomAlertDialog(getString(R.string.registration_successful))
-        preferencesManager.saveUserEmail(email)
-        preferencesManager.saveUserName(name)
+        lifecycleScope.launch {
+            viewModel.registerUser(
+                name,
+                email,
+                password,
+                onSuccess = {
+                    showCustomAlertDialog(getString(R.string.registration_successful))
+                },
+                onError = { errorMessage ->
+                    Toast.makeText(this@RegisterActivity, errorMessage, Toast.LENGTH_SHORT).show()
+                }
+            )
+        }
     }
 
     private fun showCustomAlertDialog(title: String) {
