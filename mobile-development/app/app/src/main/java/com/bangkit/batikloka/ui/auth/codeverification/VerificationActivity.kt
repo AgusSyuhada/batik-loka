@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.bangkit.batikloka.R
+import com.bangkit.batikloka.data.local.database.AppDatabase
 import com.bangkit.batikloka.ui.auth.createnewpassword.CreateNewPasswordActivity
 import com.bangkit.batikloka.ui.auth.login.LoginActivity
 import com.bangkit.batikloka.ui.auth.register.RegisterActivity
@@ -24,15 +25,18 @@ class VerificationActivity : AppCompatActivity() {
     private lateinit var btnVerifyAccount: Button
     private lateinit var viewModel: VerificationViewModel
     private lateinit var preferencesManager: PreferencesManager
+    private lateinit var database: AppDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_verification)
 
         preferencesManager = PreferencesManager(this)
+        database = AppDatabase.getDatabase(this)
+
         viewModel = ViewModelProvider(
             this,
-            AppViewModelFactory(this, preferencesManager)
+            AppViewModelFactory(this, preferencesManager, database)
         )[VerificationViewModel::class.java]
 
         checkRegistrationValidity()

@@ -8,6 +8,7 @@ import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.bangkit.batikloka.R
+import com.bangkit.batikloka.data.local.database.AppDatabase
 import com.bangkit.batikloka.ui.auth.codeverification.VerificationActivity
 import com.bangkit.batikloka.ui.auth.login.LoginActivity
 import com.bangkit.batikloka.ui.auth.startprofile.StartProfileActivity
@@ -20,15 +21,18 @@ import com.bangkit.batikloka.utils.PreferencesManager
 class SplashScreen : AppCompatActivity() {
     private lateinit var splashViewModel: SplashScreenViewModel
     private lateinit var preferencesManager: PreferencesManager
+    private lateinit var database: AppDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash_screen)
 
         preferencesManager = PreferencesManager(this)
+        database = AppDatabase.getDatabase(this)
+
         splashViewModel = ViewModelProvider(
             this,
-            AppViewModelFactory(this, preferencesManager)
+            AppViewModelFactory(this, preferencesManager, database)
         )[SplashScreenViewModel::class.java]
 
         hideActionBar()
@@ -48,7 +52,7 @@ class SplashScreen : AppCompatActivity() {
                     return@postDelayed
                 }
 
-                splashViewModel.isUserLoggedIn() -> {
+                preferencesManager.isUserLoggedIn() -> {
                     when (preferencesManager.getRegistrationStep()) {
                         "email_registered" -> startActivity(
                             Intent(
@@ -64,7 +68,9 @@ class SplashScreen : AppCompatActivity() {
                             )
                         )
 
-                        else -> startActivity(Intent(this, MainActivity::class.java))
+                        "profile_completed" -> startActivity(Intent(this, MainActivity::class.java))
+
+                        else -> startActivity(Intent(this, LoginActivity::class.java))
                     }
                 }
 

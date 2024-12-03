@@ -3,6 +3,7 @@ package com.bangkit.batikloka.ui.viewmodel
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.bangkit.batikloka.data.local.database.AppDatabase
 import com.bangkit.batikloka.ui.auth.codeverification.VerificationViewModel
 import com.bangkit.batikloka.ui.auth.createnewpassword.CreateNewPasswordViewModel
 import com.bangkit.batikloka.ui.auth.emailverification.EmailVerificationViewModel
@@ -18,7 +19,9 @@ import com.bangkit.batikloka.utils.PreferencesManager
 class AppViewModelFactory(
     private val context: Context,
     private val preferencesManager: PreferencesManager,
+    private val database: AppDatabase,
 ) : ViewModelProvider.Factory {
+
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when {
             modelClass.isAssignableFrom(SplashScreenViewModel::class.java) -> {
@@ -30,27 +33,27 @@ class AppViewModelFactory(
             }
 
             modelClass.isAssignableFrom(CreateNewPasswordViewModel::class.java) -> {
-                CreateNewPasswordViewModel(context, preferencesManager) as T
+                CreateNewPasswordViewModel(context, preferencesManager, database) as T
             }
 
             modelClass.isAssignableFrom(EmailVerificationViewModel::class.java) -> {
-                EmailVerificationViewModel(context) as T
+                EmailVerificationViewModel(context, database) as T
             }
 
             modelClass.isAssignableFrom(LoginViewModel::class.java) -> {
-                LoginViewModel(preferencesManager) as T
+                LoginViewModel(preferencesManager, database) as T
             }
 
             modelClass.isAssignableFrom(RegisterViewModel::class.java) -> {
-                RegisterViewModel(preferencesManager) as T
+                RegisterViewModel(preferencesManager, database) as T
             }
 
             modelClass.isAssignableFrom(StartProfileViewModel::class.java) -> {
-                StartProfileViewModel() as T
+                StartProfileViewModel(preferencesManager, database) as T
             }
 
             modelClass.isAssignableFrom(UserActivityViewModel::class.java) -> {
-                UserActivityViewModel() as T
+                UserActivityViewModel(preferencesManager, database) as T
             }
 
             modelClass.isAssignableFrom(TourViewModel::class.java) -> {
