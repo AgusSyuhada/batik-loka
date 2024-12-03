@@ -33,9 +33,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.home.HomeActivity"
-            android:exported="false" />
-        <activity
             android:name=".ui.auth.createnewpassword.CreateNewPasswordActivity"
             android:exported="false" />
         <activity
