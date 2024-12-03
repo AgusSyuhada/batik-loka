@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".scan.ScanResultActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/caramel_gold"
+        android:title="Scan Result"
+        android:titleTextColor="@color/white"
+        app:navigationIcon="@drawable/arrow_back_24px"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <ImageView
+        android:id="@+id/iv_scan_image"
+        android:layout_width="0dp"
+        android:layout_height="250dp"
+        android:contentDescription="Scan Result Image"
+        android:scaleType="centerCrop"
+        android:src="@drawable/card"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+
+    <TextView
+        android:id="@+id/tv_scan_result_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="8dp"
+        android:text="Prediction Result"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@id/iv_scan_image"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_scan_result_description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:layout_marginLeft="8dp"
+        android:lineSpacingExtra="4dp"
+        android:text="Detailed description of the scan result."
+        android:textSize="14sp"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@id/tv_scan_result_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_history"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="8dp"
+        android:text="Sejarah"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@id/tv_scan_result_description"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_product_description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:layout_marginLeft="8dp"
+        android:lineSpacingExtra="4dp"
+        android:text="Detailed description of the product"
+        android:textSize="14sp"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@id/tv_history"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_recommendation"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="8dp"
+        android:text="Product Recommendation :"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@id/tv_product_description"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/shopee"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:backgroundTint="@color/caramel_gold"
+        android:text="Shopee"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/tv_recommendation"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/tokopedia"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:backgroundTint="@color/caramel_gold"
+        android:text="Tokopedia"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/shopee"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

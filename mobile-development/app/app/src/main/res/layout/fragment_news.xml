@@ -13,32 +13,7 @@
         android:layout_margin="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <androidx.appcompat.widget.SearchView
-            android:id="@+id/search_view_news"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@drawable/ic_search_background"
-            android:iconifiedByDefault="false"
-            android:queryHint="Search news..."
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/btn_setting"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <android.widget.Button
-            android:id="@+id/btn_setting"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginStart="8dp"
-            android:background="@drawable/settings"
-            android:backgroundTint="@color/black"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/search_view_news"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_news"

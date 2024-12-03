@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="">
+    tools:context="developerdetail">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -37,7 +37,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Name"
+        android:text="Full Name"
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="@color/black"
@@ -74,6 +74,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:layout_marginLeft="8dp"
         android:text="A passionate Android developer with expertise in Kotlin, Jetpack Compose, and mobile app architecture."
         android:textSize="14sp"
         android:textColor="@color/black"
@@ -85,6 +86,7 @@
     <TableLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
         app:layout_constraintTop_toBottomOf="@id/developer_description"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
