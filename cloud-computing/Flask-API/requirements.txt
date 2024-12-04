@@ -1,0 +1,5 @@
+Flask
+tensorflow
+bs4
+numpy
+Pillow
