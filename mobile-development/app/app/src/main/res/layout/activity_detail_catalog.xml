@@ -10,15 +10,23 @@
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/caramel_gold"
-        android:title="Detail Catalog"
-        android:titleTextColor="@color/white"
-        app:navigationIcon="@drawable/arrow_back_24px"
-        app:layout_constraintTop_toTopOf="parent"
+        android:background="@color/light_cream"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:navigationIcon="@drawable/ic_arrow_left">
+
+        <TextView
+            android:id="@+id/toolbar_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Detail Catalog"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+    </androidx.appcompat.widget.Toolbar>
 
     <ScrollView
         android:layout_width="0dp"
@@ -43,15 +51,6 @@
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:textAlignment="center" />
-
-            <TextView
-                android:id="@+id/tv_product_name_sansekerta"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Sansekerta"
-                android:textAlignment="center"
-                android:textColor="@color/black"
-                android:textSize="20sp" />
 
             <ImageView
                 android:id="@+id/iv_product_image"

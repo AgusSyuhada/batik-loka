@@ -1,0 +1,64 @@
+{
+  "batik": [
+    {
+      "name": "Batik Cendrawasih",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8MZbJvwpX6bW2cVMstcBV9Qb7SuY_A6Iqqw&s",
+      "description": "Terinspirasi dari keindahan burung cendrawasih, batik ini umumnya menampilkan motif burung yang anggun dan flora khas Papua. Simbol keindahan dan keunikan, batik ini seringkali menjadi representasi dari kekayaan alam dan budaya Papua.",
+      "category": "Papua"
+    },
+    {
+      "name": "Batik Ikat Celup",
+      "image": "https://down-id.img.susercontent.com/file/id-11134207-7r98w-lz8vdjxvw7vsaa",
+      "description": "Teknik ikat celup menghasilkan motif yang abstrak dan bebas. Dengan mengikat bagian kain tertentu sebelum dicelupkan ke dalam pewarna, batik ikat celup menciptakan efek gradasi warna yang unik dan alami.",
+      "category": "Bali"
+    },
+    {
+      "name": "Batik Insang",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOMz04OY8XvcD1M91a_RB31ZtsrxME-hQ4ohxznUVP8vZVCavR8KGLbgnh-670OAnjXeY&usqp=CAU",
+      "description": "Motif batik ini terinspirasi dari bentuk insang ikan atau pola-pola yang menyerupai dunia bawah laut. Garis-garis halus dan pola yang menyerupai sisik ikan seringkali menjadi ciri khas batik insang.",
+      "category": "Kalimantan"
+    },
+    {
+      "name": "Batik Kawung",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdQ8U7Ot2FSz5Son55HTXIicFEQxZ79FebVg&s",
+      "description": "Motif kotak-kotak yang saling bersusun menyerupai buah kawung menjadi ciri khas batik ini. Batik kawung memiliki makna filosofis yang mendalam, seperti kesatuan, keselarasan, dan kekuatan.",
+      "category": "Jawa"
+    },
+    {
+      "name": "Batik Lasem",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSpA_2gDZ1X_LHzAyNiMJFutqh4fLE7vNMOWA&s",
+      "description": "Dipengaruhi oleh budaya Tionghoa dan Arab, batik Lasem memiliki motif yang unik seperti naga, burung phoenix, atau kaligrafi. Perpaduan budaya ini menghasilkan batik dengan corak yang khas dan menarik.",
+      "category": "Jawa"
+    },
+    {
+      "name": "Batik Megamendung",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsICDZuDHzBVXC8mT7uI1yDGBl2YajYemTDCBIf_9BCC2qxaRFdgjf0c-i_kTwlVGc8kg&usqp=CAU",
+      "description": "Asal Cirebon, batik megamendung terkenal dengan motif awan mendung yang digambar secara stilisasi. Motif ini melambangkan kesabaran, keteguhan hati, dan harapan akan datangnya hujan (rezeki).",
+      "category": "Jawa"
+    },
+    {
+      "name": "Batik Pala",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQd9cVLhDFXynsqbQbVYEvcoGzcdtB9LqrE7g&s",
+      "description": "Kemungkinan besar terinspirasi dari rempah pala, batik ini mungkin menampilkan motif buah pala, pohon pala, atau pola yang terinspirasi dari bentuk buah pala. Batik pala mungkin melambangkan kekayaan, keharuman, atau keistimewaan.",
+      "category": "Sulawesi"
+    },
+    {
+      "name": "Batik Parang",
+      "image": "https://www.batikprabuseno.com/artikel/wp-content/uploads/2023/11/motif-batik-parang-rusak-1.jpg",
+      "description": "Motif garis-garis diagonal yang berulang menyerupai ombak yang menerjang menjadi ciri khas batik parang. Motif ini melambangkan kekuatan, keberanian, dan perlindungan.",
+      "category": "Jawa"
+    },
+    {
+      "name": "Batik Poleng",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0eqTkHte6V1MAs1zUE6GBoifI-TBLfKkRSQ&s",
+      "description": "Khas Bali, batik poleng memiliki kombinasi kotak-kotak hitam dan putih yang membentuk pola geometris. Motif ini memiliki makna religius dan filosofis yang mendalam dalam budaya Bali.",
+      "category": "Bali"
+    },
+    {
+      "name": "Batik Tambal",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_P83qd6l3Ft1OS-TGf3tprCU39xTdHizbpg&s",
+      "description": "Dibuat dengan menambal kain perca menjadi satu, batik tambal menghasilkan motif yang sangat beragam dan unik. Setiap kain batik tambal memiliki karakteristik yang berbeda-beda karena kombinasi kain perca yang digunakan.",
+      "category": "Jawa"
+    }
+  ]
+}
