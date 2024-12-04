@@ -12,8 +12,10 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation
 
-class BatikAdapter(private val batikList: List<Batik>) :
-    RecyclerView.Adapter<BatikAdapter.BatikViewHolder>() {
+class BatikAdapter(
+    private val batikList: List<Batik>,
+    private val onItemClickListener: (Batik) -> Unit,
+) : RecyclerView.Adapter<BatikAdapter.BatikViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BatikViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_catalog, parent, false)
@@ -23,6 +25,10 @@ class BatikAdapter(private val batikList: List<Batik>) :
     override fun onBindViewHolder(holder: BatikViewHolder, position: Int) {
         val batik = batikList[position]
         holder.bind(batik)
+
+        holder.itemView.setOnClickListener {
+            onItemClickListener(batik)
+        }
     }
 
     override fun getItemCount(): Int {
