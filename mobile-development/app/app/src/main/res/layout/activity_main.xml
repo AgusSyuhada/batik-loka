@@ -2,7 +2,6 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.main.MainActivity">
@@ -19,10 +18,12 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:visibility="visible" />
 
-    <androidx.fragment.app.FragmentContainerView
+    <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -31,20 +32,24 @@
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
         android:backgroundTint="@color/caramel_gold"
-        android:src="@drawable/ic_camera_outlined"
-        app:layout_anchor="@id/bottom_navigation"
+        app:layout_constraintBottom_toBottomOf="@+id/bottom_navigation"
+        app:layout_constraintEnd_toEndOf="@+id/bottom_navigation"
+        app:layout_constraintStart_toStartOf="@+id/bottom_navigation"
+        app:layout_constraintTop_toTopOf="@+id/bottom_navigation"
+        app:srcCompat="@drawable/ic_camera_outlined"
         app:tint="@color/ivory_white"
-        tools:layout_editor_absoluteX="177dp"
-        tools:layout_editor_absoluteY="621dp" />
+        tools:ignore="ContentDescription" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="75dp"
         android:background="@color/pearl_cream"
-        app:menu="@menu/bottom_menu"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="651dp" />
+        android:paddingHorizontal="10dp"
+        app:labelVisibilityMode="labeled"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:menu="@menu/bottom_menu" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,5 +1,6 @@
 [versions]
-agp = "8.7.2"
+agp = "8.7.3"
+cameraCore = "1.4.0"
 cardview = "1.0.0"
 circleimageview = "3.1.0"
 compiler = "4.16.0"
@@ -22,6 +23,10 @@ roomRuntime = "2.6.1"
 ucropVersion = "2.2.8"
 
 [libraries]
+androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraCore" }
+androidx-camera-core = { module = "androidx.camera:camera-core", version.ref = "cameraCore" }
+androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "cameraCore" }
+androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraCore" }
 androidx-cardview = { module = "androidx.cardview:cardview", version.ref = "cardview" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycleViewmodelKtx" }

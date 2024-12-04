@@ -8,9 +8,11 @@ import com.bangkit.batikloka.R
 import com.bangkit.batikloka.ui.main.catalog.CatalogFragment
 import com.bangkit.batikloka.ui.main.home.HomeFragment
 import com.bangkit.batikloka.ui.main.news.NewsFragment
+import com.bangkit.batikloka.ui.main.scan.ScanActivity
 import com.bangkit.batikloka.ui.main.user.UserActivity
 import com.bangkit.batikloka.utils.PreferencesManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MainActivity : AppCompatActivity() {
     private lateinit var bottomNavigationView: BottomNavigationView
@@ -23,6 +25,12 @@ class MainActivity : AppCompatActivity() {
         preferencesManager = PreferencesManager(this)
 
         bottomNavigationView = findViewById(R.id.bottom_navigation)
+        val fab: FloatingActionButton = findViewById(R.id.fab)
+
+        fab.setOnClickListener {
+            val intent = Intent(this, ScanActivity::class.java)
+            startActivity(intent)
+        }
 
         setupBottomNavigation()
 

@@ -13,10 +13,8 @@
         android:icon="@drawable/ic_news_outlined"/>
 
     <item
-        android:id="@+id/camera"
-        android:title=""
-        android:iconTint="@color/ivory_white"
-        android:enabled="false"/>
+        android:enabled="false"
+        android:title="" />
 
     <item
         android:id="@+id/catalog"
