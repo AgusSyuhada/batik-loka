@@ -67,4 +67,10 @@ class MainActivity : AppCompatActivity() {
             else -> replaceFragment(HomeFragment())
         }
     }
+
+    fun navigateToCatalogFragment() {
+        replaceFragment(CatalogFragment())
+        bottomNavigationView.selectedItemId = R.id.catalog
+        preferencesManager.saveLastSelectedMenuItem(R.id.catalog)
+    }
 }

@@ -1,5 +1,6 @@
 package com.bangkit.batikloka.ui.main.catalog
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.Gravity
@@ -51,7 +52,12 @@ class CatalogFragment : Fragment() {
         val batikResponse = Gson().fromJson(reader, BatikResponse::class.java)
 
         originalBatikList = batikResponse.batik
-        batikAdapter = BatikAdapter(originalBatikList)
+        batikAdapter = BatikAdapter(originalBatikList) { batik ->
+            val intent = Intent(requireContext(), DetailCatalogActivity::class.java).apply {
+                putExtra("BATIK_DATA", batik)
+            }
+            startActivity(intent)
+        }
         rvCatalog.adapter = batikAdapter
     }
 
@@ -109,7 +115,12 @@ class CatalogFragment : Fragment() {
             originalBatikList.filter { it.category == category }
         }
 
-        batikAdapter = BatikAdapter(filteredList)
+        batikAdapter = BatikAdapter(filteredList) { batik ->
+            val intent = Intent(requireContext(), DetailCatalogActivity::class.java).apply {
+                putExtra("BATIK_DATA", batik)
+            }
+            startActivity(intent)
+        }
         rvCatalog.adapter = batikAdapter
     }
 

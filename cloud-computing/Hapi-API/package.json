@@ -1,0 +1,26 @@
+{
+  "name": "hapi-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@hapi/hapi": "^21.3.12",
+    "dotenv": "^16.4.5",
+    "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^6.9.16",
+    "joi": "^17.13.3",
+    "bcrypt": "^5.1.1",
+    "boom": "^7.3.0",
+    "@google-cloud/storage": "^7.14.0",
+    "bcryptjs": "^2.4.3",
+    "firebase-admin": "^13.0.0",
+    "google-auth-library": "^9.15.0",
+    "multer": "^1.4.5-lts.1"
+  }
+}
