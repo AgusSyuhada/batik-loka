@@ -1,9 +1,8 @@
 const admin = require("firebase-admin");
-const serviceAccount = require("./fstore.json");
+const serviceAccount = require("./gcp.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: process.env.DB_URL,
 });
 
 const db = admin.firestore();
