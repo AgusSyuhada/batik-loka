@@ -17,7 +17,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.bangkit.batikloka.R
+import com.bangkit.batikloka.data.local.database.AppDatabase
 import com.bangkit.batikloka.ui.adapter.ImageSourceAdapter
 import com.bangkit.batikloka.ui.auth.register.RegisterActivity
 import com.bangkit.batikloka.ui.main.MainActivity
@@ -26,6 +28,7 @@ import com.bangkit.batikloka.utils.PreferencesManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.yalantis.ucrop.UCrop
+import kotlinx.coroutines.launch
 import java.io.File
 
 class StartProfileActivity : AppCompatActivity() {
@@ -33,6 +36,7 @@ class StartProfileActivity : AppCompatActivity() {
     private lateinit var btnNext: Button
     private lateinit var viewModel: StartProfileViewModel
     private lateinit var preferencesManager: PreferencesManager
+    private lateinit var database: AppDatabase
 
     companion object {
         private val PICK_IMAGE_REQUEST = 1
@@ -44,10 +48,11 @@ class StartProfileActivity : AppCompatActivity() {
         setContentView(R.layout.activity_start_profile)
 
         preferencesManager = PreferencesManager(this)
+        database = AppDatabase.getDatabase(this)
 
         viewModel = ViewModelProvider(
             this,
-            AppViewModelFactory(this, preferencesManager)
+            AppViewModelFactory(this, preferencesManager, database)
         )[StartProfileViewModel::class.java]
 
         checkRegistrationValidity()
@@ -64,13 +69,15 @@ class StartProfileActivity : AppCompatActivity() {
             completeRegistration()
         }
 
-        val savedProfilePictureUri = preferencesManager.getProfilePictureUri()
-        savedProfilePictureUri?.let { uriString ->
-            Glide.with(this)
-                .load(Uri.parse(uriString))
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .skipMemoryCache(true)
-                .into(ivProfilePicture)
+        lifecycleScope.launch {
+            val savedProfilePicture = viewModel.retrieveProfilePicture()
+            savedProfilePicture?.let { bitmap ->
+                Glide.with(this@StartProfileActivity)
+                    .load(bitmap)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .skipMemoryCache(true)
+                    .into(ivProfilePicture)
+            }
         }
     }
 
@@ -85,8 +92,9 @@ class StartProfileActivity : AppCompatActivity() {
     }
 
     private fun completeRegistration() {
-        preferencesManager.resetRegistrationProcess()
+        preferencesManager.saveRegistrationStep("profile_completed")
         preferencesManager.setUserRegistered()
+        preferencesManager.setUserLoggedIn(true)
 
         showCustomAlertDialog("Welcome to BatikLoka! Thank you for registering") {
             startActivity(Intent(this, MainActivity::class.java))
@@ -196,7 +204,7 @@ class StartProfileActivity : AppCompatActivity() {
                             .skipMemoryCache(true)
                             .into(ivProfilePicture)
 
-                        saveProfilePictureUri(resultUri)
+                        viewModel.saveProfilePicture(resultUri)
                     } else {
                         Toast.makeText(this, "Crop failed", Toast.LENGTH_SHORT).show()
                     }

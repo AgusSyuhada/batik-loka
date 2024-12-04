@@ -14,12 +14,15 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.bangkit.batikloka.R
+import com.bangkit.batikloka.data.local.database.AppDatabase
 import com.bangkit.batikloka.ui.auth.emailverification.EmailVerificationActivity
 import com.bangkit.batikloka.ui.auth.register.RegisterActivity
 import com.bangkit.batikloka.ui.main.MainActivity
 import com.bangkit.batikloka.ui.viewmodel.AppViewModelFactory
 import com.bangkit.batikloka.utils.PreferencesManager
+import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var etEmail: EditText
@@ -32,23 +35,11 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var tvForgotPassword: TextView
     private lateinit var viewModel: LoginViewModel
     private lateinit var preferencesManager: PreferencesManager
+    private lateinit var database: AppDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-
-        preferencesManager = PreferencesManager(this)
-
-        viewModel = ViewModelProvider(
-            this,
-            AppViewModelFactory(this, preferencesManager)
-        )[LoginViewModel::class.java]
-
-        if (viewModel.isUserLoggedIn()) {
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
-            return
-        }
 
         etEmail = findViewById(R.id.etEmail)
         etPassword = findViewById(R.id.etPassword)
@@ -57,6 +48,20 @@ class LoginActivity : AppCompatActivity() {
         tvRegister = findViewById(R.id.tvLogin)
         ivShowPassword = findViewById(R.id.ivShowPassword)
         tvForgotPassword = findViewById(R.id.tvForgotPassword)
+
+        preferencesManager = PreferencesManager(this)
+        database = AppDatabase.getDatabase(this)
+
+        viewModel = ViewModelProvider(
+            this,
+            AppViewModelFactory(this, preferencesManager, database)
+        )[LoginViewModel::class.java]
+
+        if (viewModel.isUserLoggedIn()) {
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+            return
+        }
 
         setupClickListeners()
     }
@@ -80,19 +85,15 @@ class LoginActivity : AppCompatActivity() {
             val password = etPassword.text.toString().trim()
 
             if (viewModel.validateInput(email, password)) {
-                performLogin(email)
+                performLogin(email, password)
             } else {
                 showValidationErrors(email, password)
             }
         }
 
-        btnLoginGoogle.setOnClickListener {
-            viewModel.performGoogleLogin()
-            Toast.makeText(this, "Google login clicked", Toast.LENGTH_SHORT).show()
-        }
-
         tvRegister.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
+            finish()
         }
 
         tvForgotPassword.setOnClickListener {
@@ -109,18 +110,24 @@ class LoginActivity : AppCompatActivity() {
 
         if (password.isEmpty()) {
             etPassword.error = getString(R.string.error_password_empty)
+        } else if (password.length < 6) {
+            etPassword.error = getString(R.string.error_password_length)
         }
     }
 
-    private fun performLogin(email: String) {
-        viewModel.performLogin(email)
-
-        showCustomAlertDialog(getString(R.string.welcome_back_to_batikloka))
-
-        Handler(Looper.getMainLooper()).postDelayed({
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
-        }, 2000)
+    private fun performLogin(email: String, password: String) {
+        lifecycleScope.launch {
+            viewModel.loginUser(
+                email,
+                password,
+                onSuccess = {
+                    showCustomAlertDialog(getString(R.string.welcome_back_to_batikloka))
+                },
+                onError = { errorMessage ->
+                    Toast.makeText(this@LoginActivity, errorMessage, Toast.LENGTH_SHORT).show()
+                }
+            )
+        }
     }
 
     private fun showCustomAlertDialog(title: String) {
@@ -135,8 +142,12 @@ class LoginActivity : AppCompatActivity() {
 
         dialog.setOnShowListener {
             dialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
-
             dialog.setCanceledOnTouchOutside(true)
+        }
+
+        dialog.setOnDismissListener {
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
         }
 
         dialog.show()

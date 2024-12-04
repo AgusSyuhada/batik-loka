@@ -12,10 +12,13 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.bangkit.batikloka.R
+import com.bangkit.batikloka.data.local.database.AppDatabase
 import com.bangkit.batikloka.ui.auth.login.LoginActivity
 import com.bangkit.batikloka.ui.viewmodel.AppViewModelFactory
 import com.bangkit.batikloka.utils.PreferencesManager
+import kotlinx.coroutines.launch
 
 class CreateNewPasswordActivity : AppCompatActivity() {
     private lateinit var etNewPassword: EditText
@@ -27,16 +30,18 @@ class CreateNewPasswordActivity : AppCompatActivity() {
     private var isConfirmNewPasswordVisible = false
     private lateinit var viewModel: CreateNewPasswordViewModel
     private lateinit var preferencesManager: PreferencesManager
+    private lateinit var database: AppDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_new_password)
 
         preferencesManager = PreferencesManager(this)
+        database = AppDatabase.getDatabase(this)
 
         viewModel = ViewModelProvider(
             this,
-            AppViewModelFactory(this, preferencesManager)
+            AppViewModelFactory(this, preferencesManager, database)
         )[CreateNewPasswordViewModel::class.java]
 
         etNewPassword = findViewById(R.id.etNewPassword)
@@ -86,7 +91,14 @@ class CreateNewPasswordActivity : AppCompatActivity() {
     }
 
     private fun saveNewPassword(newPassword: String) {
-        showCustomAlertDialog(viewModel.saveNewPassword(newPassword))
+        lifecycleScope.launch {
+            val isSaved = viewModel.saveNewPassword(newPassword)
+            if (isSaved) {
+                showCustomAlertDialog(getString(R.string.new_password_created_successfully))
+            } else {
+                showCustomAlertDialog("Failed to update password")
+            }
+        }
     }
 
     private fun showCustomAlertDialog(title: String) {

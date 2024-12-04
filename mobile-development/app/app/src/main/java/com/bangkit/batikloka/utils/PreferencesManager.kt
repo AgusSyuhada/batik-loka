@@ -2,6 +2,7 @@ package com.bangkit.batikloka.utils
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import com.bangkit.batikloka.R
 
 class PreferencesManager(context: Context) {
@@ -82,16 +83,16 @@ class PreferencesManager(context: Context) {
         editor.apply()
     }
 
-    fun getResetPasswordEmail(): String? {
-        return sharedPreferences.getString("reset_password_email", null)
-    }
-
-    fun clearResetPasswordData() {
-        val editor = sharedPreferences.edit()
-        editor.remove(KEY_IS_RESET_PASSWORD)
-        editor.remove("reset_password_email")
-        editor.apply()
-    }
+//    fun getResetPasswordEmail(): String? {
+//        return sharedPreferences.getString("reset_password_email", null)
+//    }
+//
+//    fun clearResetPasswordData() {
+//        val editor = sharedPreferences.edit()
+//        editor.remove(KEY_IS_RESET_PASSWORD)
+//        editor.remove("reset_password_email")
+//        editor.apply()
+//    }
 
     fun isResetPassword(): Boolean {
         return sharedPreferences.getBoolean(KEY_IS_RESET_PASSWORD, false)
@@ -107,6 +108,10 @@ class PreferencesManager(context: Context) {
 
     fun getUserEmail(): String? {
         return sharedPreferences.getString(KEY_USER_EMAIL, null)
+    }
+
+    fun setUserLoggedIn(isLoggedIn: Boolean) {
+        sharedPreferences.edit().putBoolean(KEY_IS_LOGGED_IN, isLoggedIn).apply()
     }
 
     fun clearLogoutStatus() {
@@ -161,6 +166,7 @@ class PreferencesManager(context: Context) {
         editor.remove(KEY_REGISTRATION_STEP)
         editor.remove(KEY_USER_EMAIL)
         editor.remove(KEY_IS_REGISTERED)
+        editor.remove(KEY_IS_LOGGED_IN)
         editor.apply()
     }
 
@@ -172,5 +178,16 @@ class PreferencesManager(context: Context) {
 
     fun isTourCompleted(): Boolean {
         return sharedPreferences.getBoolean(KEY_IS_TOUR_COMPLETED, false)
+    }
+
+    fun getResetPasswordEmail(): String? {
+        return sharedPreferences.getString("reset_password_email", null)
+    }
+
+    fun clearResetPasswordData() {
+        sharedPreferences.edit {
+            remove("reset_password_status")
+            remove("reset_password_email")
+        }
     }
 }

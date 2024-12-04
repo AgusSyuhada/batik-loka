@@ -1,0 +1,20 @@
+{
+  "name": "api-otp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@hapi/hapi": "^21.3.12",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.5",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.8.2",
+    "nodemailer": "^6.9.16"
+  }
+}

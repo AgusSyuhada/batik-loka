@@ -1,6 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("com.google.devtools.ksp")
+    id("kotlin-kapt")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -36,6 +39,7 @@ android {
         jvmTarget = "11"
     }
     buildFeatures {
+        dataBinding = true
         viewBinding = true
         mlModelBinding = true
     }
@@ -52,6 +56,23 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
+    // Room
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+
+    // Kotlin Coroutines
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.core)
+
+    // ViewModel dan LiveData
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+
+    // Gson
+    implementation(libs.gson)
+
     // UCrop
     implementation(libs.yalantis.ucrop)
 
@@ -60,6 +81,9 @@ dependencies {
 
     // Card View
     implementation(libs.androidx.cardview)
+
+    //
+    implementation(libs.glide.transformations)
 
     // Glide
     implementation(libs.glide)

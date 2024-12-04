@@ -73,6 +73,28 @@
                 app:layout_constraintTop_toBottomOf="@+id/layout_text_profil"
                 tools:ignore="HardcodedText" />
 
+            <FrameLayout
+                android:id="@+id/edit_profile_container"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="@drawable/circle_background_light_cream"
+                android:foregroundGravity="center"
+                app:layout_constraintBottom_toBottomOf="@+id/iv_profile_picture"
+                app:layout_constraintEnd_toEndOf="@+id/iv_profile_picture"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="@+id/iv_profile_picture"
+                app:layout_constraintTop_toTopOf="@+id/iv_profile_picture"
+                app:layout_constraintVertical_bias="0.0">
+
+                <ImageView
+                    android:id="@+id/ivEditProfilePicture"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_edit_outlined" />
+
+            </FrameLayout>
+
             <TextView
                 android:id="@+id/text_username"
                 android:layout_width="0dp"
@@ -84,6 +106,7 @@
                 android:paddingBottom="5dp"
                 android:text="Username"
                 android:textSize="14sp"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/iv_profile_picture" />
@@ -449,51 +472,6 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/layout_terms_of_use"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="15dp"
-                android:paddingVertical="5dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/layout_privacy_policy">
-
-                <ImageView
-                    android:id="@+id/ic_terms_of_use"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_privacy_outlined"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/tv_terms_of_use"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:layout_weight="1"
-                    android:text="Terms of Use"
-                    android:textSize="12sp"
-                    app:layout_constraintBottom_toBottomOf="@+id/ic_terms_of_use"
-                    app:layout_constraintStart_toEndOf="@+id/ic_terms_of_use"
-                    app:layout_constraintTop_toTopOf="@+id/ic_terms_of_use" />
-
-                <ImageView
-                    android:id="@+id/ic_terms_of_use_arrow"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_arrow_right"
-                    app:layout_constraintBottom_toBottomOf="@+id/tv_terms_of_use"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="1.0"
-                    app:layout_constraintStart_toEndOf="@+id/tv_terms_of_use"
-                    app:layout_constraintTop_toTopOf="@+id/tv_terms_of_use" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/layout_about_developer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -502,7 +480,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/layout_terms_of_use">
+                app:layout_constraintTop_toBottomOf="@+id/layout_privacy_policy">
 
                 <ImageView
                     android:id="@+id/ic_about_developer"
