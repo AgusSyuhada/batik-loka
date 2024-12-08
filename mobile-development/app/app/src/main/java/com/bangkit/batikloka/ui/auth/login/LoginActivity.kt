@@ -1,136 +1,244 @@
 package com.bangkit.batikloka.ui.auth.login
 
+import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.InputType
-import android.util.Patterns
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
+import android.text.method.PasswordTransformationMethod
+import android.text.method.SingleLineTransformationMethod
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import com.bangkit.batikloka.R
-import com.bangkit.batikloka.data.local.database.AppDatabase
+import com.bangkit.batikloka.data.remote.api.ApiConfig
+import com.bangkit.batikloka.data.repository.AuthRepository
+import com.bangkit.batikloka.databinding.ActivityLoginBinding
+import com.bangkit.batikloka.ui.auth.codeverification.VerificationActivity
 import com.bangkit.batikloka.ui.auth.emailverification.EmailVerificationActivity
 import com.bangkit.batikloka.ui.auth.register.RegisterActivity
+import com.bangkit.batikloka.ui.auth.viewmodel.AuthViewModelFactory
 import com.bangkit.batikloka.ui.main.MainActivity
-import com.bangkit.batikloka.ui.viewmodel.AppViewModelFactory
 import com.bangkit.batikloka.utils.PreferencesManager
-import kotlinx.coroutines.launch
+import com.bangkit.batikloka.utils.Result
 
 class LoginActivity : AppCompatActivity() {
-    private lateinit var etEmail: EditText
-    private lateinit var etPassword: EditText
-    private lateinit var btnLogin: Button
-    private lateinit var btnLoginGoogle: Button
-    private lateinit var tvRegister: TextView
-    private lateinit var ivShowPassword: ImageView
-    private var isPasswordVisible = false
-    private lateinit var tvForgotPassword: TextView
+    private lateinit var binding: ActivityLoginBinding
     private lateinit var viewModel: LoginViewModel
     private lateinit var preferencesManager: PreferencesManager
-    private lateinit var database: AppDatabase
+    private var loadingDialog: ProgressDialog? = null
+
+    companion object {
+        const val EXTRA_EMAIL = "extra_email"
+        const val EXTRA_FROM_LOGIN = "extra_from_login"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
 
-        etEmail = findViewById(R.id.etEmail)
-        etPassword = findViewById(R.id.etPassword)
-        btnLogin = findViewById(R.id.btnLogin)
-        btnLoginGoogle = findViewById(R.id.btnLoginGoogle)
-        tvRegister = findViewById(R.id.tvLogin)
-        ivShowPassword = findViewById(R.id.ivShowPassword)
-        tvForgotPassword = findViewById(R.id.tvForgotPassword)
+        initializeViewModel()
 
-        preferencesManager = PreferencesManager(this)
-        database = AppDatabase.getDatabase(this)
-
-        viewModel = ViewModelProvider(
-            this,
-            AppViewModelFactory(this, preferencesManager, database)
-        )[LoginViewModel::class.java]
-
-        if (viewModel.isUserLoggedIn()) {
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
+        if (isUserAlreadyLoggedIn()) {
+            navigateToMainActivity()
             return
         }
 
-        setupClickListeners()
+        setupBinding()
+        setupObservers()
+        setupListeners()
     }
 
-    private fun setupClickListeners() {
-        ivShowPassword.setOnClickListener {
-            isPasswordVisible = !isPasswordVisible
-            if (isPasswordVisible) {
-                etPassword.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                ivShowPassword.setImageResource(R.drawable.ic_visibility)
-            } else {
-                etPassword.inputType =
-                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                ivShowPassword.setImageResource(R.drawable.ic_visibility_off)
+    private fun initializeViewModel() {
+        val context = this
+        preferencesManager = PreferencesManager(this)
+        val authApiService = ApiConfig.getAuthApiService(this, preferencesManager)
+        val authRepository = AuthRepository(authApiService, preferencesManager)
+        val viewModelFactory = AuthViewModelFactory(authRepository, context)
+        viewModel = ViewModelProvider(this, viewModelFactory)[LoginViewModel::class.java]
+    }
+
+    private fun isUserAlreadyLoggedIn(): Boolean {
+        return viewModel.authRepository.isUserLoggedIn()
+    }
+
+    private fun setupBinding() {
+        binding = ActivityLoginBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+    }
+
+    private fun setupObservers() {
+        viewModel.loginResult.observe(this) { result ->
+            when (result) {
+                is Result.Success -> handleSuccessResult(result)
+                is Result.Error -> handleErrorResult(result)
+                is Result.Loading -> handleLoadingResult()
+                null -> resetButtonState()
             }
-            etPassword.setSelection(etPassword.text.length)
         }
+    }
 
-        btnLogin.setOnClickListener {
-            val email = etEmail.text.toString().trim()
-            val password = etPassword.text.toString().trim()
+    private fun handleSuccessResult(result: Result.Success<*>) {
+        dismissLoadingDialog()
+        binding.btnLogin.isEnabled = true
+        binding.btnLogin.text = getString(R.string.login)
 
-            if (viewModel.validateInput(email, password)) {
-                performLogin(email, password)
-            } else {
-                showValidationErrors(email, password)
+        showCustomAlertDialog(result.data.toString()) {
+            navigateToMainActivity()
+        }
+    }
+
+    private fun handleErrorResult(result: Result.Error) {
+        dismissLoadingDialog()
+        binding.btnLogin.isEnabled = true
+        binding.btnLogin.text = getString(R.string.login)
+
+        when {
+            result.message.contains("not verified", ignoreCase = true) -> {
+                handleUnverifiedUser(binding.etEmail.text.toString().trim())
+            }
+
+            result.message.contains("not found", ignoreCase = true) -> {
+                handleUserNotFound()
+            }
+
+            else -> {
+                showCustomErrorDialog(result.message)
             }
         }
+    }
 
-        tvRegister.setOnClickListener {
-            startActivity(Intent(this, RegisterActivity::class.java))
-            finish()
+    private fun handleLoadingResult() {
+        showLoadingDialog(getString(R.string.logging_in))
+        binding.btnLogin.isEnabled = false
+        binding.btnLogin.text = getString(R.string.logging_in)
+    }
+
+    private fun resetButtonState() {
+        dismissLoadingDialog()
+        binding.btnLogin.isEnabled = true
+        binding.btnLogin.text = getString(R.string.login)
+    }
+
+    private fun showLoadingDialog(message: String) {
+        loadingDialog?.dismiss()
+        loadingDialog = ProgressDialog(this)
+        loadingDialog?.setMessage(message)
+        loadingDialog?.setCancelable(false)
+        loadingDialog?.setOnShowListener {
+            loadingDialog?.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
+        }
+        loadingDialog?.show()
+    }
+
+    private fun dismissLoadingDialog() {
+        loadingDialog?.dismiss()
+        loadingDialog = null
+    }
+
+    private fun setupListeners() {
+        binding.btnLogin.setOnClickListener {
+            performLogin()
         }
 
-        tvForgotPassword.setOnClickListener {
-            startActivity(Intent(this, EmailVerificationActivity::class.java))
+        binding.tvForgotPassword.setOnClickListener {
+            navigateToEmailVerificationActivity()
+        }
+
+        binding.tvLogin.setOnClickListener {
+            navigateToRegister()
+        }
+
+        binding.ivShowPassword.setOnClickListener {
+            togglePasswordVisibility()
         }
     }
 
-    private fun showValidationErrors(email: String, password: String) {
-        if (email.isEmpty()) {
-            etEmail.error = getString(R.string.error_email_empty)
-        } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            etEmail.error = getString(R.string.error_email_invalid)
-        }
+    private fun performLogin() {
+        val email = binding.etEmail.text.toString().trim()
+        val password = binding.etPassword.text.toString().trim()
 
-        if (password.isEmpty()) {
-            etPassword.error = getString(R.string.error_password_empty)
-        } else if (password.length < 6) {
-            etPassword.error = getString(R.string.error_password_length)
-        }
+        viewModel.login(email, password)
     }
 
-    private fun performLogin(email: String, password: String) {
-        lifecycleScope.launch {
-            viewModel.loginUser(
-                email,
-                password,
-                onSuccess = {
-                    showCustomAlertDialog(getString(R.string.welcome_back_to_batikloka))
-                },
-                onError = { errorMessage ->
-                    Toast.makeText(this@LoginActivity, errorMessage, Toast.LENGTH_SHORT).show()
-                }
-            )
+    private fun handleUnverifiedUser(email: String) {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(getString(R.string.verification_required_title))
+            .setMessage(getString(R.string.unverified_account_message))
+            .setPositiveButton(getString(R.string.verify_now)) { _, _ ->
+                navigateToVerification(email)
+            }
+            .setNegativeButton(getString(R.string.cancel), null)
+
+        val dialog = builder.create()
+        dialog.setOnShowListener { dialogInterface ->
+            val alertDialog = dialogInterface as AlertDialog
+            alertDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
+
+            alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                ?.setTextColor(ContextCompat.getColor(this, R.color.caramel_gold))
+            alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+                ?.setTextColor(ContextCompat.getColor(this, R.color.black))
+
+            val titleTextView =
+                alertDialog.window?.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)
+            titleTextView?.setTextColor(ContextCompat.getColor(this, R.color.caramel_gold))
         }
+        dialog.show()
     }
 
-    private fun showCustomAlertDialog(title: String) {
+    private fun handleUserNotFound() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(getString(R.string.user_not_found_title))
+            .setMessage(getString(R.string.user_not_found_message))
+            .setPositiveButton(getString(R.string.register_now)) { _, _ ->
+                navigateToRegister()
+            }
+            .setNegativeButton(getString(R.string.cancel), null)
+
+        val dialog = builder.create()
+        dialog.setOnShowListener { dialogInterface ->
+            val alertDialog = dialogInterface as AlertDialog
+            alertDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
+
+            alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                ?.setTextColor(ContextCompat.getColor(this, R.color.caramel_gold))
+            alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+                ?.setTextColor(ContextCompat.getColor(this, R.color.black))
+
+            val titleTextView =
+                alertDialog.window?.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)
+            titleTextView?.setTextColor(ContextCompat.getColor(this, R.color.caramel_gold))
+        }
+        dialog.show()
+    }
+
+    private fun showCustomErrorDialog(message: String) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_crossmark, null)
+        val titleTextView = dialogView.findViewById<TextView>(R.id.dialog_error_title)
+        titleTextView.text = message
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
+            dialog.setCanceledOnTouchOutside(true)
+        }
+
+        dialog.show()
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (dialog.isShowing) {
+                dialog.dismiss()
+            }
+        }, 2000)
+    }
+
+    private fun showCustomAlertDialog(title: String, onDismiss: () -> Unit) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_checkmark, null)
         val titleTextView = dialogView.findViewById<TextView>(R.id.dialog_title)
         titleTextView.text = title
@@ -146,8 +254,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         dialog.setOnDismissListener {
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
+            onDismiss()
         }
 
         dialog.show()
@@ -157,5 +264,52 @@ class LoginActivity : AppCompatActivity() {
                 dialog.dismiss()
             }
         }, 2000)
+    }
+
+    private fun togglePasswordVisibility() {
+        val currentTransformationMethod = binding.etPassword.transformationMethod
+
+        binding.etPassword.transformationMethod =
+            if (currentTransformationMethod is PasswordTransformationMethod) {
+                SingleLineTransformationMethod()
+            } else {
+                PasswordTransformationMethod()
+            }
+
+        val iconResId = if (currentTransformationMethod is PasswordTransformationMethod)
+            R.drawable.ic_visibility
+        else
+            R.drawable.ic_visibility_off
+
+        binding.ivShowPassword.setImageResource(iconResId)
+
+        binding.etPassword.setSelection(binding.etPassword.text.length)
+    }
+
+    private fun navigateToVerification(email: String) {
+        val intent = Intent(this, VerificationActivity::class.java).apply {
+            putExtra(EXTRA_EMAIL, email)
+            putExtra(EXTRA_FROM_LOGIN, true)
+        }
+        startActivity(intent)
+        finish()
+    }
+
+    private fun navigateToRegister() {
+        val intent = Intent(this, RegisterActivity::class.java)
+        startActivity(intent)
+        finish()
+    }
+
+    private fun navigateToEmailVerificationActivity() {
+        val intent = Intent(this, EmailVerificationActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun navigateToMainActivity() {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
     }
 }

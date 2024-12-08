@@ -20,7 +20,7 @@
             android:id="@+id/toolbar_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="About Developer"
+            android:text="@string/about_developer_title"
             android:textColor="@android:color/black"
             android:textSize="16sp"
             android:textStyle="bold" />

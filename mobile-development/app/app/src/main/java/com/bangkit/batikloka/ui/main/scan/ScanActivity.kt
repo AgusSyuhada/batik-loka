@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
@@ -38,9 +39,7 @@ class ScanActivity : AppCompatActivity() {
     ) { result ->
         when (result.resultCode) {
             RESULT_OK -> {
-                // Handle camera result
                 currentImageFile?.let { file ->
-                    // Process image if needed
                     Toast.makeText(this, "Photo captured", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -53,16 +52,95 @@ class ScanActivity : AppCompatActivity() {
         }
     }
 
+    private fun createTempFile(): File {
+        val mediaDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)?.let {
+            File(it, resources.getString(R.string.app_name)).apply { mkdirs() }
+        }
+        return File(mediaDir ?: filesDir, "scan_${System.currentTimeMillis()}.jpg")
+    }
+
+    private fun takePhoto() {
+        val imageCapture = imageCapture ?: return
+
+        val outputFile = createTempFile()
+        val outputOptions = ImageCapture.OutputFileOptions.Builder(outputFile).build()
+
+        imageCapture.takePicture(
+            outputOptions,
+            ContextCompat.getMainExecutor(this),
+            object : ImageCapture.OnImageSavedCallback {
+                override fun onError(exc: ImageCaptureException) {
+                    Toast.makeText(
+                        baseContext,
+                        "Photo capture failed: ${exc.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                    currentImageFile = outputFile
+                    val savedUri = FileProvider.getUriForFile(
+                        this@ScanActivity,
+                        "${packageName}.fileprovider",
+                        outputFile
+                    )
+
+                    // Tambahkan permission untuk membaca URI
+                    val intent = Intent(this@ScanActivity, ScanResultActivity::class.java).apply {
+                        putExtra("IMAGE_URI", savedUri.toString())
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+                    startActivity(intent)
+                    finish()
+                }
+            }
+        )
+    }
+
+    private fun uriToFile(uri: Uri): File {
+        val mediaDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)?.let {
+            File(it, resources.getString(R.string.app_name)).apply { mkdirs() }
+        }
+        val file = File(mediaDir ?: filesDir, "temp_image_${System.currentTimeMillis()}.jpg")
+
+        contentResolver.openInputStream(uri)?.use { input ->
+            file.outputStream().use { output ->
+                input.copyTo(output)
+            }
+        }
+        return file
+    }
+
     private val pickMedia =
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             if (uri != null) {
-                // Process selected image
                 currentImageFile = uriToFile(uri)
-                Toast.makeText(this, "Image selected", Toast.LENGTH_SHORT).show()
+                val savedUri = FileProvider.getUriForFile(
+                    this,
+                    "${packageName}.fileprovider",
+                    currentImageFile!!
+                )
+
+                val intent = Intent(this, ScanResultActivity::class.java).apply {
+                    putExtra("IMAGE_URI", savedUri.toString())
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                startActivity(intent)
+                finish()
             } else {
                 Toast.makeText(this, "Gallery canceled", Toast.LENGTH_SHORT).show()
             }
         }
+
+    private fun openGallery() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        } else {
+            val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+            intent.type = "image/*"
+            launcherIntentCamera.launch(intent)
+        }
+    }
 
     companion object {
         private const val REQUEST_CODE_PERMISSIONS = 10
@@ -83,13 +161,10 @@ class ScanActivity : AppCompatActivity() {
         binding = ActivityScanBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Setup toolbar
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
         binding.toolbar.setNavigationOnClickListener { onBackPressed() }
-        binding.toolbarTitle.text = "Scan Batik"
 
-        // Check and request permissions
         if (!allPermissionsGranted()) {
             requestAllPermissions()
         } else {
@@ -127,28 +202,6 @@ class ScanActivity : AppCompatActivity() {
         }
     }
 
-    private fun openGallery() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-        } else {
-            val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-            intent.type = "image/*"
-            launcherIntentCamera.launch(intent)
-        }
-    }
-
-    private fun uriToFile(uri: Uri): File {
-        // Implement your URI to File conversion logic here
-        // This is a placeholder implementation
-        val file = File(cacheDir, "temp_image_${System.currentTimeMillis()}.jpg")
-        contentResolver.openInputStream(uri)?.use { input ->
-            file.outputStream().use { output ->
-                input.copyTo(output)
-            }
-        }
-        return file
-    }
-
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 
@@ -180,57 +233,14 @@ class ScanActivity : AppCompatActivity() {
         }, ContextCompat.getMainExecutor(this))
     }
 
-    private fun takePhoto() {
-        val imageCapture = imageCapture ?: return
-
-        val outputFile = createTempFile()
-        val outputOptions = ImageCapture.OutputFileOptions.Builder(outputFile).build()
-
-        imageCapture.takePicture(
-            outputOptions,
-            ContextCompat.getMainExecutor(this),
-            object : ImageCapture.OnImageSavedCallback {
-                override fun onError(exc: ImageCaptureException) {
-                    Toast.makeText(
-                        baseContext,
-                        "Photo capture failed: ${exc.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-
-                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                    currentImageFile = outputFile
-                    val savedUri = FileProvider.getUriForFile(
-                        this@ScanActivity,
-                        "${packageName}.fileprovider",
-                        outputFile
-                    )
-
-                    Toast.makeText(
-                        baseContext,
-                        "Photo captured successfully",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-        )
-    }
-
-    private fun createTempFile(): File {
-        val mediaDir = getExternalFilesDir(null)?.let {
-            File(it, resources.getString(R.string.app_name)).apply { mkdirs() }
-        }
-        return File(mediaDir ?: filesDir, "scan_${System.currentTimeMillis()}.jpg")
-    }
-
     private fun toggleFlash() {
         imageCapture?.let { imageCapture ->
             isFlashOn = !isFlashOn
             imageCapture.flashMode = if (isFlashOn) {
-                binding.btnFlash.setImageResource(R.drawable.flash_off_24px)
+                binding.btnFlash.setImageResource(R.drawable.ic_flash_on)
                 ImageCapture.FLASH_MODE_ON
             } else {
-                binding.btnFlash.setImageResource(R.drawable.flash_off_24px)
+                binding.btnFlash.setImageResource(R.drawable.ic_flash_off)
                 ImageCapture.FLASH_MODE_OFF
             }
         }

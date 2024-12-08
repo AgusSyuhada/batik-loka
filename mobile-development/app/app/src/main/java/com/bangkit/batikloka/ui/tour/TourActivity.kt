@@ -14,7 +14,6 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.bangkit.batikloka.R
-import com.bangkit.batikloka.data.local.database.AppDatabase
 import com.bangkit.batikloka.ui.adapter.TourAdapter
 import com.bangkit.batikloka.ui.auth.login.LoginActivity
 import com.bangkit.batikloka.ui.auth.register.RegisterActivity
@@ -30,18 +29,16 @@ class TourActivity : AppCompatActivity() {
     private lateinit var dotsIndicator: LinearLayout
     private lateinit var tourViewModel: TourViewModel
     private lateinit var preferencesManager: PreferencesManager
-    private lateinit var database: AppDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tour)
 
         preferencesManager = PreferencesManager(this)
-        database = AppDatabase.getDatabase(this)
 
         tourViewModel = ViewModelProvider(
             this,
-            AppViewModelFactory(this, preferencesManager, database)
+            AppViewModelFactory(preferencesManager)
         )[TourViewModel::class.java]
 
 

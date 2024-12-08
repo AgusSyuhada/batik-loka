@@ -1,116 +1,99 @@
 package com.bangkit.batikloka.ui.main.user
 
+import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.provider.MediaStore
-import android.text.InputType
-import android.view.View
+import android.text.method.HideReturnsTransformationMethod
+import android.text.method.PasswordTransformationMethod
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import com.bangkit.batikloka.R
-import com.bangkit.batikloka.data.local.database.AppDatabase
-import com.bangkit.batikloka.ui.adapter.ImageSourceAdapter
+import com.bangkit.batikloka.data.remote.api.ApiConfig
+import com.bangkit.batikloka.data.remote.response.ChangeAvatarResponse
+import com.bangkit.batikloka.data.remote.response.ForgetPasswordResponse
+import com.bangkit.batikloka.data.remote.response.ProfileResponse
+import com.bangkit.batikloka.data.repository.AuthRepository
+import com.bangkit.batikloka.databinding.ActivityUserBinding
+import com.bangkit.batikloka.ui.adapter.LanguageAdapter
+import com.bangkit.batikloka.ui.adapter.ThemeAdapter
 import com.bangkit.batikloka.ui.auth.login.LoginActivity
 import com.bangkit.batikloka.ui.main.MainActivity
 import com.bangkit.batikloka.ui.main.user.aboutdev.AboutDeveloperActivity
+import com.bangkit.batikloka.ui.main.user.historyscan.HistoryScanActivity
 import com.bangkit.batikloka.ui.main.user.privpol.PrivacyPolicyActivity
-import com.bangkit.batikloka.ui.viewmodel.AppViewModelFactory
+import com.bangkit.batikloka.ui.main.user.viewmodel.UserActivityViewModel
+import com.bangkit.batikloka.ui.main.user.viewmodel.UserViewModelFactory
+import com.bangkit.batikloka.utils.AppTheme
 import com.bangkit.batikloka.utils.PreferencesManager
+import com.bangkit.batikloka.utils.Result
+import com.bangkit.batikloka.utils.helper.ImagePickerHelper
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.yalantis.ucrop.UCrop
-import kotlinx.coroutines.launch
 import java.io.File
 
 class UserActivity : AppCompatActivity() {
-    private lateinit var ivProfilePicture: ImageView
-    private lateinit var tvShowEmail: TextView
-    private lateinit var tvUsername: TextView
+
+    private lateinit var binding: ActivityUserBinding
     private lateinit var viewModel: UserActivityViewModel
+    private lateinit var authRepository: AuthRepository
     private lateinit var preferencesManager: PreferencesManager
-    private lateinit var logoutContainer: View
+    private lateinit var context: Context
     private lateinit var toolbar: Toolbar
-    private lateinit var layoutEditName: ConstraintLayout
-    private lateinit var layoutChangePassword: ConstraintLayout
-    private lateinit var database: AppDatabase
+    private val imagePickerHelper = ImagePickerHelper(this)
 
     companion object {
-        private val PICK_IMAGE_REQUEST = 1
-        private val CAMERA_REQUEST = 2
+        fun createAuthRepository(context: Context): AuthRepository {
+            val preferencesManager = PreferencesManager(context)
+            val authApiService = ApiConfig.getAuthApiService(context, preferencesManager)
+            return AuthRepository(authApiService, preferencesManager)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_user)
+        binding = ActivityUserBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
+        context = this
+        authRepository = createAuthRepository(this)
         preferencesManager = PreferencesManager(this)
-        database = AppDatabase.getDatabase(this)
+        preferencesManager.applyLanguageFromPreferences()
 
-        viewModel = ViewModelProvider(
-            this,
-            AppViewModelFactory(this, preferencesManager, database)
-        )[UserActivityViewModel::class.java]
+        val viewModelFactory = UserViewModelFactory(authRepository, context)
+        viewModel = ViewModelProvider(this, viewModelFactory)[UserActivityViewModel::class.java]
 
-        toolbar = findViewById(R.id.toolbar)
+        setupToolbar()
+        setupObservers()
+        setupPrivacyPolicyListener()
+        setupAboutDeveloperListener()
+        setupHistoryScanListener()
+        setupListeners()
+
+        viewModel.fetchProfile()
+
+        imagePickerHelper.setOnImageSelectedListener { file ->
+            uploadAvatar(file)
+        }
+    }
+
+    private fun setupToolbar() {
+        toolbar = binding.toolbar
         setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayShowTitleEnabled(false)
+        supportActionBar?.apply {
+            setDisplayShowTitleEnabled(false)
+            setDisplayHomeAsUpEnabled(true)
+        }
         toolbar.title = ""
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-        logoutContainer = findViewById(R.id.layout_logout)
-        ivProfilePicture = findViewById(R.id.iv_profile_picture)
-        tvShowEmail = findViewById(R.id.tv_show_email)
-        tvUsername = findViewById(R.id.text_username)
-
-        ivProfilePicture.setOnClickListener {
-            viewModel.logImageSourceSelection("Profile Picture")
-            showImageSourceOptions()
-        }
-
-        val ivEditProfilePicture: ImageView = findViewById(R.id.ivEditProfilePicture)
-        ivEditProfilePicture.setOnClickListener {
-            viewModel.logImageSourceSelection("Profile Picture Edit Icon")
-            showImageSourceOptions()
-        }
-
-        layoutEditName = findViewById(R.id.layout_edit_name)
-        layoutEditName.setOnClickListener {
-            showEditNameDialog()
-        }
-
-        layoutChangePassword = findViewById(R.id.layout_change_password)
-        layoutChangePassword.setOnClickListener {
-            showChangePasswordDialog()
-        }
-
-        val layoutAboutDeveloper: ConstraintLayout = findViewById(R.id.layout_about_developer)
-        layoutAboutDeveloper.setOnClickListener {
-            val intent = Intent(this, AboutDeveloperActivity::class.java)
-            startActivity(intent)
-        }
-
-        val layoutPrivacyPolicyActivity: ConstraintLayout = findViewById(R.id.layout_privacy_policy)
-        layoutPrivacyPolicyActivity.setOnClickListener {
-            val intent = Intent(this, PrivacyPolicyActivity::class.java)
-            startActivity(intent)
-        }
-
-        setupLogoutListener()
 
         toolbar.setNavigationOnClickListener {
             val intent = Intent(this, MainActivity::class.java).apply {
@@ -119,42 +102,305 @@ class UserActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
-
-        displayUserEmail()
-        displayUsername()
-        loadSavedProfilePicture()
     }
 
-    private fun displayUserEmail() {
-        val userEmail = preferencesManager.getUserEmail()
-        if (userEmail != null) {
-            tvShowEmail.text = userEmail
+    private fun setupObservers() {
+        viewModel.profileResult.observe(this) { result ->
+            when (result) {
+                is Result.Success -> {
+                    val profile = result.data as ProfileResponse
+                    updateProfileUI(profile)
+                }
+
+                is Result.Error -> {
+                    showCustomErrorDialog(result.message)
+                }
+
+                is Result.Loading -> {
+                    //
+                }
+
+                null -> {
+                    //
+                }
+            }
+        }
+
+        viewModel.logoutResult.observe(this) { result ->
+            when (result) {
+                is Result.Success -> {
+                    showCustomAlertDialog(getString(R.string.logout_success)) {
+                        navigateToLogin()
+                    }
+                }
+
+                is Result.Error -> {
+                    showCustomErrorDialog(result.message)
+                }
+
+                is Result.Loading -> {
+                    // Optional: Show loading indicator
+                }
+
+                null -> {
+                    // Optional: Handle null case
+                }
+            }
+        }
+
+        viewModel.changeNameResult.observe(this) { result ->
+            when (result) {
+                is Result.Success -> {
+                    showCustomAlertDialog(getString(R.string.name_change_success)) {
+                        viewModel.fetchProfile()
+                    }
+                }
+
+                is Result.Error -> {
+                    showCustomErrorDialog(result.message)
+                }
+
+                is Result.Loading -> {
+                    // Optional: Show loading indicator
+                }
+
+                null -> {
+                    // Optional: Handle null case
+                }
+            }
+        }
+
+        viewModel.avatarResult.observe(this) { result ->
+            when (result) {
+                is Result.Success -> {
+                    val avatarUrl = (result.data as ChangeAvatarResponse).avatarUrl
+                    preferencesManager.saveProfileImageUrl(avatarUrl)
+
+                    Glide.with(this)
+                        .load(avatarUrl)
+                        .placeholder(R.drawable.ic_avatar_outlined_250)
+                        .error(R.drawable.ic_avatar_outlined_250)
+                        .into(binding.ivProfilePicture)
+
+                    showCustomAlertDialog(getString(R.string.avatar_update_success)) {
+                        // Optional: Handle success
+                    }
+                }
+
+                is Result.Error -> {
+                    showCustomErrorDialog(result.message)
+                }
+
+                is Result.Loading -> {
+                    // Optional: Show loading indicator
+                }
+
+                null -> {
+                    // Optional: Handle null case
+                }
+            }
+        }
+
+        viewModel.changePasswordResult.observe(this) { result ->
+            when (result) {
+                is Result.Success -> {
+                    dismissLoadingDialog()
+                    if (result.data is ForgetPasswordResponse) {
+                        val userEmail = binding.tvShowEmail.text.toString().trim()
+                        showResetPasswordDialog(userEmail)
+                    } else {
+                        showCustomAlertDialog(getString(R.string.password_reset_success)) {
+                            navigateToLogin()
+                        }
+                    }
+                }
+
+                is Result.Error -> {
+                    dismissLoadingDialog()
+                    handleForgetPasswordError(result.message)
+                }
+
+                is Result.Loading -> {
+                    showLoadingDialog(getString(R.string.loading_message))
+                }
+
+                null -> {
+                    dismissLoadingDialog()
+                }
+            }
+        }
+    }
+
+    private fun setupPasswordVisibilityListeners(
+        etNewPassword: EditText,
+        etConfirmNewPassword: EditText,
+        ivShowNewPassword: ImageView,
+        ivShowConfirmNewPassword: ImageView
+    ) {
+        var isNewPasswordVisible = false
+        var isConfirmPasswordVisible = false
+
+        ivShowNewPassword.setOnClickListener {
+            isNewPasswordVisible = !isNewPasswordVisible
+            togglePasswordVisibility(etNewPassword, ivShowNewPassword, isNewPasswordVisible)
+        }
+
+        ivShowConfirmNewPassword.setOnClickListener {
+            isConfirmPasswordVisible = !isConfirmPasswordVisible
+            togglePasswordVisibility(
+                etConfirmNewPassword,
+                ivShowConfirmNewPassword,
+                isConfirmPasswordVisible
+            )
+        }
+    }
+
+    private fun togglePasswordVisibility(
+        editText: EditText,
+        imageView: ImageView,
+        isVisible: Boolean
+    ) {
+        val cursorPosition = editText.selectionStart
+
+        editText.transformationMethod = if (isVisible) {
+            HideReturnsTransformationMethod.getInstance()
         } else {
-            tvShowEmail.text = "Email not found"
+            PasswordTransformationMethod.getInstance()
+        }
+
+        imageView.setImageResource(
+            if (isVisible) R.drawable.ic_visibility
+            else R.drawable.ic_visibility_off
+        )
+
+        editText.setSelection(cursorPosition)
+
+        editText.requestFocus()
+    }
+
+    private fun showChangePasswordDialog() {
+        val userEmail = binding.tvShowEmail.text.toString().trim()
+
+        if (userEmail.isEmpty()) {
+            showCustomErrorDialog(getString(R.string.email_not_found))
+            return
+        }
+
+        viewModel.forgetPassword(userEmail)
+    }
+
+    private var loadingDialog: ProgressDialog? = null
+
+    private fun showLoadingDialog(message: String) {
+        loadingDialog?.dismiss()
+        loadingDialog = ProgressDialog(this)
+        loadingDialog?.setMessage(message)
+        loadingDialog?.setCancelable(true)
+        loadingDialog?.setOnCancelListener {
+            viewModel.cancelCurrentOperation()
+        }
+        loadingDialog?.setOnShowListener {
+            loadingDialog?.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
+        }
+        loadingDialog?.show()
+    }
+
+    private fun dismissLoadingDialog() {
+        loadingDialog?.dismiss()
+        loadingDialog = null
+    }
+
+    private fun showResetPasswordDialog(email: String) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_change_password, null)
+
+        val etVerificationCode = dialogView.findViewById<EditText>(R.id.et_verification_code)
+        val etNewPassword = dialogView.findViewById<EditText>(R.id.et_new_password)
+        val etConfirmNewPassword = dialogView.findViewById<EditText>(R.id.et_confirm_new_password)
+
+        val ivShowNewPassword = dialogView.findViewById<ImageView>(R.id.iv_show_new_password)
+        val ivShowConfirmPassword =
+            dialogView.findViewById<ImageView>(R.id.iv_show_confirm_password)
+
+        val btnSavePassword = dialogView.findViewById<TextView>(R.id.btn_save_password)
+        val tvCancel = dialogView.findViewById<TextView>(R.id.tv_cancel_change_password)
+
+        setupPasswordVisibilityListeners(
+            etNewPassword,
+            etConfirmNewPassword,
+            ivShowNewPassword,
+            ivShowConfirmPassword
+        )
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
+        }
+
+        btnSavePassword.setOnClickListener {
+            val verificationCode = etVerificationCode.text.toString().trim()
+            val newPassword = etNewPassword.text.toString().trim()
+            val confirmNewPassword = etConfirmNewPassword.text.toString().trim()
+
+            when {
+                verificationCode.isEmpty() || verificationCode.length != 6 -> {
+                    etVerificationCode.error = getString(R.string.verification_code_error)
+                    return@setOnClickListener
+                }
+
+                newPassword.isEmpty() -> {
+                    etNewPassword.error = getString(R.string.new_password_empty)
+                    return@setOnClickListener
+                }
+
+                newPassword.length < 6 -> {
+                    etNewPassword.error = getString(R.string.new_password_length_error)
+                    return@setOnClickListener
+                }
+
+                newPassword != confirmNewPassword -> {
+                    etConfirmNewPassword.error = getString(R.string.password_confirmation_error)
+                    return@setOnClickListener
+                }
+
+                else -> {
+                    viewModel.resetPassword(
+                        email,
+                        verificationCode,
+                        newPassword
+                    )
+                    dialog.dismiss()
+                }
+            }
+        }
+
+        tvCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun handleForgetPasswordError(errorMessage: String) {
+        when {
+            errorMessage.contains("User  not found", ignoreCase = true) -> {
+                showCustomErrorDialog(getString(R.string.user_not_found))
+            }
+
+            errorMessage.contains("required", ignoreCase = true) -> {
+                showCustomErrorDialog(getString(R.string.email_required))
+            }
+
+            else -> {
+                showCustomErrorDialog(errorMessage)
+            }
         }
     }
 
-    private fun displayUsername() {
-        val username = preferencesManager.getUserName()
-        if (username != null) {
-            tvUsername.text = username
-        } else {
-            tvUsername.text = "Username not found"
-        }
-    }
-
-    private fun setupLogoutListener() {
-        logoutContainer.setOnClickListener {
-            performLogout()
-        }
-    }
-
-    private fun getPreviousMenuItem(): Int {
-        val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
-        return prefs.getInt("LAST_SELECTED_MENU_ITEM", R.id.home)
-    }
-
-    private fun showCustomAlertDialog(title: String, onDismiss: () -> Unit) {
+    private fun showCustomAlertDialog(title: String, onDismiss: () -> Unit = {}) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_checkmark, null)
         val titleTextView = dialogView.findViewById<TextView>(R.id.dialog_title)
         titleTextView.text = title
@@ -182,17 +428,135 @@ class UserActivity : AppCompatActivity() {
         }, 2000)
     }
 
-    private fun showImageSourceOptions() {
-        val options = arrayOf("Take photo from camera", "Choose from gallery")
-        val icons = intArrayOf(R.drawable.ic_camera_outlined, R.drawable.ic_photo)
+    private fun setupListeners() {
+        binding.layoutLogout.setOnClickListener {
+            viewModel.performLogout()
+        }
+
+        binding.layoutEditName.setOnClickListener {
+            showEditNameDialog()
+        }
+
+        binding.layoutChangePassword.setOnClickListener {
+            showChangePasswordDialog()
+        }
+
+        binding.ivEditProfilePicture.setOnClickListener {
+            showImageSourceOptions()
+        }
+
+        binding.layoutLanguage.setOnClickListener {
+            showLanguageChangeDialog()
+        }
+
+        binding.layoutTheme.setOnClickListener {
+            showThemeChangeDialog()
+        }
+    }
+
+    private fun updateProfileUI(profile: ProfileResponse) {
+        binding.apply {
+            textUsername.text = profile.name
+            tvShowEmail.text = profile.email
+
+            val savedAvatarUrl = preferencesManager.getProfileImageUrl()
+
+            if (!savedAvatarUrl.isNullOrEmpty()) {
+                Glide.with(this@UserActivity)
+                    .load(savedAvatarUrl)
+                    .placeholder(R.drawable.ic_avatar_outlined_250)
+                    .error(R.drawable.ic_avatar_outlined_250)
+                    .into(ivProfilePicture)
+            }
+        }
+    }
+
+    private fun showEditNameDialog() {
+        showLoadingDialog(getString(R.string.loading_data))
+
+        viewModel.fetchProfile()
+
+        viewModel.profileResult.observe(this, object : Observer<Result<Any>?> {
+            override fun onChanged(result: Result<Any>?) {
+                when (result) {
+                    is Result.Success -> {
+                        viewModel.profileResult.removeObserver(this)
+
+                        dismissLoadingDialog()
+
+                        val dialogView = layoutInflater.inflate(R.layout.dialog_edit_name, null)
+                        val etName = dialogView.findViewById<EditText>(R.id.etEditName)
+                        val btnSave = dialogView.findViewById<TextView>(R.id.btnSaveName)
+                        val tvCancel = dialogView.findViewById<TextView>(R.id.tvCancel)
+
+                        val profile = result.data as ProfileResponse
+                        etName.setText(profile.name)
+
+                        val dialog = AlertDialog.Builder(this@UserActivity)
+                            .setView(dialogView)
+                            .setCancelable(true)
+                            .create()
+
+                        dialog.setOnShowListener {
+                            dialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
+                        }
+
+                        btnSave.setOnClickListener {
+                            val newName = etName.text.toString().trim()
+
+                            if (newName.isEmpty()) {
+                                etName.error = getString(R.string.name_empty_error)
+                                return@setOnClickListener
+                            }
+
+                            if (newName.length < 3) {
+                                etName.error = getString(R.string.name_length_error)
+                                return@setOnClickListener
+                            }
+
+                            viewModel.changeName(newName)
+                            dialog.dismiss()
+                        }
+
+                        tvCancel.setOnClickListener {
+                            dialog.dismiss()
+                        }
+
+                        dialog.show()
+                    }
+
+                    is Result.Error -> {
+                        dismissLoadingDialog()
+
+                        showCustomErrorDialog(result.message)
+                    }
+
+                    is Result.Loading -> {
+                        //
+                    }
+
+                    null -> {
+                        dismissLoadingDialog()
+                    }
+                }
+            }
+        })
+    }
+
+    private fun uploadAvatar(file: File) {
+        viewModel.uploadAvatar(file)
+    }
+
+    private fun showLanguageChangeDialog() {
+        val languages = arrayOf("System Default", "Indonesia", "English")
 
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("Choose Image Source")
+        builder.setTitle("Choose Language")
 
-        val dialogView = layoutInflater.inflate(R.layout.dialog_image_source, null)
-        val listView: ListView = dialogView.findViewById(R.id.listView)
+        val dialogView = layoutInflater.inflate(R.layout.dialog_list, null)
+        val listView: ListView = dialogView.findViewById(R.id.listViewDialog)
 
-        val adapter = ImageSourceAdapter(this, options, icons)
+        val adapter = LanguageAdapter(this, languages)
         listView.adapter = adapter
 
         builder.setView(dialogView)
@@ -210,299 +574,125 @@ class UserActivity : AppCompatActivity() {
 
         listView.setOnItemClickListener { _, _, position, _ ->
             when (position) {
-                0 -> openCamera()
-                1 -> openGallery()
+                0 -> preferencesManager.setSystemDefaultLanguage()
+                1 -> preferencesManager.setIndonesianLanguage()
+                2 -> preferencesManager.setEnglishLanguage()
             }
             dialog.dismiss()
+            recreate()
         }
 
         dialog.show()
     }
 
-    private fun openCamera() {
-        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        startActivityForResult(intent, CAMERA_REQUEST)
-    }
+    private fun showThemeChangeDialog() {
+        val themes = arrayOf("Light", "Dark", "System Default")
 
-    private fun openGallery() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        startActivityForResult(intent, PICK_IMAGE_REQUEST)
-    }
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Choose Theme")
 
-    private fun loadSavedProfilePicture() {
-        lifecycleScope.launch {
-            val profileBitmap = viewModel.retrieveProfilePicture()
+        val dialogView = layoutInflater.inflate(R.layout.dialog_list, null)
+        val listView: ListView = dialogView.findViewById(R.id.listViewDialog)
 
-            profileBitmap?.let { bitmap ->
-                Glide.with(this@UserActivity)
-                    .load(bitmap)
-                    .diskCacheStrategy(DiskCacheStrategy.NONE)
-                    .skipMemoryCache(true)
-                    .into(ivProfilePicture)
-            }
-        }
-    }
+        val adapter = ThemeAdapter(this, themes)
+        listView.adapter = adapter
 
-    private fun showEditNameDialog() {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_edit_name, null)
-        val etName = dialogView.findViewById<EditText>(R.id.etEditName)
-        val btnSave = dialogView.findViewById<TextView>(R.id.btnSaveName)
-        val tvCancel = dialogView.findViewById<TextView>(R.id.tvCancel)
+        builder.setView(dialogView)
 
-        val currentName = preferencesManager.getUserName() ?: ""
-        etName.setText(currentName)
+        val dialog = builder.create()
 
-        val dialog = AlertDialog.Builder(this)
-            .setView(dialogView)
-            .setCancelable(false)
-            .create()
+        dialog.setOnShowListener { dialogInterface ->
+            val alertDialog = dialogInterface as AlertDialog
+            alertDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
 
-        dialog.setOnShowListener {
-            dialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
+            val titleTextView =
+                alertDialog.window?.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)
+            titleTextView?.setTextColor(ContextCompat.getColor(this, R.color.black))
         }
 
-        btnSave.setOnClickListener {
-            val newName = etName.text.toString().trim()
+        listView.setOnItemClickListener { _, _, position, _ ->
+            when (position) {
+                0 -> {
+                    preferencesManager.saveTheme(AppTheme.LIGHT)
+                    preferencesManager.applyTheme(AppTheme.LIGHT)
+                }
 
-            if (newName.isEmpty()) {
-                etName.error = "Name cannot be empty"
-                return@setOnClickListener
-            }
+                1 -> {
+                    preferencesManager.saveTheme(AppTheme.DARK)
+                    preferencesManager.applyTheme(AppTheme.DARK)
+                }
 
-            if (newName.length < 3) {
-                etName.error = "Name must be at least 3 characters"
-                return@setOnClickListener
-            }
-
-            viewModel.updateUsername(newName)
-            preferencesManager.saveUserName(newName)
-            tvUsername.text = newName
-
-            showCustomAlertDialog("Name successfully updated") {
-                // Aksi tambahan jika diperlukan
-            }
-
-            dialog.dismiss()
-        }
-
-        tvCancel.setOnClickListener {
-            dialog.dismiss()
-        }
-
-        dialog.show()
-    }
-
-    private fun showChangePasswordDialog() {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_change_password, null)
-
-        val etCurrentPassword = dialogView.findViewById<EditText>(R.id.et_current_password)
-        val etNewPassword = dialogView.findViewById<EditText>(R.id.et_new_password)
-        val etConfirmNewPassword = dialogView.findViewById<EditText>(R.id.et_confirm_new_password)
-
-        val ivShowCurrentPassword =
-            dialogView.findViewById<ImageView>(R.id.iv_show_current_password)
-        val ivShowNewPassword = dialogView.findViewById<ImageView>(R.id.iv_show_new_password)
-        val ivShowConfirmPassword =
-            dialogView.findViewById<ImageView>(R.id.iv_show_confirm_password)
-
-        val btnSavePassword = dialogView.findViewById<TextView>(R.id.btn_save_password)
-        val tvCancel = dialogView.findViewById<TextView>(R.id.tv_cancel_change_password)
-
-        var isCurrentPasswordVisible = false
-        var isNewPasswordVisible = false
-        var isConfirmPasswordVisible = false
-
-        ivShowCurrentPassword.setOnClickListener {
-            isCurrentPasswordVisible = !isCurrentPasswordVisible
-            togglePasswordVisibility(
-                etCurrentPassword,
-                ivShowCurrentPassword,
-                isCurrentPasswordVisible
-            )
-        }
-
-        ivShowNewPassword.setOnClickListener {
-            isNewPasswordVisible = !isNewPasswordVisible
-            togglePasswordVisibility(
-                etNewPassword,
-                ivShowNewPassword,
-                isNewPasswordVisible
-            )
-        }
-
-        ivShowConfirmPassword.setOnClickListener {
-            isConfirmPasswordVisible = !isConfirmPasswordVisible
-            togglePasswordVisibility(
-                etConfirmNewPassword,
-                ivShowConfirmPassword,
-                isConfirmPasswordVisible
-            )
-        }
-
-        val dialog = AlertDialog.Builder(this)
-            .setView(dialogView)
-            .setCancelable(false)
-            .create()
-
-        dialog.setOnShowListener {
-            dialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
-        }
-
-        btnSavePassword.setOnClickListener {
-            val currentPassword = etCurrentPassword.text.toString().trim()
-            val newPassword = etNewPassword.text.toString().trim()
-            val confirmNewPassword = etConfirmNewPassword.text.toString().trim()
-
-            val userEmail = preferencesManager.getUserEmail() ?: return@setOnClickListener
-
-            lifecycleScope.launch {
-                when {
-                    currentPassword.isEmpty() -> {
-                        etCurrentPassword.error = "Current password cannot be empty"
-                        return@launch
-                    }
-
-                    newPassword.isEmpty() -> {
-                        etNewPassword.error = "New password cannot be empty"
-                        return@launch
-                    }
-
-                    newPassword.length < 6 -> {
-                        etNewPassword.error = "Password must be at least 6 characters"
-                        return@launch
-                    }
-
-                    newPassword == currentPassword -> {
-                        etNewPassword.error = "New password must be different from current password"
-                        return@launch
-                    }
-
-                    newPassword != confirmNewPassword -> {
-                        etConfirmNewPassword.error = "Passwords do not match"
-                        return@launch
-                    }
-
-                    else -> {
-                        val isPasswordUpdated =
-                            viewModel.updatePassword(userEmail, currentPassword, newPassword)
-
-                        if (isPasswordUpdated) {
-                            preferencesManager.savePassword(newPassword)
-
-                            showCustomAlertDialog("Password successfully changed") {
-                                // Aksi tambahan jika diperlukan
-                            }
-                            dialog.dismiss()
-                        } else {
-                            etCurrentPassword.error = "Current password is incorrect"
-                        }
-                    }
+                2 -> {
+                    preferencesManager.saveTheme(AppTheme.SYSTEM)
+                    preferencesManager.applyTheme(AppTheme.SYSTEM)
                 }
             }
-        }
-
-        tvCancel.setOnClickListener {
             dialog.dismiss()
+            recreate()
         }
 
         dialog.show()
     }
 
-    private fun togglePasswordVisibility(
-        editText: EditText,
-        imageView: ImageView,
-        isVisible: Boolean,
-    ) {
-        if (isVisible) {
-            editText.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-            imageView.setImageResource(R.drawable.ic_visibility)
-        } else {
-            editText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-            imageView.setImageResource(R.drawable.ic_visibility_off)
+    private fun showCustomErrorDialog(message: String) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_crossmark, null)
+        val titleTextView = dialogView.findViewById<TextView>(R.id.dialog_error_title)
+        titleTextView.text = message
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
+            dialog.setCanceledOnTouchOutside(true)
         }
-        editText.setSelection(editText.text.length)
+
+        dialog.show()
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (dialog.isShowing) {
+                dialog.dismiss()
+            }
+        }, 2000)
     }
 
-    private fun isCurrentPasswordCorrect(currentPassword: String): Boolean {
-        val storedPassword = preferencesManager.getStoredPassword()
-        return currentPassword == storedPassword
+    private fun navigateToLogin() {
+        val intent = Intent(this, LoginActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        startActivity(intent)
+        finish()
     }
 
-    private fun updatePassword(newPassword: String) {
-        preferencesManager.savePassword(newPassword)
-
-        showCustomAlertDialog("Password successfully changed") {
-            // Aksi tambahan jika diperlukan
-        }
+    private fun showImageSourceOptions() {
+        imagePickerHelper.showImageSourceOptions()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == RESULT_OK) {
-            when (requestCode) {
-                PICK_IMAGE_REQUEST -> {
-                    val imageUri: Uri? = data?.data
-                    imageUri?.let { startCrop(it) }
-                }
-
-                CAMERA_REQUEST -> {
-                    val bitmap: Bitmap = data?.extras?.get("data") as Bitmap
-                    val uri = getImageUri(bitmap)
-                    startCrop(uri)
-                }
-
-                UCrop.REQUEST_CROP -> {
-                    val resultUri = UCrop.getOutput(data!!)
-                    if (resultUri != null) {
-                        viewModel.updateProfilePicture(resultUri)
-
-                        preferencesManager.saveProfilePictureUri(resultUri.toString())
-
-                        Glide.with(this)
-                            .load(resultUri)
-                            .diskCacheStrategy(DiskCacheStrategy.NONE)
-                            .skipMemoryCache(true)
-                            .into(ivProfilePicture)
-                    } else {
-                        Toast.makeText(this, "Crop failed", Toast.LENGTH_SHORT).show()
-                    }
-                }
-
-                UCrop.RESULT_ERROR -> {
-                    val cropError = UCrop.getError(data!!)
-                    Toast.makeText(this, cropError?.message, Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
+        imagePickerHelper.handleActivityResult(requestCode, resultCode, data)
     }
 
-    private fun startCrop(uri: Uri) {
-        val destinationUri = Uri.fromFile(File(cacheDir, "cropped_image.jpg"))
-        UCrop.of(uri, destinationUri)
-            .withAspectRatio(1f, 1f)
-            .withMaxResultSize(500, 500)
-            .start(this)
-    }
-
-    private fun getImageUri(bitmap: Bitmap): Uri {
-        val path = MediaStore.Images.Media.insertImage(contentResolver, bitmap, "Title", null)
-        return Uri.parse(path)
-    }
-
-    private fun performLogout() {
-        showCustomAlertDialog("Logout Successful! See you next time") {
-            preferencesManager.setUserLoggedOut()
-            preferencesManager.resetRegistrationProcess()
-
-            val intent = Intent(this, LoginActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+    private fun setupAboutDeveloperListener() {
+        binding.layoutAboutDeveloper.setOnClickListener {
+            val intent = Intent(this, AboutDeveloperActivity::class.java)
             startActivity(intent)
-            finish()
         }
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
-        return true
+    private fun setupHistoryScanListener() {
+        binding.layoutHistoryScan.setOnClickListener {
+            val intent = Intent(this, HistoryScanActivity::class.java)
+            startActivity(intent)
+        }
+    }
+
+    private fun setupPrivacyPolicyListener() {
+        binding.layoutPrivacyPolicy.setOnClickListener {
+            val intent = Intent(this, PrivacyPolicyActivity::class.java)
+            startActivity(intent)
+        }
     }
 }

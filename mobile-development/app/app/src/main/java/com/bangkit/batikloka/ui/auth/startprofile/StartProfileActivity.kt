@@ -1,133 +1,80 @@
 package com.bangkit.batikloka.ui.auth.startprofile
 
+import android.Manifest
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
-import android.widget.Button
-import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
+import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.bangkit.batikloka.R
-import com.bangkit.batikloka.data.local.database.AppDatabase
+import com.bangkit.batikloka.data.remote.api.ApiConfig
+import com.bangkit.batikloka.data.repository.AuthRepository
+import com.bangkit.batikloka.databinding.ActivityStartProfileBinding
 import com.bangkit.batikloka.ui.adapter.ImageSourceAdapter
-import com.bangkit.batikloka.ui.auth.register.RegisterActivity
-import com.bangkit.batikloka.ui.main.MainActivity
-import com.bangkit.batikloka.ui.viewmodel.AppViewModelFactory
 import com.bangkit.batikloka.utils.PreferencesManager
+import com.bangkit.batikloka.utils.Result
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.yalantis.ucrop.UCrop
 import kotlinx.coroutines.launch
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class StartProfileActivity : AppCompatActivity() {
-    private lateinit var ivProfilePicture: ImageView
-    private lateinit var btnNext: Button
-    private lateinit var viewModel: StartProfileViewModel
+    private lateinit var binding: ActivityStartProfileBinding
+    private lateinit var authRepository: AuthRepository
     private lateinit var preferencesManager: PreferencesManager
-    private lateinit var database: AppDatabase
+
+    private val PICK_IMAGE_REQUEST = 1
+    private val CAMERA_PERMISSION_REQUEST = 2
+    private val CAMERA_CAPTURE_REQUEST = 3
+    private val CROP_IMAGE_REQUEST = 4
+    private var currentPhotoPath: String = ""
 
     companion object {
-        private val PICK_IMAGE_REQUEST = 1
-        private val CAMERA_REQUEST = 2
+        fun createAuthRepository(context: Context): AuthRepository {
+            val preferencesManager = PreferencesManager(context)
+            val authApiService = ApiConfig.getAuthApiService(context, preferencesManager)
+            return AuthRepository(authApiService, preferencesManager)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_start_profile)
+        binding = ActivityStartProfileBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         preferencesManager = PreferencesManager(this)
-        database = AppDatabase.getDatabase(this)
+        authRepository = createAuthRepository(this)
 
-        viewModel = ViewModelProvider(
-            this,
-            AppViewModelFactory(this, preferencesManager, database)
-        )[StartProfileViewModel::class.java]
+        setupProfilePictureListener()
+        setupNextButtonListener()
+    }
 
-        checkRegistrationValidity()
-
-        ivProfilePicture = findViewById(R.id.ivProfilePicture)
-        btnNext = findViewById(R.id.btnNext)
-
-        ivProfilePicture.setOnClickListener {
-            viewModel.logImageSourceSelection("Profile Picture")
+    private fun setupProfilePictureListener() {
+        binding.ivProfilePicture.setOnClickListener {
             showImageSourceOptions()
         }
-
-        btnNext.setOnClickListener {
-            completeRegistration()
-        }
-
-        lifecycleScope.launch {
-            val savedProfilePicture = viewModel.retrieveProfilePicture()
-            savedProfilePicture?.let { bitmap ->
-                Glide.with(this@StartProfileActivity)
-                    .load(bitmap)
-                    .diskCacheStrategy(DiskCacheStrategy.NONE)
-                    .skipMemoryCache(true)
-                    .into(ivProfilePicture)
-            }
-        }
     }
 
-    private fun checkRegistrationValidity() {
-        val registrationStep = preferencesManager.getRegistrationStep()
-        if (registrationStep == null || registrationStep != "otp_verified") {
-            Toast.makeText(this, "Invalid registration process", Toast.LENGTH_SHORT).show()
-            startActivity(Intent(this, RegisterActivity::class.java))
-            finish()
-            return
+    private fun setupNextButtonListener() {
+        binding.btnNext.setOnClickListener {
+            // Implementasi logika selanjutnya setelah memilih foto profil
         }
-    }
-
-    private fun completeRegistration() {
-        preferencesManager.saveRegistrationStep("profile_completed")
-        preferencesManager.setUserRegistered()
-        preferencesManager.setUserLoggedIn(true)
-
-        showCustomAlertDialog("Welcome to BatikLoka! Thank you for registering") {
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
-        }
-    }
-
-    private fun showCustomAlertDialog(title: String, onDismiss: () -> Unit) {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_checkmark, null)
-        val titleTextView = dialogView.findViewById<TextView>(R.id.dialog_title)
-        titleTextView.text = title
-
-        val dialog = AlertDialog.Builder(this)
-            .setView(dialogView)
-            .setCancelable(true)
-            .create()
-
-        dialog.setOnShowListener {
-            dialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
-            dialog.setCanceledOnTouchOutside(true)
-        }
-
-        dialog.setOnDismissListener {
-            onDismiss()
-        }
-
-        dialog.show()
-
-        Handler(Looper.getMainLooper()).postDelayed({
-            if (dialog.isShowing) {
-                dialog.dismiss()
-            }
-        }, 2000)
     }
 
     private fun showImageSourceOptions() {
@@ -167,61 +114,6 @@ class StartProfileActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun openCamera() {
-        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        startActivityForResult(intent, CAMERA_REQUEST)
-    }
-
-    private fun openGallery() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        startActivityForResult(intent, PICK_IMAGE_REQUEST)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == RESULT_OK) {
-            when (requestCode) {
-                PICK_IMAGE_REQUEST -> {
-                    val imageUri: Uri? = data?.data
-                    imageUri?.let {
-                        Log.d("ImagePicker", "Selected image URI: $imageUri")
-                        startCrop(it)
-                    }
-                }
-
-                CAMERA_REQUEST -> {
-                    val bitmap: Bitmap = data?.extras?.get("data") as Bitmap
-                    val uri = getImageUri(bitmap)
-                    startCrop(uri)
-                }
-
-                UCrop.REQUEST_CROP -> {
-                    val resultUri = UCrop.getOutput(data!!)
-                    if (resultUri != null) {
-                        Glide.with(this)
-                            .load(resultUri)
-                            .diskCacheStrategy(DiskCacheStrategy.NONE)
-                            .skipMemoryCache(true)
-                            .into(ivProfilePicture)
-
-                        viewModel.saveProfilePicture(resultUri)
-                    } else {
-                        Toast.makeText(this, "Crop failed", Toast.LENGTH_SHORT).show()
-                    }
-                }
-
-                UCrop.RESULT_ERROR -> {
-                    val cropError = UCrop.getError(data!!)
-                    Toast.makeText(this, cropError?.message, Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
-
-    private fun saveProfilePictureUri(uri: Uri) {
-        preferencesManager.saveProfilePictureUri(uri.toString())
-    }
-
     private fun startCrop(uri: Uri) {
         val destinationUri = Uri.fromFile(File(cacheDir, "cropped_image.jpg"))
         UCrop.of(uri, destinationUri)
@@ -230,8 +122,160 @@ class StartProfileActivity : AppCompatActivity() {
             .start(this)
     }
 
-    private fun getImageUri(bitmap: Bitmap): Uri {
-        val path = MediaStore.Images.Media.insertImage(contentResolver, bitmap, "Title", null)
-        return Uri.parse(path)
+    private fun openCamera() {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.CAMERA
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.CAMERA),
+                CAMERA_PERMISSION_REQUEST
+            )
+        } else {
+            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            val photoFile = createImageFile()
+            val photoURI = FileProvider.getUriForFile(
+                this,
+                "$packageName.fileprovider",
+                photoFile
+            )
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+            startActivityForResult(intent, CAMERA_CAPTURE_REQUEST)
+        }
+    }
+
+    private fun openGallery() {
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        startActivityForResult(intent, PICK_IMAGE_REQUEST)
+    }
+
+    private fun createImageFile(): File {
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val imageFileName = "JPEG_${timeStamp}_"
+        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile(
+            imageFileName,
+            ".jpg",
+            storageDir
+        ).apply {
+            currentPhotoPath = absolutePath
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when {
+            resultCode == Activity.RESULT_OK -> {
+                when (requestCode) {
+                    PICK_IMAGE_REQUEST -> {
+                        data?.data?.let { uri ->
+                            startCrop(uri)
+                        }
+                    }
+
+                    CAMERA_CAPTURE_REQUEST -> {
+                        val photoFile = File(currentPhotoPath)
+                        val photoURI = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                            FileProvider.getUriForFile(
+                                this,
+                                "${packageName}.fileprovider",
+                                photoFile
+                            )
+                        } else {
+                            Uri.fromFile(photoFile)
+                        }
+                        startCrop(photoURI)
+                    }
+
+                    UCrop.REQUEST_CROP -> {
+                        val resultUri = UCrop.getOutput(data!!)
+                        resultUri?.let { uri ->
+                            val file = File(uri.path!!)
+                            uploadAvatar(file)
+                        }
+                    }
+
+                    else -> {
+                        Toast.makeText(this, "Unhandled request code", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+
+            resultCode == UCrop.RESULT_ERROR -> {
+                val cropError = UCrop.getError(data!!)
+                Toast.makeText(this, "Crop error: ${cropError?.message}", Toast.LENGTH_SHORT).show()
+            }
+
+            else -> {
+                Toast.makeText(this, "Operation cancelled", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun uploadAvatar(file: File) {
+        lifecycleScope.launch {
+            try {
+                showLoading()
+                when (val result = authRepository.changeAvatar(file)) {
+                    is Result.Success -> {
+                        Toast.makeText(
+                            this@StartProfileActivity,
+                            "Avatar berhasil diupdate",
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                        Glide.with(this@StartProfileActivity)
+                            .load(file)
+                            .into(binding.ivProfilePicture)
+                    }
+
+                    is Result.Error -> {
+                        Toast.makeText(
+                            this@StartProfileActivity,
+                            result.message,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+
+                    is Result.Loading -> {
+                        Toast.makeText(
+                            this@StartProfileActivity,
+                            "Sedang mengunggah...",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this@StartProfileActivity, "Gagal upload avatar", Toast.LENGTH_SHORT)
+                    .show()
+            } finally {
+                hideLoading()
+            }
+        }
+    }
+
+    private fun showLoading() {
+        // Implementasi loading dialog atau progress bar
+    }
+
+    private fun hideLoading() {
+        // Sembunyikan loading dialog atau progress bar
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == CAMERA_PERMISSION_REQUEST) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                openCamera()
+            } else {
+                Toast.makeText(this, "Izin kamera diperlukan", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }

@@ -1,85 +1,104 @@
 package com.bangkit.batikloka.ui.auth.login
 
-import android.util.Patterns
+import android.annotation.SuppressLint
+import android.content.Context
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bangkit.batikloka.data.local.database.AppDatabase
-import com.bangkit.batikloka.utils.PreferencesManager
-import kotlinx.coroutines.Dispatchers
+import com.bangkit.batikloka.R
+import com.bangkit.batikloka.data.repository.AuthRepository
+import com.bangkit.batikloka.utils.Result
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.security.MessageDigest
 
+@SuppressLint("StaticFieldLeak")
 class LoginViewModel(
-    private val preferencesManager: PreferencesManager,
-    private val database: AppDatabase,
+    val authRepository: AuthRepository,
+    private val context: Context
 ) : ViewModel() {
+    private val _loginResult = MutableLiveData<Result<Any>?>(null)
+    val loginResult: LiveData<Result<Any>?> = _loginResult
 
-    private fun hashPassword(password: String): String {
-        val digest = MessageDigest.getInstance("SHA-256")
-        val hashBytes = digest.digest(password.toByteArray())
-        return hashBytes.joinToString("") { "%02x".format(it) }
-    }
+    private var currentJob: Job? = null
 
-    suspend fun isEmailExists(email: String): Boolean {
-        return withContext(Dispatchers.IO) {
-            database.userDao().checkUserExists(email) > 0
+    fun login(email: String, password: String) {
+        if (email.isEmpty() && password.isEmpty()) {
+            _loginResult.value = Result.Error(
+                message = context.getString(R.string.error_all_fields_empty),
+                error = context.getString(R.string.error_all_fields_empty)
+            )
+            return
         }
-    }
 
-    fun loginUser(
-        email: String,
-        password: String,
-        onSuccess: () -> Unit,
-        onError: (String) -> Unit,
-    ) {
+        if (email.isEmpty()) {
+            _loginResult.value = Result.Error(
+                message = context.getString(R.string.error_email_required),
+                error = context.getString(R.string.error_email_required)
+            )
+            return
+        }
+
+        if (password.isEmpty()) {
+            _loginResult.value = Result.Error(
+                message = context.getString(R.string.error_password_required),
+                error = context.getString(R.string.error_password_required)
+            )
+            return
+        }
+
         viewModelScope.launch {
+            _loginResult.value = Result.Loading
             try {
-                val emailExists = withContext(Dispatchers.IO) {
-                    isEmailExists(email)
+                when (val result = authRepository.login(email, password)) {
+                    is Result.Success -> {
+                        _loginResult.value = Result.Success(
+                            context.getString(R.string.success_login)
+                        )
+                    }
+
+                    is Result.Error -> {
+                        val errorMessage = when {
+                            result.message.contains("not found", ignoreCase = true) ->
+                                Result.Error(
+                                    message = context.getString(R.string.error_user_not_found),
+                                    error = context.getString(R.string.error_user_not_found)
+                                )
+
+                            result.message.contains("invalid", ignoreCase = true) ->
+                                Result.Error(
+                                    message = context.getString(R.string.error_invalid_credentials),
+                                    error = context.getString(R.string.error_invalid_credentials)
+                                )
+
+                            else -> result
+                        }
+                        _loginResult.value = errorMessage
+                    }
+
+                    is Result.Loading -> {}
+                    else -> {
+                        _loginResult.value = Result.Error(
+                            message = context.getString(R.string.error_unexpected),
+                            error = context.getString(R.string.error_unexpected)
+                        )
+                    }
                 }
-
-                if (!emailExists) {
-                    onError("Email tidak terdaftar")
-                    return@launch
-                }
-
-                val hashedPassword = hashPassword(password)
-
-                val user = withContext(Dispatchers.IO) {
-                    database.userDao().getUserByEmail(email)
-                }
-
-                if (user == null) {
-                    onError("Pengguna tidak ditemukan")
-                    return@launch
-                }
-
-                if (user.password != hashedPassword) {
-                    onError("Password salah")
-                    return@launch
-                }
-
-                preferencesManager.saveUserEmail(email)
-                preferencesManager.setUserLoggedIn(true)
-                onSuccess()
             } catch (e: Exception) {
-                onError("Terjadi kesalahan: ${e.message}")
+                _loginResult.value = Result.Error(
+                    message = context.getString(R.string.error_login_failed),
+                    error = e.localizedMessage ?: context.getString(R.string.error_unexpected)
+                )
             }
         }
     }
 
-    fun validateInput(email: String, password: String): Boolean {
-        return when {
-            email.isEmpty() -> false
-            !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> false
-            password.isEmpty() -> false
-            password.length < 6 -> false
-            else -> true
-        }
+    fun cancelCurrentOperation() {
+        currentJob?.cancel()
+        _loginResult.value = null
     }
 
-    fun isUserLoggedIn(): Boolean {
-        return preferencesManager.isUserLoggedIn()
+    fun resetState() {
+        _loginResult.value = null
     }
 }

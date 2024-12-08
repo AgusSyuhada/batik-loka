@@ -49,18 +49,16 @@
     <string name="create_account_button">Buat Akun</string>
     <string name="or_create_account_with">Atau buat akun dengan</string>
     <string name="already_have_account">Sudah punya akun? </string>
-    <string name="login">Masuk</string>
     <string name="error_otp_empty">OTP tidak boleh kosong</string>
     <string name="error_otp_length">OTP harus 6 digit</string>
     <string name="verification_title">Verifikasi</string>
-    <string name="verification_subtitle">Masukkan kode verifikasi yang telah dikirim ke email Anda</string>
     <string name="enter_verification_code_hint">Masukkan Kode Verifikasi</string>
     <string name="verify_account_button">Verifikasi Akun</string>
     <string name="error_new_password_empty">Password baru tidak boleh kosong</string>
     <string name="error_new_password_length">Password harus minimal 6 karakter</string>
     <string name="error_passwords_do_not_match">Password tidak cocok</string>
     <string name="create_new_password_title">Buat Password Baru</string>
-    <string name="create_new_password_subtitle">Silakan masukkan password baru Anda</string>
+    <string name="create_new_password_subtitle">Silakan masukkan kode verifikasi yang telah dikirim ke email dan password baru Anda</string>
     <string name="new_password_created_successfully">Password baru berhasil dibuat!</string>
     <string name="create_new_password_button">Buat Password Baru</string>
     <string name="email_verification_title">Verifikasi Email</string>
@@ -76,4 +74,206 @@
 
     <string name="otp_confirmed_successfully">OTP berhasil dikonfirmasi!</string>
     <string name="welcome_back_to_batikloka">Selamat datang kembali di BatikLoka!</string>
+
+    <string name="password_required">Silakan masukkan kata sandi Anda</string>
+    <string name="login_success">Login berhasil</string>
+    <string name="login_error">Terjadi kesalahan saat login</string>
+
+    //Auth
+    <string name="user_not_found_title">Akun Tidak Ditemukan</string>
+    <string name="user_not_found_message">Email yang Anda masukkan tidak terdaftar dalam sistem. Apakah Anda ingin mendaftar?</string>
+    <string name="register_now">Daftar Sekarang</string>
+
+    <string name="verification_required_title">Verifikasi Diperlukan</string>
+    <string name="unverified_account_message">Akun Anda belum diverifikasi. Apakah Anda ingin menyelesaikan verifikasi?</string>
+    <string name="verify_now">Verifikasi Sekarang</string>
+    <string name="cancel">Batal</string>
+
+    <string name="login">Masuk</string>
+    <string name="logging_in">Masuk...</string>
+    <string name="loading">Memuat...</string>
+    <string name="login_failed">Gagal masuk: %1$s</string>
+    <string name="invalid_credentials">Email atau kata sandi salah</string>
+    <string name="missing_credentials">Email dan kata sandi harus diisi</string>
+    <string name="unexpected_login_result">Hasil masuk tidak terduga</string>
+
+    <string name="email_required">Email diperlukan</string>
+    <string name="reset_password_prompt">Masukkan kode 6 digit untuk mereset kata sandi Anda</string>
+    <string name="verification_subtitle">Masukkan kode verifikasi yang telah dikirim ke %1$s</string>
+    <string name="required_otp">Kode OTP harus diisi</string>
+    <string name="invalid_otp">Kode OTP harus 6 digit</string>
+    <string name="invalid_otp_error">OTP tidak valid, silakan coba lagi</string>
+    <string name="verifying">Memverifikasi...</string>
+    <string name="unexpected_error">Terjadi kesalahan tak terduga</string>
+    <string name="verification_failed">Verifikasi gagal: %1$s</string>
+    <string name="verify_account">Verifikasi Akun</string>
+    <string name="next">Selanjutnya</string>
+    <string name="skip">Lewati</string>
+    <string name="about_developer_title">Tentang Pengembang</string>
+    <string name="detail_catalog">Katalog Detail</string>
+    <string name="product_name">Nama Produk</string>
+    <string name="catalog_description">Deskripsi Katalog</string>
+    <string name="description">Deskripsi</string>
+    <string name="detail_news">Berita Detail</string>
+    <string name="developer">Pengembang</string>
+    <string name="developer_picture">Gambar Pengembang</string>
+    <string name="full_name">Nama Lengkap</string>
+    <string name="learning_path">Jalur Pembelajaran</string>
+    <string name="university">Universitas</string>
+    <string name="developer_description">Pengembang Android yang bersemangat dengan keahlian dalam Kotlin, Jetpack Compose, dan arsitektur aplikasi seluler.</string>
+    <string name="name">Nama</string>
+    <string name="age">Usia</string>
+    <string name="major">Mayor</string>
+    <string name="domicile">Domisili</string>
+    <string name="instagram">Instagram</string>
+    <string name="linkedin">LinkedIn</string>
+    <string name="github">GitHub</string>
+    <string name="enter_your_name">Masukkan nama Anda</string>
+    <string name="save">Simpan</string>
+    <string name="edit_name">Edit Nama</string>
+    <string name="latest_news">Berita Terbaru</string>
+    <string name="catalog">Katalog</string>
+    <string name="see_more">Lihat Lainnya</string>
+    <string name="news_title">Judul Berita</string>
+    <string name="news_date">Tanggal Berita</string>
+    <string name="verification">Verifikasi</string>
+    <string name="theme">Tema</string>
+    <string name="user">Pengguna</string>
+    <string name="profil">Profil</string>
+    <string name="username">Nama Pengguna</string>
+    <string name="email">Email</string>
+    <string name="batikloka_email">batikloka@bangkit.com</string>
+    <string name="change_password">Ubah Kata Sandi</string>
+    <string name="settings">Pengaturan</string>
+    <string name="news_notification">Pemberitahuan Berita</string>
+    <string name="language">Bahasa</string>
+    <string name="about">Tentang</string>
+    <string name="privacy_policy">Kebijakan Privasi</string>
+    <string name="about_developer">Tentang Pengembang</string>
+    <string name="logout">Keluar</string>
+
+    <!-- VerificationViewModel -->
+    <string name="error_otp_required">OTP harus diisi</string>
+    <string name="error_invalid_otp_length">Kode OTP harus 6 digit</string>
+    <string name="error_invalid_otp">Invalid OTP</string>
+    <string name="error_unexpected">Terjadi kesalahan tidak terduga</string>
+
+    <!-- CreateNewPasswordViewModel -->
+    <string name="error_invalid_verification_code">Kode verifikasi tidak valid</string>
+    <string name="error_password_too_short">Password minimal 8 karakter</string>
+    <string name="error_passwords_not_match">Konfirmasi password tidak cocok</string>
+    <string name="success_password_updated">Password berhasil diperbarui</string>
+    <string name="error_reset_password_failed">Gagal reset password</string>
+
+    <!-- CreateNewPasswordActivity -->
+    <string name="btn_create_new_password">Buat Password Baru</string>
+    <string name="btn_updating">Memperbarui...</string>
+    <string name="dialog_password_created">Password berhasil dibuat</string>
+
+    <!-- EmailVerificationViewModel -->
+    <string name="error_email_required">Email harus diisi</string>
+    <string name="error_invalid_email_format">Format email tidak valid</string>
+    <string name="error_send_failed">Gagal mengirim</string>
+
+    <!-- EmailVerificationActivity -->
+    <string name="btn_send">Kirim</string>
+    <string name="btn_sending">Mengirim...</string>
+    <string name="dialog_verification_code_sent">Kode verifikasi berhasil dikirim</string>
+
+    <!-- User Not Found Dialog -->
+    <string name="dialog_email_not_found_title">Email Tidak Ditemukan</string>
+    <string name="dialog_email_not_found_message">Email yang Anda masukkan tidak terdaftar dalam sistem. Apakah Anda ingin mendaftar?</string>
+    <string name="btn_register_now">Daftar Sekarang</string>
+    <string name="btn_cancel">Batal</string>
+
+    <!-- LoginViewModel -->
+    <string name="error_password_required">Password harus diisi</string>
+    <string name="error_account_not_verified">Akun belum diverifikasi</string>
+    <string name="error_user_not_found">Pengguna tidak ditemukan</string>
+    <string name="error_login_failed">Login gagal</string>
+    <string name="success_login">Login berhasil</string>
+
+    <!-- RegisterViewModel -->
+    <string name="error_name_required">Nama harus diisi</string>
+    <string name="error_user_exists">Pengguna sudah terdaftar</string>
+    <string name="error_invalid_credentials">Email atau password tidak valid</string>
+    <string name="error_register_failed">Registrasi gagal</string>
+    <string name="success_register">Registrasi berhasil</string>
+
+    <!-- RegisterActivity -->
+    <string name="btn_create_account">Buat Akun</string>
+    <string name="btn_registering">Mendaftar...</string>
+    <string name="dialog_registration_success">Pendaftaran berhasil</string>
+
+    <!-- User Exists Dialog -->
+    <string name="error_invalid_email">Format email tidak valid</string>
+
+    <!-- Error Messages for All Empty Fields -->
+    <string name="error_all_fields_empty">Kolom tidak boleh kosong</string>
+
+    <!-- User Exists Dialog -->
+    <string name="user_exist_title">Pengguna sudah ada</string>
+    <string name="user_exist_message">Akun Anda belum diverifikasi. Apakah Anda ingin menyelesaikan verifikasi?</string>
+    <string name="btn_login_now">Masuk Sekarang</string>
+
+    <!-- Catalog Fragment -->
+    <string name="all_areas">Semua Area</string>
+
+    <!-- About Developer Detail-->
+    <string name="link_not_available">Tautan tidak tersedia</string>
+    <string name="unable_to_open_link">Tidak dapat membuka tautan</string>
+
+    <!-- User View Model-->
+    <string name="failed_to_fetch_profile">Gagal mengambil profil</string>
+    <string name="profile_fetch_error">Kesalahan pengambilan profil</string>
+    <string name="logout_failed">Gagal keluar</string>
+    <string name="logout_error">Kesalahan keluar</string>
+    <string name="name_cannot_be_empty">Nama tidak boleh kosong</string>
+    <string name="name_must_be_at_least_3_characters">Nama harus minimal 3 karakter</string>
+    <string name="name_is_required">Nama wajib diisi</string>
+    <string name="name_too_short">Nama terlalu pendek</string>
+    <string name="failed_to_change_name">Gagal mengubah nama</string>
+    <string name="change_name_error">Kesalahan mengubah nama</string>
+    <string name="failed_to_verify_email">Gagal memverifikasi email</string>
+    <string name="verification_error">Kesalahan verifikasi</string>
+    <string name="failed_to_reset_password">Gagal menyetel ulang kata sandi</string>
+    <string name="reset_password_error">Kesalahan menyetel ulang kata sandi</string>
+    <string name="failed_to_upload_avatar">Gagal mengunggah avatar</string>
+    <string name="avatar_upload_error">Kesalahan mengunggah avatar</string>
+
+    <!-- User Activity-->
+    <string name="logout_success">Logout berhasil</string>
+    <string name="name_change_success">Nama berhasil diubah</string>
+    <string name="avatar_update_success">Avatar berhasil diperbarui</string>
+    <string name="password_reset_success">Password berhasil direset</string>
+    <string name="loading_data">Memuat data...</string>
+    <string name="email_not_found">Email tidak ditemukan</string>
+    <string name="user_not_found">Pengguna tidak ditemukan</string>
+    <string name="verification_code_error">Kode verifikasi harus 6 digit</string>
+    <string name="new_password_empty">Password baru tidak boleh kosong</string>
+    <string name="new_password_length_error">Password minimal 6 karakter</string>
+    <string name="password_confirmation_error">Konfirmasi password tidak cocok</string>
+    <string name="name_empty_error">Nama tidak boleh kosong</string>
+    <string name="name_length_error">Nama minimal 3 karakter</string>
+    <string name="loading_message">Memproses...</string>
+
+    <!-- Scan Activity-->
+    <string name="short_description">Deskripsi singkat</string>
+    <string name="scan_image">Gambar Pemindaian</string>
+    <string name="prediction">Prediksi</string>
+    <string name="label">Label</string>
+    <string name="scan_result">Hasil Pemindaian</string>
+    <string name="processing_images">Memproses gambar...</string>
+    <string name="scan_failed_title">Scan Gagal</string>
+    <string name="scan_failed_message">Maaf, proses scan tidak berhasil. Silakan coba lagi atau pilih gambar lain.</string>
+    <string name="try_again">Coba Lagi</string>
+    <string name="probability">Probabilitas: %.2f%%</string>
+    <string name="no_image_selected">Tidak ada gambar yang dipilih</string>
+    <string name="failed_to_process_image">Gagal memproses gambar</string>
+    <string name="batik_successfully_identified">Batik berhasil diidentifikasi</string>
+
+    <!-- History Activity-->
+    <string name="delete_all_history">Hapus Semua Riwayat</string>
+    <string name="no_history">Tidak Ada Riwayat</string>
+    <string name="history_scan">Riwayat Pemindaian</string>
 </resources>

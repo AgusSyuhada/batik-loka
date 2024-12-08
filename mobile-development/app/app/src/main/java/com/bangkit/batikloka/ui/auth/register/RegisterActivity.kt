@@ -1,172 +1,219 @@
 package com.bangkit.batikloka.ui.auth.register
 
+import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.InputType
-import android.util.Patterns
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
+import android.text.method.PasswordTransformationMethod
+import android.text.method.SingleLineTransformationMethod
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import com.bangkit.batikloka.R
-import com.bangkit.batikloka.data.local.database.AppDatabase
+import com.bangkit.batikloka.data.remote.api.ApiConfig
+import com.bangkit.batikloka.data.repository.AuthRepository
+import com.bangkit.batikloka.databinding.ActivityRegisterBinding
 import com.bangkit.batikloka.ui.auth.codeverification.VerificationActivity
 import com.bangkit.batikloka.ui.auth.login.LoginActivity
-import com.bangkit.batikloka.ui.viewmodel.AppViewModelFactory
+import com.bangkit.batikloka.ui.auth.viewmodel.AuthViewModelFactory
 import com.bangkit.batikloka.utils.PreferencesManager
-import kotlinx.coroutines.launch
+import com.bangkit.batikloka.utils.Result
 
 class RegisterActivity : AppCompatActivity() {
-    private lateinit var etName: EditText
-    private lateinit var etEmail: EditText
-    private lateinit var etPassword: EditText
-    private lateinit var ivShowPassword: ImageView
-    private lateinit var ivShowConfirmPassword: ImageView
-    private var isPasswordVisible = false
-    private var isConfirmPasswordVisible = false
-    private lateinit var etConfirmPassword: EditText
-    private lateinit var btnRegister: Button
-    private lateinit var btnRegisterGoogle: Button
-    private lateinit var tvLogin: TextView
+    private lateinit var binding: ActivityRegisterBinding
     private lateinit var viewModel: RegisterViewModel
     private lateinit var preferencesManager: PreferencesManager
-    private lateinit var database: AppDatabase
+    private var loadingDialog: ProgressDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_register)
 
+        initializeViewModel()
+        setupBinding()
+        setupObservers()
+        setupListeners()
+    }
+
+    private fun initializeViewModel() {
+        val context = this
         preferencesManager = PreferencesManager(this)
-        database = AppDatabase.getDatabase(this)
-
-        etName = findViewById(R.id.etName)
-        etEmail = findViewById(R.id.etEmail)
-        etPassword = findViewById(R.id.etPassword)
-        ivShowPassword = findViewById(R.id.ivShowPassword)
-        etConfirmPassword = findViewById(R.id.etConfirmPassword)
-        ivShowConfirmPassword = findViewById(R.id.ivShowConfirmPassword)
-        btnRegister = findViewById(R.id.btnRegister)
-        btnRegisterGoogle = findViewById(R.id.btnRegisterGoogle)
-        tvLogin = findViewById(R.id.tvLogin)
-
-        viewModel = ViewModelProvider(
-            this,
-            AppViewModelFactory(this, preferencesManager, database)
-        )[RegisterViewModel::class.java]
-
-        checkPendingRegistration()
-        setupClickListeners()
+        val authApiService = ApiConfig.getAuthApiService(this, preferencesManager)
+        val authRepository = AuthRepository(authApiService, preferencesManager)
+        val viewModelFactory = AuthViewModelFactory(authRepository, context)
+        viewModel = ViewModelProvider(this, viewModelFactory)[RegisterViewModel::class.java]
     }
 
-    private fun setupClickListeners() {
-        ivShowPassword.setOnClickListener {
-            isPasswordVisible = !isPasswordVisible
-            if (isPasswordVisible) {
-                etPassword.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                ivShowPassword.setImageResource(R.drawable.ic_visibility)
-            } else {
-                etPassword.inputType =
-                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                ivShowPassword.setImageResource(R.drawable.ic_visibility_off)
-            }
-            etPassword.setSelection(etPassword.text.length)
-        }
+    private fun setupBinding() {
+        binding = ActivityRegisterBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+    }
 
-        ivShowConfirmPassword.setOnClickListener {
-            isConfirmPasswordVisible = !isConfirmPasswordVisible
-            if (isConfirmPasswordVisible) {
-                etConfirmPassword.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                ivShowConfirmPassword.setImageResource(R.drawable.ic_visibility)
-            } else {
-                etConfirmPassword.inputType =
-                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                ivShowConfirmPassword.setImageResource(R.drawable.ic_visibility_off)
-            }
-            etConfirmPassword.setSelection(etConfirmPassword.text.length)
-        }
-
-        btnRegister.setOnClickListener {
-            val name = etName.text.toString().trim()
-            val email = etEmail.text.toString().trim()
-            val password = etPassword.text.toString().trim()
-            val confirmPassword = etConfirmPassword.text.toString().trim()
-
-            if (viewModel.validateInput(name, email, password, confirmPassword)) {
-                performRegister(name, email, password)
-            } else {
-                showValidationErrors(name, email, password, confirmPassword)
+    private fun setupObservers() {
+        viewModel.registerResult.observe(this) { result ->
+            when (result) {
+                is Result.Success -> handleSuccessResult()
+                is Result.Error -> handleErrorResult(result)
+                is Result.Loading -> handleLoadingResult()
+                null -> resetButtonState()
             }
         }
-
-        tvLogin.setOnClickListener {
-            startActivity(Intent(this, LoginActivity::class.java))
-            finish()
-        }
     }
 
-    private fun showValidationErrors(
-        name: String,
-        email: String,
-        password: String,
-        confirmPassword: String,
-    ) {
-        if (name.isEmpty()) {
-            etName.error = getString(R.string.error_name_empty)
-        } else if (name.length < 3) {
-            etName.error = getString(R.string.error_name_length)
-        }
+    private fun handleSuccessResult() {
+        dismissLoadingDialog()
+        binding.btnRegister.isEnabled = true
+        binding.btnRegister.text = getString(R.string.btn_create_account)
 
-        if (email.isEmpty()) {
-            etEmail.error = getString(R.string.error_email_empty)
-        } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            etEmail.error = getString(R.string.error_email_invalid)
-        }
-
-        if (password.isEmpty()) {
-            etPassword.error = getString(R.string.error_password_empty)
-        } else if (password.length < 6) {
-            etPassword.error = getString(R.string.error_password_length)
-        }
-
-        if (confirmPassword.isEmpty()) {
-            etConfirmPassword.error = getString(R.string.error_confirm_password_empty)
-        } else if (password != confirmPassword) {
-            etConfirmPassword.error = getString(R.string.error_password_mismatch)
-        }
-    }
-
-    private fun checkPendingRegistration() {
-        val registrationStep = preferencesManager.getRegistrationStep()
-        if (registrationStep != null) {
-            preferencesManager.resetRegistrationProcess()
-            Toast.makeText(this, "Registration process was interrupted", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun performRegister(name: String, email: String, password: String) {
-        lifecycleScope.launch {
-            viewModel.registerUser(
-                name,
-                email,
-                password,
-                onSuccess = {
-                    showCustomAlertDialog(getString(R.string.registration_successful))
-                },
-                onError = { errorMessage ->
-                    Toast.makeText(this@RegisterActivity, errorMessage, Toast.LENGTH_SHORT).show()
-                }
+        showCustomAlertDialog(getString(R.string.dialog_registration_success)) {
+            navigateToVerification(
+                binding.etEmail.text.toString().trim()
             )
         }
     }
 
-    private fun showCustomAlertDialog(title: String) {
+    private fun handleErrorResult(result: Result.Error) {
+        dismissLoadingDialog()
+        binding.btnRegister.isEnabled = true
+        binding.btnRegister.text = getString(R.string.btn_create_account)
+
+        when {
+            result.error.contains("User exists", ignoreCase = true) -> {
+                handleUserExist()
+            }
+
+            result.error.contains("invalid email", ignoreCase = true) -> {
+                binding.etEmail.error = getString(R.string.error_invalid_email)
+            }
+
+            result.error.contains("password", ignoreCase = true) -> {
+                binding.etPassword.error = result.message
+            }
+
+            else -> {
+                showCustomErrorDialog(result.message)
+            }
+        }
+    }
+
+    private fun handleLoadingResult() {
+        showLoadingDialog(getString(R.string.btn_registering))
+        binding.btnRegister.isEnabled = false
+        binding.btnRegister.text = getString(R.string.btn_registering)
+    }
+
+    private fun resetButtonState() {
+        dismissLoadingDialog()
+        binding.btnRegister.isEnabled = true
+        binding.btnRegister.text = getString(R.string.btn_create_account)
+    }
+
+    private fun showLoadingDialog(message: String) {
+        loadingDialog?.dismiss()
+        loadingDialog = ProgressDialog(this)
+        loadingDialog?.setMessage(message)
+        loadingDialog?.setCancelable(false)
+        loadingDialog?.setOnShowListener {
+            loadingDialog?.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
+        }
+        loadingDialog?.show()
+    }
+
+    private fun dismissLoadingDialog() {
+        loadingDialog?.dismiss()
+        loadingDialog = null
+    }
+
+    private fun performRegister() {
+        val name = binding.etName.text.toString().trim()
+        val email = binding.etEmail.text.toString().trim()
+        val password = binding.etPassword.text.toString().trim()
+        val confirmPassword = binding.etConfirmPassword.text.toString().trim()
+
+        viewModel.register(name, email, password, confirmPassword)
+    }
+
+    private fun resetErrors() {
+        binding.etName.error = null
+        binding.etEmail.error = null
+        binding.etPassword.error = null
+        binding.etConfirmPassword.error = null
+    }
+
+    private fun setupListeners() {
+        binding.btnRegister.setOnClickListener {
+            resetErrors()
+            performRegister()
+        }
+
+        binding.tvLogin.setOnClickListener {
+            navigateToLogin()
+        }
+
+        binding.ivShowPassword.setOnClickListener {
+            togglePasswordVisibility()
+        }
+
+        binding.ivShowConfirmPassword.setOnClickListener {
+            toggleConfirmPasswordVisibility()
+        }
+    }
+
+    private fun handleUserExist() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(getString(R.string.user_exist_title))
+            .setMessage(getString(R.string.user_exist_message))
+            .setPositiveButton(getString(R.string.btn_login_now)) { _, _ ->
+                navigateToLogin()
+            }
+            .setNegativeButton(getString(R.string.btn_cancel), null)
+
+        val dialog = builder.create()
+
+        dialog.setOnShowListener { dialogInterface ->
+            val alertDialog = dialogInterface as AlertDialog
+            alertDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
+
+            alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                ?.setTextColor(ContextCompat.getColor(this, R.color.caramel_gold))
+            alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+                ?.setTextColor(ContextCompat.getColor(this, R.color.black))
+
+            val titleTextView =
+                alertDialog.window?.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)
+            titleTextView?.setTextColor(ContextCompat.getColor(this, R.color.caramel_gold))
+        }
+
+        dialog.show()
+    }
+
+    private fun showCustomErrorDialog(message: String) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_crossmark, null)
+        val titleTextView = dialogView.findViewById<TextView>(R.id.dialog_error_title)
+        titleTextView.text = message
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
+            dialog.setCanceledOnTouchOutside(true)
+        }
+
+        dialog.show()
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (dialog.isShowing) {
+                dialog.dismiss()
+            }
+        }, 2000)
+    }
+
+    private fun showCustomAlertDialog(title: String, onDismiss: () -> Unit) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_checkmark, null)
         val titleTextView = dialogView.findViewById<TextView>(R.id.dialog_title)
         titleTextView.text = title
@@ -182,10 +229,7 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         dialog.setOnDismissListener {
-            val intent = Intent(this, VerificationActivity::class.java)
-            intent.putExtra("action", "register")
-            startActivity(intent)
-            finish()
+            onDismiss()
         }
 
         dialog.show()
@@ -194,6 +238,64 @@ class RegisterActivity : AppCompatActivity() {
             if (dialog.isShowing) {
                 dialog.dismiss()
             }
-        }, 3000)
+        }, 2000)
+    }
+
+    private fun togglePasswordVisibility() {
+        val currentTransformationMethod = binding.etPassword.transformationMethod
+
+        binding.etPassword.transformationMethod =
+            if (currentTransformationMethod is PasswordTransformationMethod) {
+                SingleLineTransformationMethod()
+            } else {
+                PasswordTransformationMethod()
+            }
+
+        val iconResId = if (currentTransformationMethod is PasswordTransformationMethod)
+            R.drawable.ic_visibility
+        else
+            R.drawable.ic_visibility_off
+
+        binding.ivShowPassword.setImageResource(iconResId)
+
+        binding.etPassword.setSelection(binding.etPassword.text.length)
+    }
+
+    private fun toggleConfirmPasswordVisibility() {
+        val currentTransformationMethod = binding.etConfirmPassword.transformationMethod
+
+        binding.etConfirmPassword.transformationMethod =
+            if (currentTransformationMethod is PasswordTransformationMethod) {
+                SingleLineTransformationMethod()
+            } else {
+                PasswordTransformationMethod()
+            }
+
+        val iconResId = if (currentTransformationMethod is PasswordTransformationMethod)
+            R.drawable.ic_visibility
+        else
+            R.drawable.ic_visibility_off
+
+        binding.ivShowConfirmPassword.setImageResource(iconResId)
+
+        binding.etConfirmPassword.setSelection(binding.etConfirmPassword.text.length)
+    }
+
+    private fun navigateToLogin() {
+        val intent = Intent(this, LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
+        finish()
+    }
+
+    private fun navigateToVerification(email: String) {
+        val intent = VerificationActivity.newIntent(
+            this,
+            email,
+            registrationStep = "profile_completion"
+        )
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
+        finish()
     }
 }

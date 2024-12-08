@@ -8,6 +8,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bangkit.batikloka.R
 import com.bangkit.batikloka.data.model.Developer
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
 import de.hdodenhof.circleimageview.CircleImageView
 
 class DeveloperAdapter(
@@ -22,29 +24,31 @@ class DeveloperAdapter(
         private val university: TextView = itemView.findViewById(R.id.university)
 
         fun bind(developer: Developer) {
-            Glide.with(itemView.context)
-                .load(developer.image)
+            val glideOptions = RequestOptions()
                 .placeholder(R.drawable.circle_background)
                 .error(R.drawable.circle_background)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+
+            val imageToLoad = when {
+                developer.image.isNotEmpty() -> developer.image
+                else -> {
+                    val resourceId = itemView.context.resources.getIdentifier(
+                        developer.image,
+                        "drawable",
+                        itemView.context.packageName
+                    )
+                    if (resourceId != 0) resourceId else R.drawable.circle_background
+                }
+            }
+
+            Glide.with(itemView.context)
+                .load(imageToLoad)
+                .apply(glideOptions)
                 .into(profilePicture)
+
             developerName.text = developer.name
             learningPath.text = developer.learningPath
             university.text = developer.university
-
-            try {
-                val resourceId = itemView.context.resources.getIdentifier(
-                    developer.image,
-                    "drawable",
-                    itemView.context.packageName
-                )
-                if (resourceId != 0) {
-                    profilePicture.setImageResource(resourceId)
-                } else {
-                    profilePicture.setImageResource(R.drawable.circle_background)
-                }
-            } catch (e: Exception) {
-                profilePicture.setImageResource(R.drawable.circle_background)
-            }
 
             itemView.setOnClickListener { onItemClick(developer) }
         }

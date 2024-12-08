@@ -2,7 +2,6 @@ package com.bangkit.batikloka.ui.main.user.aboutdev
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -50,7 +49,6 @@ class AboutDeveloperActivity : AppCompatActivity() {
             val developersList = gson.fromJson(jsonString, DevelopersList::class.java)
             developersList.developers
         } catch (e: Exception) {
-            Log.e("LoadDevelopers", "Error loading developers", e)
             emptyList()
         }
     }

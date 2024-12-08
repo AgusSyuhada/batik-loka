@@ -4,10 +4,12 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.bangkit.batikloka.R
@@ -74,7 +76,7 @@ class DeveloperDetailActivity : AppCompatActivity() {
 
     private fun openSocialMediaLink(url: String?) {
         if (url.isNullOrBlank() || url == "-") {
-            Toast.makeText(this, "Link not available", Toast.LENGTH_SHORT).show()
+            showCustomErrorDialog(getString(R.string.link_not_available))
             return
         }
 
@@ -82,7 +84,28 @@ class DeveloperDetailActivity : AppCompatActivity() {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
             startActivity(intent)
         } catch (e: Exception) {
-            Toast.makeText(this, "Unable to open link", Toast.LENGTH_SHORT).show()
+            showCustomErrorDialog(getString(R.string.unable_to_open_link))
         }
+    }
+
+    private fun showCustomErrorDialog(message: String) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_crossmark, null)
+        val titleTextView = dialogView.findViewById<TextView>(R.id.dialog_error_title)
+        titleTextView.text = message
+
+        val dialog = AlertDialog.Builder(this).setView(dialogView).setCancelable(true).create()
+
+        dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
+            dialog.setCanceledOnTouchOutside(true)
+        }
+
+        dialog.show()
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (dialog.isShowing) {
+                dialog.dismiss()
+            }
+        }, 2000)
     }
 }

@@ -2,8 +2,8 @@
 <paths>
     <external-files-path
         name="my_images"
-        path="." />
+        path="Pictures" />
     <files-path
-        name="internal_images"
+        name="camera_photos"
         path="." />
 </paths>

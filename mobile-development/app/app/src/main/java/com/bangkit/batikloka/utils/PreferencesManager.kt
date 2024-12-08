@@ -2,54 +2,154 @@ package com.bangkit.batikloka.utils
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.res.Resources
+import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
 import com.bangkit.batikloka.R
+import java.util.Locale
 
-class PreferencesManager(context: Context) {
-    private val sharedPreferences: SharedPreferences =
+class PreferencesManager(private val context: Context) {
+    val sharedPreferences: SharedPreferences =
         context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
 
     companion object {
-        private const val KEY_USER_EMAIL = "user_email"
-        private const val KEY_IS_LOGGED_IN = "is_logged_in"
         private const val KEY_IS_REGISTERED = "is_registered"
         private const val KEY_IS_LOGGED_OUT = "is_logged_out"
         private const val KEY_IS_TOUR_COMPLETED = "is_tour_completed"
         private const val KEY_REGISTRATION_STEP = "registration_step"
         private const val KEY_IS_RESET_PASSWORD = "is_reset_password"
         private const val KEY_LAST_SELECTED_MENU_ITEM = "last_selected_menu_item"
-        private const val KEY_PROFILE_PICTURE_URI = "profile_picture_uri"
-        private const val KEY_USER_NAME = "user_name"
+        private const val KEY_VERIFICATION_OTP = "verification_otp"
+        private const val KEY_OTP_TIMESTAMP = "otp_timestamp"
+        private const val PREF_PROFILE_IMAGE_URL = "pref_profile_image_url"
     }
 
-    fun saveProfilePictureUri(uriString: String) {
-        val editor = sharedPreferences.edit()
-        editor.putString(KEY_PROFILE_PICTURE_URI, uriString)
-        editor.apply()
+    fun saveTheme(theme: AppTheme) {
+        sharedPreferences.edit {
+            putString("app_theme", theme.name)
+        }
     }
 
-    fun saveUserName(name: String) {
-        val editor = sharedPreferences.edit()
-        editor.putString(KEY_USER_NAME, name)
-        editor.apply()
+    fun getSelectedTheme(): AppTheme {
+        val themeName = sharedPreferences.getString("app_theme", AppTheme.SYSTEM.name)
+        return AppTheme.valueOf(themeName ?: AppTheme.SYSTEM.name)
+    }
+
+    fun applyTheme(theme: AppTheme = getSelectedTheme()) {
+        when (theme) {
+            AppTheme.LIGHT -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+
+            AppTheme.DARK -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            }
+
+            AppTheme.SYSTEM -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            }
+        }
+    }
+
+    private fun updateAppLanguage(languageCode: String) {
+        val locale = when (languageCode) {
+            "system" -> {
+                Resources.getSystem().configuration.locales.get(0)
+            }
+
+            "id" -> Locale("id")
+            "en" -> Locale("en")
+            else -> Locale.getDefault()
+        }
+
+        Locale.setDefault(locale)
+        val config = context.resources.configuration
+        config.setLocale(locale)
+        context.createConfigurationContext(config)
+        context.resources.updateConfiguration(config, context.resources.displayMetrics)
+    }
+
+    fun getSelectedLanguage(): String {
+        return sharedPreferences.getString("language", "system") ?: "system"
+    }
+
+    fun setLanguage(languageCode: String) {
+        sharedPreferences.edit().putString("language", languageCode).apply()
+        updateAppLanguage(languageCode)
+    }
+
+    fun setSystemDefaultLanguage() {
+        setLanguage("system")
+    }
+
+    fun setIndonesianLanguage() {
+        setLanguage("id")
+    }
+
+    fun setEnglishLanguage() {
+        setLanguage("en")
+    }
+
+    fun applyLanguageFromPreferences() {
+        val languageCode = sharedPreferences.getString("language", "system") ?: "system"
+        updateAppLanguage(languageCode)
+    }
+
+
+    fun saveToken(token: String?) {
+        token?.let { nonNullToken ->
+            sharedPreferences.edit().apply {
+                putString("bearer_token", nonNullToken)
+                putBoolean("is_logged_in", true)
+            }.apply()
+
+            Log.d("TokenManager", "Token saved: $nonNullToken")
+        } ?: run {
+            Log.e("TokenManager", "Attempted to save null token")
+        }
+    }
+
+    fun clearResetPasswordData() {
+        sharedPreferences.edit().apply {
+            remove(KEY_IS_RESET_PASSWORD)
+            remove("reset_password_email")
+            remove(KEY_VERIFICATION_OTP)
+            remove(KEY_OTP_TIMESTAMP)
+            remove(KEY_REGISTRATION_STEP)
+        }.apply()
+    }
+
+    fun getToken(): String? {
+        return sharedPreferences.getString("bearer_token", null)
+    }
+
+    fun clearToken() {
+        sharedPreferences.edit().remove("bearer_token")
+            .remove("is_logged_in")
+            .apply()
+    }
+
+    fun isUserLoggedIn(): Boolean {
+        return getToken() != null
+    }
+
+    fun getAccessToken(): String? {
+        val token = sharedPreferences.getString("access_token", null)
+        Log.d("PreferencesManager", "Get access token: ${token ?: "No token"}")
+        return token
     }
 
     fun getUserName(): String? {
-        return sharedPreferences.getString(KEY_USER_NAME, null)
+        return sharedPreferences.getString("user_name", null)
     }
 
-    fun savePassword(password: String) {
-        val editor = sharedPreferences.edit()
-        editor.putString("user_password", password)
-        editor.apply()
+    fun saveProfileImageUrl(imageUrl: String) {
+        sharedPreferences.edit().putString(PREF_PROFILE_IMAGE_URL, imageUrl).apply()
     }
 
-    fun getStoredPassword(): String? {
-        return sharedPreferences.getString("user_password", null)
-    }
-
-    fun getProfilePictureUri(): String? {
-        return sharedPreferences.getString(KEY_PROFILE_PICTURE_URI, null)
+    fun getProfileImageUrl(): String? {
+        return sharedPreferences.getString(PREF_PROFILE_IMAGE_URL, null)
     }
 
     fun saveLastSelectedMenuItem(menuItemId: Int) {
@@ -62,112 +162,16 @@ class PreferencesManager(context: Context) {
         return sharedPreferences.getInt(KEY_LAST_SELECTED_MENU_ITEM, R.id.home)
     }
 
-    fun clearLastSelectedMenuItem() {
-        val editor = sharedPreferences.edit()
-        editor.remove(KEY_LAST_SELECTED_MENU_ITEM)
-        editor.apply()
-    }
-
-    fun resetTourStatus() {
-        val editor = sharedPreferences.edit()
-        editor.remove(KEY_IS_TOUR_COMPLETED)
-        editor.apply()
-    }
-
-    fun setResetPasswordStatus(isReset: Boolean, email: String? = null) {
-        val editor = sharedPreferences.edit()
-        editor.putBoolean(KEY_IS_RESET_PASSWORD, isReset)
-        email?.let {
-            editor.putString("reset_password_email", it)
-        }
-        editor.apply()
-    }
-
-//    fun getResetPasswordEmail(): String? {
-//        return sharedPreferences.getString("reset_password_email", null)
-//    }
-//
-//    fun clearResetPasswordData() {
-//        val editor = sharedPreferences.edit()
-//        editor.remove(KEY_IS_RESET_PASSWORD)
-//        editor.remove("reset_password_email")
-//        editor.apply()
-//    }
-
-    fun isResetPassword(): Boolean {
-        return sharedPreferences.getBoolean(KEY_IS_RESET_PASSWORD, false)
-    }
-
-    fun saveUserEmail(email: String) {
-        val editor = sharedPreferences.edit()
-        editor.putString(KEY_USER_EMAIL, email)
-        editor.putBoolean(KEY_IS_LOGGED_IN, true)
-        editor.putBoolean(KEY_IS_REGISTERED, false)
-        editor.apply()
-    }
-
-    fun getUserEmail(): String? {
-        return sharedPreferences.getString(KEY_USER_EMAIL, null)
-    }
-
-    fun setUserLoggedIn(isLoggedIn: Boolean) {
-        sharedPreferences.edit().putBoolean(KEY_IS_LOGGED_IN, isLoggedIn).apply()
-    }
-
-    fun clearLogoutStatus() {
-        val editor = sharedPreferences.edit()
-        editor.remove(KEY_IS_LOGGED_OUT)
-        editor.apply()
-    }
-
-    fun clearUserData() {
-        val editor = sharedPreferences.edit()
-        editor.clear()
-        editor.apply()
-    }
-
-    fun setUserLoggedOut() {
-        val editor = sharedPreferences.edit()
-        editor.putBoolean(KEY_IS_LOGGED_OUT, true)
-        editor.putBoolean(KEY_IS_LOGGED_IN, false)
-        editor.apply()
-    }
-
     fun isUserLoggedOut(): Boolean {
         return sharedPreferences.getBoolean(KEY_IS_LOGGED_OUT, false)
-    }
-
-    fun isUserLoggedIn(): Boolean {
-        return sharedPreferences.getBoolean(KEY_IS_LOGGED_IN, false)
     }
 
     fun isUserRegistered(): Boolean {
         return sharedPreferences.getBoolean(KEY_IS_REGISTERED, false)
     }
 
-    fun setUserRegistered() {
-        val editor = sharedPreferences.edit()
-        editor.putBoolean(KEY_IS_REGISTERED, true)
-        editor.apply()
-    }
-
-    fun saveRegistrationStep(step: String) {
-        val editor = sharedPreferences.edit()
-        editor.putString(KEY_REGISTRATION_STEP, step)
-        editor.apply()
-    }
-
     fun getRegistrationStep(): String? {
-        return sharedPreferences.getString(KEY_REGISTRATION_STEP, null)
-    }
-
-    fun resetRegistrationProcess() {
-        val editor = sharedPreferences.edit()
-        editor.remove(KEY_REGISTRATION_STEP)
-        editor.remove(KEY_USER_EMAIL)
-        editor.remove(KEY_IS_REGISTERED)
-        editor.remove(KEY_IS_LOGGED_IN)
-        editor.apply()
+        return sharedPreferences.getString("registration_step", null)
     }
 
     fun setTourCompleted() {
@@ -178,16 +182,5 @@ class PreferencesManager(context: Context) {
 
     fun isTourCompleted(): Boolean {
         return sharedPreferences.getBoolean(KEY_IS_TOUR_COMPLETED, false)
-    }
-
-    fun getResetPasswordEmail(): String? {
-        return sharedPreferences.getString("reset_password_email", null)
-    }
-
-    fun clearResetPasswordData() {
-        sharedPreferences.edit {
-            remove("reset_password_status")
-            remove("reset_password_email")
-        }
     }
 }

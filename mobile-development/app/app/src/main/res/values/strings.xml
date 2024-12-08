@@ -49,11 +49,9 @@
     <string name="create_account_button">Create an Account</string>
     <string name="or_create_account_with">Or create account with</string>
     <string name="already_have_account">Already have an account? </string>
-    <string name="login">Log In</string>
     <string name="error_otp_empty">OTP cannot be empty</string>
     <string name="error_otp_length">OTP must be 6 digits</string>
     <string name="verification_title">Verification</string>
-    <string name="verification_subtitle">Enter verification code that was sent to your email</string>
     <string name="enter_verification_code_hint">Enter Verification Code</string>
     <string name="verify_account_button">Verify Account</string>
     <string name="error_new_password_empty">New password cannot be empty</string>
@@ -76,4 +74,206 @@
 
     <string name="otp_confirmed_successfully">OTP confirmed successfully!</string>
     <string name="welcome_back_to_batikloka">Welcome back to BatikLoka!</string>
+
+    <string name="password_required">Please enter your password</string>
+    <string name="login_success">Login successful</string>
+    <string name="login_error">An error occurred during login</string>
+
+    //Auth
+    <string name="user_not_found_title">Account Not Found</string>
+    <string name="user_not_found_message">The email you entered is not registered in the system. Would you like to sign up?</string>
+    <string name="register_now">Sign Up Now</string>
+
+    <string name="verification_required_title">Verification Required</string>
+    <string name="unverified_account_message">Your account is not verified. Would you like to complete verification?</string>
+    <string name="verify_now">Verify Now</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="login">Login</string>
+    <string name="logging_in">Logging in...</string>
+    <string name="loading">Loading...</string>
+    <string name="login_failed">Login failed: %1$s</string>
+    <string name="invalid_credentials">Invalid email or password</string>
+    <string name="missing_credentials">Email and password must be filled in</string>
+    <string name="unexpected_login_result">Unexpected login result</string>
+
+    <string name="email_required">Email is required</string>
+    <string name="reset_password_prompt">Enter the 6-digit code to reset your password</string>
+    <string name="verification_subtitle">Enter verification code that was sent to %1$s</string>
+    <string name="required_otp">OTP code must be filled in</string>
+    <string name="invalid_otp">OTP code must be 6 digits</string>
+    <string name="invalid_otp_error">Invalid OTP, please try again</string>
+    <string name="verifying">Verifying...</string>
+    <string name="unexpected_error">Unexpected error occurred</string>
+    <string name="verification_failed">Verification failed: %1$s</string>
+    <string name="verify_account">Account Verification</string>
+    <string name="next">Next</string>
+    <string name="skip">Skip</string>
+    <string name="about_developer_title">About Developer</string>
+    <string name="detail_catalog">Detail Catalog</string>
+    <string name="product_name">Product Name</string>
+    <string name="catalog_description">Catalog description</string>
+    <string name="description">Description</string>
+    <string name="detail_news">Detail News</string>
+    <string name="developer">Developer</string>
+    <string name="developer_picture">Developer Picture</string>
+    <string name="full_name">Full Name</string>
+    <string name="learning_path">Learning Path</string>
+    <string name="university">University</string>
+    <string name="developer_description">A passionate Android developer with expertise in Kotlin, Jetpack Compose, and mobile app architecture.</string>
+    <string name="name">Name</string>
+    <string name="age">Age</string>
+    <string name="major">Major</string>
+    <string name="domicile">Domicile</string>
+    <string name="instagram">Instagram</string>
+    <string name="linkedin">LinkedIn</string>
+    <string name="github">GitHub</string>
+    <string name="enter_your_name">Enter your name</string>
+    <string name="save">Save</string>
+    <string name="edit_name">Edit Name</string>
+    <string name="latest_news">Latest News</string>
+    <string name="catalog">Catalog</string>
+    <string name="see_more">See More</string>
+    <string name="news_title">News Title</string>
+    <string name="news_date">News Date</string>
+    <string name="verification">Verification</string>
+    <string name="theme">Theme</string>
+    <string name="user">User</string>
+    <string name="profil">Profil</string>
+    <string name="username">Username</string>
+    <string name="email">Email</string>
+    <string name="batikloka_email">batikloka@bangkit.com</string>
+    <string name="change_password">Change Password</string>
+    <string name="settings">Settings</string>
+    <string name="news_notification">News Notification</string>
+    <string name="language">Language</string>
+    <string name="about">About</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="about_developer">About Developer</string>
+    <string name="logout">Logout</string>
+
+    <!-- VerificationViewModel -->
+    <string name="error_otp_required">OTP is required</string>
+    <string name="error_invalid_otp_length">OTP code must be 6 digits</string>
+    <string name="error_invalid_otp">Invalid OTP</string>
+    <string name="error_unexpected">An unexpected error occurred</string>
+
+    <!-- CreateNewPasswordViewModel -->
+    <string name="error_invalid_verification_code">Invalid verification code</string>
+    <string name="error_password_too_short">Password must be at least 8 characters</string>
+    <string name="error_passwords_not_match">Password confirmation does not match</string>
+    <string name="success_password_updated">Password successfully updated</string>
+    <string name="error_reset_password_failed">Password reset failed</string>
+
+    <!-- CreateNewPasswordActivity -->
+    <string name="btn_create_new_password">Create New Password</string>
+    <string name="btn_updating">Updating...</string>
+    <string name="dialog_password_created">Password successfully created</string>
+
+    <!-- EmailVerificationViewModel -->
+    <string name="error_email_required">Email is required</string>
+    <string name="error_invalid_email_format">Invalid email format</string>
+    <string name="error_send_failed">Send failed</string>
+
+    <!-- EmailVerificationActivity -->
+    <string name="btn_send">Send</string>
+    <string name="btn_sending">Sending...</string>
+    <string name="dialog_verification_code_sent">Verification code successfully sent</string>
+
+    <!-- User Not Found Dialog -->
+    <string name="dialog_email_not_found_title">Email Not Found</string>
+    <string name="dialog_email_not_found_message">The email you entered is not registered in the system. Do you want to register?</string>
+    <string name="btn_register_now">Register Now</string>
+    <string name="btn_cancel">Cancel</string>
+
+    <!-- LoginViewModel -->
+    <string name="error_password_required">Password is required</string>
+    <string name="error_account_not_verified">Account not verified</string>
+    <string name="error_user_not_found">User not found</string>
+    <string name="error_login_failed">Login failed</string>
+    <string name="success_login">Login successful</string>
+
+    <!-- RegisterViewModel -->
+    <string name="error_name_required">Name is required</string>
+    <string name="error_user_exists">User already registered</string>
+    <string name="error_invalid_credentials">Invalid email or password</string>
+    <string name="error_register_failed">Registration failed</string>
+    <string name="success_register">Registration successful</string>
+
+    <!-- RegisterActivity -->
+    <string name="btn_create_account">Create Account</string>
+    <string name="btn_registering">Registering...</string>
+    <string name="dialog_registration_success">Registration successful</string>
+
+    <!-- Validation Email -->
+    <string name="error_invalid_email">Invalid email format</string>
+
+    <!-- Error Messages for All Empty Fields -->
+    <string name="error_all_fields_empty">Fields cannot be empty</string>
+
+    <!-- User Exists Dialog -->
+    <string name="user_exist_title">User already exists</string>
+    <string name="user_exist_message">Your account is not verified. Would you like to complete verification?</string>
+    <string name="btn_login_now">Login Now</string>
+
+    <!-- Catalog Fragment -->
+    <string name="all_areas">All Areas</string>
+
+    <!-- About Developer Detail-->
+    <string name="link_not_available">Link not available</string>
+    <string name="unable_to_open_link">Unable to open link</string>
+
+    <!-- User View Model-->
+    <string name="failed_to_fetch_profile">Failed to fetch profile</string>
+    <string name="profile_fetch_error">Profile fetch error</string>
+    <string name="logout_failed">Logout failed</string>
+    <string name="logout_error">Logout error</string>
+    <string name="name_cannot_be_empty">Name cannot be empty</string>
+    <string name="name_must_be_at_least_3_characters">Name must be at least 3 characters</string>
+    <string name="name_is_required">Name is required</string>
+    <string name="name_too_short">Name too short</string>
+    <string name="failed_to_change_name">Failed to change name</string>
+    <string name="change_name_error">Change name error</string>
+    <string name="failed_to_verify_email">Failed to verify email</string>
+    <string name="verification_error">Verification error</string>
+    <string name="failed_to_reset_password">Failed to reset password</string>
+    <string name="reset_password_error">Reset password error</string>
+    <string name="failed_to_upload_avatar">Failed to upload avatar</string>
+    <string name="avatar_upload_error">Avatar upload error</string>
+
+    <!-- User Activity-->
+    <string name="logout_success">Logout successful</string>
+    <string name="name_change_success">Name changed successfully</string>
+    <string name="avatar_update_success">Avatar updated successfully</string>
+    <string name="password_reset_success">Password successfully reset</string>
+    <string name="loading_data">Loading data...</string>
+    <string name="email_not_found">Email not found</string>
+    <string name="user_not_found">User not found</string>
+    <string name="verification_code_error">Verification code must be 6 digits</string>
+    <string name="new_password_empty">New password cannot be empty</string>
+    <string name="new_password_length_error">Password must be at least 6 characters</string>
+    <string name="password_confirmation_error">Password confirmation does not match</string>
+    <string name="name_empty_error">Name cannot be empty</string>
+    <string name="name_length_error">Name must be at least 3 characters</string>
+    <string name="loading_message">Processing...</string>
+
+    <!-- Scan Activity-->
+    <string name="short_description">Short description</string>
+    <string name="scan_image">Scan Image</string>
+    <string name="prediction">Prediction</string>
+    <string name="label">Label</string>
+    <string name="scan_result">Scan Result</string>
+    <string name="processing_images">Processing images...</string>
+    <string name="scan_failed_title">Scan Failed</string>
+    <string name="scan_failed_message">Sorry, the scan process was unsuccessful. Please try again or select another image.</string>
+    <string name="try_again">Try Again</string>
+    <string name="probability">Probability: %.2f%%</string>
+    <string name="no_image_selected">No image selected</string>
+    <string name="failed_to_process_image">Failed to process image</string>
+    <string name="batik_successfully_identified">Batik successfully identified</string>
+
+    <!-- History Activity-->
+    <string name="delete_all_history">Delete All History</string>
+    <string name="no_history">No History</string>
+    <string name="history_scan">History Scan</string>
 </resources>

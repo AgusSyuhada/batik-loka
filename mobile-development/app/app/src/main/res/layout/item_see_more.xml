@@ -11,7 +11,7 @@
         android:layout_height="50dp"
         android:background="@drawable/btn_primary"
         android:backgroundTint="@color/caramel_gold"
-        android:text="Lihat Selengkapnya"
+        android:text="@string/see_more"
         android:textAllCaps="false"
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"

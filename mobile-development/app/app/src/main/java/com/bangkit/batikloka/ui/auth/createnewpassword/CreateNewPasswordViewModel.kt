@@ -2,60 +2,96 @@ package com.bangkit.batikloka.ui.auth.createnewpassword
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.bangkit.batikloka.data.local.database.AppDatabase
-import com.bangkit.batikloka.utils.PreferencesManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import androidx.lifecycle.viewModelScope
+import com.bangkit.batikloka.R
+import com.bangkit.batikloka.data.repository.AuthRepository
+import com.bangkit.batikloka.utils.Result
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 @SuppressLint("StaticFieldLeak")
 class CreateNewPasswordViewModel(
-    private val context: Context,
-    private val preferencesManager: PreferencesManager,
-    private val database: AppDatabase,
+    private val authRepository: AuthRepository,
+    private val context: Context
 ) : ViewModel() {
+    private val _resetPasswordResult = MutableLiveData<Result<Any>?>(null)
+    val resetPasswordResult: LiveData<Result<Any>?> = _resetPasswordResult
 
-    fun validateNewPassword(newPassword: String, confirmNewPassword: String): Boolean {
-        return when {
-            newPassword.isEmpty() -> {
-                false
-            }
-            newPassword.length < 6 -> {
-                false
-            }
-            confirmNewPassword.isEmpty() -> {
-                false
-            }
-            newPassword != confirmNewPassword -> {
-                false
-            }
-            else -> true
+    private var currentJob: Job? = null
+
+    fun resetPassword(email: String, otp: String, newPassword: String, confirmPassword: String) {
+        if (email.isEmpty() && otp.isEmpty() && newPassword.isEmpty() && confirmPassword.isEmpty()) {
+            _resetPasswordResult.value = Result.Error(
+                message = context.getString(R.string.error_all_fields_empty),
+                error = context.getString(R.string.error_all_fields_empty)
+            )
+            return
         }
-    }
 
-    suspend fun saveNewPassword(newPassword: String): Boolean {
-        return withContext(Dispatchers.IO) {
+        if (otp.isEmpty() || otp.length != 6) {
+            _resetPasswordResult.value = Result.Error(
+                message = context.getString(R.string.error_invalid_verification_code),
+                error = context.getString(R.string.error_invalid_verification_code)
+            )
+            return
+        }
+
+        if (newPassword.isEmpty() || newPassword.length < 8) {
+            _resetPasswordResult.value = Result.Error(
+                message = context.getString(R.string.error_password_too_short),
+                error = context.getString(R.string.error_password_too_short)
+            )
+            return
+        }
+
+        if (newPassword != confirmPassword) {
+            _resetPasswordResult.value = Result.Error(
+                message = context.getString(R.string.error_passwords_not_match),
+                error = context.getString(R.string.error_passwords_not_match)
+            )
+            return
+        }
+
+        viewModelScope.launch {
+            _resetPasswordResult.value = Result.Loading
             try {
-                val email = preferencesManager.getResetPasswordEmail()
-                if (email != null) {
-                    val hashedPassword = hashPassword(newPassword)
-                    database.userDao().updatePassword(email, hashedPassword)
-                    preferencesManager.clearResetPasswordData()
-                    true
-                } else {
-                    false
+                when (val result = authRepository.resetPassword(email, otp, newPassword)) {
+                    is Result.Success -> {
+                        _resetPasswordResult.value = Result.Success(
+                            context.getString(R.string.success_password_updated)
+                        )
+                    }
+
+                    is Result.Error -> {
+                        _resetPasswordResult.value = result
+                    }
+
+                    is Result.Loading -> {}
+                    else -> {
+                        _resetPasswordResult.value = Result.Error(
+                            message = context.getString(R.string.error_unexpected),
+                            error = context.getString(R.string.error_unexpected)
+                        )
+                    }
                 }
             } catch (e: Exception) {
-                Log.e("CreateNewPasswordVM", "Error saving new password", e)
-                false
+                _resetPasswordResult.value = Result.Error(
+                    message = context.getString(R.string.error_reset_password_failed),
+                    error = e.localizedMessage ?: context.getString(R.string.error_unexpected)
+                )
             }
         }
     }
 
-    private fun hashPassword(password: String): String {
-        val digest = java.security.MessageDigest.getInstance("SHA-256")
-        val hashBytes = digest.digest(password.toByteArray())
-        return hashBytes.joinToString("") { "%02x".format(it) }
+    fun cancelCurrentOperation() {
+        currentJob?.cancel()
+        _resetPasswordResult.value = null
+    }
+
+    fun resetState() {
+        _resetPasswordResult.value = null
     }
 }

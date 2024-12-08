@@ -62,7 +62,7 @@ class CatalogFragment : Fragment() {
     }
 
     private fun setupCategoryTabs() {
-        val categories = listOf("Semua Wilayah") +
+        val categories = listOf(getString(R.string.all_areas)) +
                 originalBatikList.map { it.category }.distinct().sorted()
 
         tabContainer.removeAllViews()
@@ -109,7 +109,7 @@ class CatalogFragment : Fragment() {
     }
 
     private fun filterBatikByCategory(category: String) {
-        val filteredList = if (category == "Semua Wilayah") {
+        val filteredList = if (category == getString(R.string.all_areas)) {
             originalBatikList
         } else {
             originalBatikList.filter { it.category == category }

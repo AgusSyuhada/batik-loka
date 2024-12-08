@@ -15,7 +15,7 @@
         android:padding="8dp">
 
         <ImageView
-            android:id="@+id/news_image"
+            android:id="@+id/iv_news_image"
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:scaleType="centerCrop"
@@ -25,21 +25,21 @@
             android:clipToOutline="true" />
 
         <TextView
-            android:id="@+id/news_title"
+            android:id="@+id/tv_news_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="News Title Here"
+            android:text="@string/news_title"
             android:textColor="@color/black"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/news_description"
+            android:id="@+id/tv_news_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Short description of the news here..."
+            android:text="@string/news_date"
             android:textColor="@color/dark_gray"
             android:textSize="14sp" />
 
