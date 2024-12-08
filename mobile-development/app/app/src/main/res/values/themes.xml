@@ -13,7 +13,8 @@
 
     <style name="Theme.BatikLoka" parent="Base.Theme.BatikLoka" />
 
-    <style name="fab_3_rounded">
+    <style name="CircularFAB" parent="Widget.MaterialComponents.FloatingActionButton">
         <item name="cornerSize">50%</item>
+        <item name="android:elevation">0dp</item>
     </style>
 </resources>

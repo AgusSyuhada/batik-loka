@@ -22,7 +22,7 @@ object ApiConfig {
         return createRetrofit(BASE_URL_AUTH, preferencesManager).create(AuthApiService::class.java)
     }
 
-    fun getServiceApiService(
+    fun getNewsApiService(
         context: Context,
         preferencesManager: PreferencesManager
     ): NewsApiService {

@@ -256,6 +256,13 @@
     <string name="name_empty_error">Name cannot be empty</string>
     <string name="name_length_error">Name must be at least 3 characters</string>
     <string name="loading_message">Processing...</string>
+    <string name="choose_theme">Choose Theme</string>
+    <string name="choose_language">Choose Language</string>
+    <string name="take_photo_from_camera">Take photo from camera</string>
+    <string name="choose_from_gallery">Choose from gallery</string>
+    <string name="operation_cancelled">Operation cancelled</string>
+    <string name="crop_error">Crop error: %1$s</string>
+    <string name="unhandled_request_code">Unhandled request code</string>
 
     <!-- Scan Activity-->
     <string name="short_description">Short description</string>
@@ -271,9 +278,36 @@
     <string name="no_image_selected">No image selected</string>
     <string name="failed_to_process_image">Failed to process image</string>
     <string name="batik_successfully_identified">Batik successfully identified</string>
+    <string name="gallery_canceled">Gallery canceled</string>
+    <string name="camera_start_failed">Failed to start camera</string>
+    <string name="permissions_not_granted">Permissions not granted by the user.</string>
+    <string name="photo_captured">Photo captured</string>
+    <string name="camera_canceled">Camera canceled</string>
+    <string name="capturing_photo">Capturing photo...</string>
+    <string name="photo_capture_failed">Photo capture failed: %1$s</string>
+    <string name="permissions_not_granted_by_the_user">Permissions not granted by the user</string>
 
     <!-- History Activity-->
     <string name="delete_all_history">Delete All History</string>
     <string name="no_history">No History</string>
     <string name="history_scan">History Scan</string>
+    <string name="data_not_found">Data not found</string>
+    <string name="delete">Delete</string>
+    <string name="confirm_delete">Confirm Delete</string>
+    <string name="sure_delete_history">Are you sure you want to delete the scan history %1$s?</string>
+    <string name="sure_delete_all_history">Are you sure you want to delete the scan history?</string>
+
+    <!-- News Activity-->
+    <string name="failed_to_load_news">Failed to load news: %1$s</string>
+    <string name="no_news_available">No news available</string>
+    <string name="news_title_default">News Title</string>
+    <string name="news_date_default">Date not available</string>
+    <string name="news_title_unavailable">Title Unavailable</string>
+    <string name="news_date_unavailable">Date Unavailable</string>
+    <string name="news_content_unavailable">Content Unavailable</string>
+    <string name="news_source_format">Source: %1$s</string>
+    <string name="news_error_load">Failed to Load News</string>
+    <string name="news_error_description">Unable to fetch news details</string>
+    <string name="home">Home</string>
+    <string name="news">News</string>
 </resources>

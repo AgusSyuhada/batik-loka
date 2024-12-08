@@ -2,15 +2,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/home"
-        android:title="Home"
+        android:icon="@drawable/selector_home_icon"
         android:iconTint="@color/ivory_white"
-        android:icon="@drawable/ic_home_outlined"/>
+        android:title="@string/home" />
 
     <item
         android:id="@+id/news"
-        android:title="News"
+        android:icon="@drawable/selector_news_icon"
         android:iconTint="@color/ivory_white"
-        android:icon="@drawable/ic_news_outlined"/>
+        android:title="@string/news" />
 
     <item
         android:enabled="false"
@@ -18,14 +18,14 @@
 
     <item
         android:id="@+id/catalog"
-        android:title="Catalog"
+        android:icon="@drawable/selector_catalog_icon"
         android:iconTint="@color/ivory_white"
-        android:icon="@drawable/ic_book_outlined"/>
+        android:title="@string/catalog" />
 
     <item
         android:id="@+id/user"
-        android:title="User"
+        android:icon="@drawable/selector_user_icon"
         android:iconTint="@color/ivory_white"
-        android:icon="@drawable/ic_user_outlined"/>
+        android:title="@string/user" />
 
 </menu>

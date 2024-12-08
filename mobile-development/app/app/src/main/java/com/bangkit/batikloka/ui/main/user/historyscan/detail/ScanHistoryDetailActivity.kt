@@ -2,8 +2,11 @@ package com.bangkit.batikloka.ui.main.user.historyscan.detail
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.widget.Toast
+import android.os.Handler
+import android.os.Looper
+import android.widget.TextView
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -52,7 +55,7 @@ class ScanHistoryDetailActivity : AppCompatActivity() {
 
     private fun observeScanHistoryDetail(id: Int) {
         if (id == -1) {
-            Toast.makeText(this, "Data tidak ditemukan", Toast.LENGTH_SHORT).show()
+            showCustomErrorDialog(getString(R.string.data_not_found))
             finish()
             return
         }
@@ -63,16 +66,36 @@ class ScanHistoryDetailActivity : AppCompatActivity() {
                     scanHistory?.let { history ->
                         bindScanHistoryData(history)
                     } ?: run {
-                        Toast.makeText(
-                            this@ScanHistoryDetailActivity,
-                            "Data tidak ditemukan",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        showCustomErrorDialog(getString(R.string.data_not_found))
                         finish()
                     }
                 }
             }
         }
+    }
+
+    private fun showCustomErrorDialog(message: String) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_crossmark, null)
+        val titleTextView = dialogView.findViewById<TextView>(R.id.dialog_error_title)
+        titleTextView.text = message
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
+            dialog.setCanceledOnTouchOutside(true)
+        }
+
+        dialog.show()
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (dialog.isShowing) {
+                dialog.dismiss()
+            }
+        }, 2000)
     }
 
     @SuppressLint("DefaultLocale")

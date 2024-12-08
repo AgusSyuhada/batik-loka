@@ -1,16 +1,20 @@
 package com.bangkit.batikloka.ui.main.scan
 
 import android.Manifest
+import android.app.ProgressDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
-import android.widget.Toast
+import android.widget.TextView
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -33,6 +37,7 @@ class ScanActivity : AppCompatActivity() {
     private var isFlashOn = false
     private var isFrontCamera = false
     private var currentImageFile: File? = null
+    private var loadingDialog: ProgressDialog? = null
 
     private val launcherIntentCamera = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -40,14 +45,13 @@ class ScanActivity : AppCompatActivity() {
         when (result.resultCode) {
             RESULT_OK -> {
                 currentImageFile?.let { file ->
-                    Toast.makeText(this, "Photo captured", Toast.LENGTH_SHORT).show()
+                    showCustomAlertDialog(getString(R.string.photo_captured))
                 }
             }
-
             RESULT_CANCELED -> {
                 currentImageFile?.delete()
                 currentImageFile = null
-                Toast.makeText(this, "Camera canceled", Toast.LENGTH_SHORT).show()
+                showCustomErrorDialog(getString(R.string.camera_canceled))
             }
         }
     }
@@ -65,19 +69,19 @@ class ScanActivity : AppCompatActivity() {
         val outputFile = createTempFile()
         val outputOptions = ImageCapture.OutputFileOptions.Builder(outputFile).build()
 
+        showLoadingDialog(getString(R.string.capturing_photo))
+
         imageCapture.takePicture(
             outputOptions,
             ContextCompat.getMainExecutor(this),
             object : ImageCapture.OnImageSavedCallback {
                 override fun onError(exc: ImageCaptureException) {
-                    Toast.makeText(
-                        baseContext,
-                        "Photo capture failed: ${exc.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    dismissLoadingDialog()
+                    showCustomErrorDialog(getString(R.string.photo_capture_failed, exc.message))
                 }
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                    dismissLoadingDialog()
                     currentImageFile = outputFile
                     val savedUri = FileProvider.getUriForFile(
                         this@ScanActivity,
@@ -85,7 +89,6 @@ class ScanActivity : AppCompatActivity() {
                         outputFile
                     )
 
-                    // Tambahkan permission untuk membaca URI
                     val intent = Intent(this@ScanActivity, ScanResultActivity::class.java).apply {
                         putExtra("IMAGE_URI", savedUri.toString())
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -128,7 +131,7 @@ class ScanActivity : AppCompatActivity() {
                 startActivity(intent)
                 finish()
             } else {
-                Toast.makeText(this, "Gallery canceled", Toast.LENGTH_SHORT).show()
+                showCustomErrorDialog(getString(R.string.gallery_canceled))
             }
         }
 
@@ -228,7 +231,7 @@ class ScanActivity : AppCompatActivity() {
                     this, cameraSelector, preview, imageCapture
                 )
             } catch (exc: Exception) {
-                Toast.makeText(this, "Failed to start camera", Toast.LENGTH_SHORT).show()
+                showCustomErrorDialog(getString(R.string.camera_start_failed))
             }
         }, ContextCompat.getMainExecutor(this))
     }
@@ -250,6 +253,74 @@ class ScanActivity : AppCompatActivity() {
         ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
     }
 
+    private fun showCustomErrorDialog(message: String) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_crossmark, null)
+        val titleTextView = dialogView.findViewById<TextView>(R.id.dialog_error_title)
+        titleTextView.text = message
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
+            dialog.setCanceledOnTouchOutside(true)
+        }
+
+        dialog.show()
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (dialog.isShowing) {
+                dialog.dismiss()
+            }
+        }, 2000)
+    }
+
+    private fun showCustomAlertDialog(title: String, onDismiss: () -> Unit = {}) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_checkmark, null)
+        val titleTextView = dialogView.findViewById<TextView>(R.id.dialog_title)
+        titleTextView.text = title
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
+            dialog.setCanceledOnTouchOutside(true)
+        }
+
+        dialog.setOnDismissListener {
+            onDismiss()
+        }
+
+        dialog.show()
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (dialog.isShowing) {
+                dialog.dismiss()
+            }
+        }, 2000)
+    }
+
+    private fun showLoadingDialog(message: String) {
+        loadingDialog?.dismiss()
+        loadingDialog = ProgressDialog(this)
+        loadingDialog?.setMessage(message)
+        loadingDialog?.setCancelable(true)
+        loadingDialog?.setOnShowListener {
+            loadingDialog?.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
+        }
+        loadingDialog?.show()
+    }
+
+    private fun dismissLoadingDialog() {
+        loadingDialog?.dismiss()
+        loadingDialog = null
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -260,12 +331,7 @@ class ScanActivity : AppCompatActivity() {
             if (allPermissionsGranted()) {
                 startCamera()
             } else {
-                Toast.makeText(
-                    this,
-                    "Permissions not granted by the user.",
-                    Toast.LENGTH_SHORT
-                ).show()
-                finish()
+                showCustomErrorDialog(getString(R.string.permissions_not_granted_by_the_user))
             }
         }
     }

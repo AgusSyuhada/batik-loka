@@ -16,7 +16,7 @@ android {
         minSdk = 21
         targetSdk = 35
         versionCode = 1
-        versionName = "0.1.1"
+        versionName = "0.2.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -48,7 +48,8 @@ android {
 }
 
 dependencies {
-    implementation(libs.secrets.gradle.plugin)
+
+implementation(libs.secrets.gradle.plugin)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

@@ -13,7 +13,6 @@ import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
@@ -28,6 +27,7 @@ import com.bangkit.batikloka.databinding.ActivityUserBinding
 import com.bangkit.batikloka.ui.adapter.LanguageAdapter
 import com.bangkit.batikloka.ui.adapter.ThemeAdapter
 import com.bangkit.batikloka.ui.auth.login.LoginActivity
+import com.bangkit.batikloka.ui.base.BaseActivity
 import com.bangkit.batikloka.ui.main.MainActivity
 import com.bangkit.batikloka.ui.main.user.aboutdev.AboutDeveloperActivity
 import com.bangkit.batikloka.ui.main.user.historyscan.HistoryScanActivity
@@ -35,13 +35,13 @@ import com.bangkit.batikloka.ui.main.user.privpol.PrivacyPolicyActivity
 import com.bangkit.batikloka.ui.main.user.viewmodel.UserActivityViewModel
 import com.bangkit.batikloka.ui.main.user.viewmodel.UserViewModelFactory
 import com.bangkit.batikloka.utils.AppTheme
+import com.bangkit.batikloka.utils.ImagePickerHelper
 import com.bangkit.batikloka.utils.PreferencesManager
 import com.bangkit.batikloka.utils.Result
-import com.bangkit.batikloka.utils.helper.ImagePickerHelper
 import com.bumptech.glide.Glide
 import java.io.File
 
-class UserActivity : AppCompatActivity() {
+class UserActivity : BaseActivity() {
 
     private lateinit var binding: ActivityUserBinding
     private lateinit var viewModel: UserActivityViewModel
@@ -117,7 +117,7 @@ class UserActivity : AppCompatActivity() {
                 }
 
                 is Result.Loading -> {
-                    //
+                    // Optional: Show loading indicator
                 }
 
                 null -> {
@@ -551,7 +551,7 @@ class UserActivity : AppCompatActivity() {
         val languages = arrayOf("System Default", "Indonesia", "English")
 
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("Choose Language")
+        builder.setTitle(getString(R.string.choose_language))
 
         val dialogView = layoutInflater.inflate(R.layout.dialog_list, null)
         val listView: ListView = dialogView.findViewById(R.id.listViewDialog)
@@ -579,7 +579,7 @@ class UserActivity : AppCompatActivity() {
                 2 -> preferencesManager.setEnglishLanguage()
             }
             dialog.dismiss()
-            recreate()
+            recreateWithTransition()
         }
 
         dialog.show()
@@ -589,7 +589,7 @@ class UserActivity : AppCompatActivity() {
         val themes = arrayOf("Light", "Dark", "System Default")
 
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("Choose Theme")
+        builder.setTitle(getString(R.string.choose_theme))
 
         val dialogView = layoutInflater.inflate(R.layout.dialog_list, null)
         val listView: ListView = dialogView.findViewById(R.id.listViewDialog)
@@ -614,21 +614,18 @@ class UserActivity : AppCompatActivity() {
             when (position) {
                 0 -> {
                     preferencesManager.saveTheme(AppTheme.LIGHT)
-                    preferencesManager.applyTheme(AppTheme.LIGHT)
                 }
 
                 1 -> {
                     preferencesManager.saveTheme(AppTheme.DARK)
-                    preferencesManager.applyTheme(AppTheme.DARK)
                 }
 
                 2 -> {
                     preferencesManager.saveTheme(AppTheme.SYSTEM)
-                    preferencesManager.applyTheme(AppTheme.SYSTEM)
                 }
             }
             dialog.dismiss()
-            recreate()
+            recreateWithTransition()
         }
 
         dialog.show()
@@ -667,12 +664,12 @@ class UserActivity : AppCompatActivity() {
     }
 
     private fun showImageSourceOptions() {
-        imagePickerHelper.showImageSourceOptions()
+        imagePickerHelper.showImageSourceOptions(context)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        imagePickerHelper.handleActivityResult(requestCode, resultCode, data)
+        imagePickerHelper.handleActivityResult(context, requestCode, resultCode, data)
     }
 
     private fun setupAboutDeveloperListener() {

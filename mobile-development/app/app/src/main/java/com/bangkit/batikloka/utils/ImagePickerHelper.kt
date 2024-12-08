@@ -1,7 +1,8 @@
-package com.bangkit.batikloka.utils.helper
+package com.bangkit.batikloka.utils
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -36,12 +37,16 @@ class ImagePickerHelper(private val activity: Activity) {
         onImageSelectedListener = listener
     }
 
-    fun showImageSourceOptions() {
-        val options = arrayOf("Take photo from camera", "Choose from gallery")
+    fun showImageSourceOptions(context: Context) {
+        val options = arrayOf(
+            context.getString(R.string.take_photo_from_camera), context.getString(
+                R.string.choose_from_gallery
+            )
+        )
         val icons = intArrayOf(R.drawable.ic_camera_outlined, R.drawable.ic_photo)
 
         val builder = AlertDialog.Builder(activity)
-        builder.setTitle("Choose Image Source")
+        builder.setTitle(context.getString(R.string.take_photo_from_camera))
 
         val dialogView = activity.layoutInflater.inflate(R.layout.dialog_image_source, null)
         val listView: ListView = dialogView.findViewById(R.id.listView)
@@ -119,7 +124,7 @@ class ImagePickerHelper(private val activity: Activity) {
             .start(activity)
     }
 
-    fun handleActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    fun handleActivityResult(context: Context, requestCode: Int, resultCode: Int, data: Intent?) {
         when {
             resultCode == Activity.RESULT_OK -> {
                 when (requestCode) {
@@ -152,7 +157,10 @@ class ImagePickerHelper(private val activity: Activity) {
                     }
 
                     else -> {
-                        Toast.makeText(activity, "Unhandled request code", Toast.LENGTH_SHORT)
+                        Toast.makeText(
+                            activity,
+                            context.getString(R.string.unhandled_request_code), Toast.LENGTH_SHORT
+                        )
                             .show()
                     }
                 }
@@ -160,12 +168,18 @@ class ImagePickerHelper(private val activity: Activity) {
 
             resultCode == UCrop.RESULT_ERROR -> {
                 val cropError = UCrop.getError(data!!)
-                Toast.makeText(activity, "Crop error: ${cropError?.message}", Toast.LENGTH_SHORT)
+                Toast.makeText(
+                    activity,
+                    context.getString(R.string.crop_error, cropError?.message), Toast.LENGTH_SHORT
+                )
                     .show()
             }
 
             else -> {
-                Toast.makeText(activity, "Operation cancelled", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    activity,
+                    context.getString(R.string.operation_cancelled), Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }

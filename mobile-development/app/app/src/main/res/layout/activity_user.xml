@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:text="@string/user"
             android:textColor="@android:color/black"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
     </androidx.appcompat.widget.Toolbar>
 
@@ -51,7 +51,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/profil"
-                    android:textSize="14sp"
+                    android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -106,7 +106,7 @@
                 android:paddingEnd="15dp"
                 android:paddingBottom="5dp"
                 android:text="@string/username"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -140,7 +140,7 @@
                     android:layout_marginStart="20dp"
                     android:layout_weight="1"
                     android:text="@string/edit_name"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="@+id/ic_pofile"
                     app:layout_constraintStart_toEndOf="@+id/ic_pofile"
                     app:layout_constraintTop_toTopOf="@+id/ic_pofile" />
@@ -184,7 +184,7 @@
                     android:layout_marginStart="20dp"
                     android:layout_weight="1"
                     android:text="@string/email"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="@+id/ic_email"
                     app:layout_constraintStart_toEndOf="@+id/ic_email"
                     app:layout_constraintTop_toTopOf="@+id/ic_email" />
@@ -194,7 +194,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/batikloka_email"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="1.0"
                     app:layout_constraintStart_toEndOf="@+id/tv_email"
@@ -227,7 +227,7 @@
                     android:layout_marginStart="20dp"
                     android:layout_weight="1"
                     android:text="@string/history_scan"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="@+id/ic_history_scan"
                     app:layout_constraintStart_toEndOf="@+id/ic_history_scan"
                     app:layout_constraintTop_toTopOf="@+id/ic_history_scan" />
@@ -271,7 +271,7 @@
                     android:layout_marginStart="20dp"
                     android:layout_weight="1"
                     android:text="@string/change_password"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="@+id/ic_change_password"
                     app:layout_constraintStart_toEndOf="@+id/ic_change_password"
                     app:layout_constraintTop_toTopOf="@+id/ic_change_password" />
@@ -303,7 +303,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/settings"
-                    android:textSize="14sp"
+                    android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -340,7 +340,7 @@
                     android:layout_marginStart="20dp"
                     android:layout_weight="1"
                     android:text="@string/news_notification"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="@+id/ic_news_notification"
                     app:layout_constraintStart_toEndOf="@+id/ic_news_notification"
                     app:layout_constraintTop_toTopOf="@+id/ic_news_notification" />
@@ -383,7 +383,7 @@
                     android:layout_marginStart="20dp"
                     android:layout_weight="1"
                     android:text="@string/theme"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="@+id/ic_theme"
                     app:layout_constraintStart_toEndOf="@+id/ic_theme"
                     app:layout_constraintTop_toTopOf="@+id/ic_theme" />
@@ -428,7 +428,7 @@
                     android:layout_marginStart="20dp"
                     android:layout_weight="1"
                     android:text="@string/language"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="@+id/ic_language"
                     app:layout_constraintStart_toEndOf="@+id/ic_language"
                     app:layout_constraintTop_toTopOf="@+id/ic_language" />
@@ -460,7 +460,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/about"
-                    android:textSize="14sp"
+                    android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -497,7 +497,7 @@
                     android:layout_marginStart="20dp"
                     android:layout_weight="1"
                     android:text="@string/privacy_policy"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="@+id/ic_privacy_policy"
                     app:layout_constraintStart_toEndOf="@+id/ic_privacy_policy"
                     app:layout_constraintTop_toTopOf="@+id/ic_privacy_policy" />
@@ -542,7 +542,7 @@
                     android:layout_marginStart="20dp"
                     android:layout_weight="1"
                     android:text="@string/about_developer"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="@+id/ic_about_developer"
                     app:layout_constraintStart_toEndOf="@+id/ic_about_developer"
                     app:layout_constraintTop_toTopOf="@+id/ic_about_developer" />
@@ -587,7 +587,7 @@
                     android:layout_marginStart="20dp"
                     android:layout_weight="1"
                     android:text="@string/logout"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="@+id/ic_logout"
                     app:layout_constraintStart_toEndOf="@+id/ic_logout"
                     app:layout_constraintTop_toTopOf="@+id/ic_logout" />

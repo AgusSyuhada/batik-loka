@@ -7,7 +7,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -88,11 +87,6 @@ class ScanResultActivity : AppCompatActivity() {
 
     @SuppressLint("DefaultLocale")
     private fun handleSuccessResult(predictResponse: PredictResponse) {
-        Log.d(TAG, "Response Details:")
-        Log.d(TAG, "Label: ${predictResponse.label}")
-        Log.d(TAG, "Description: ${predictResponse.description}")
-        Log.d(TAG, "Predictions: ${predictResponse.predictions}")
-
         binding.tvLabel.text = predictResponse.label
         binding.tvShortDescription.text = predictResponse.description
 
@@ -127,7 +121,6 @@ class ScanResultActivity : AppCompatActivity() {
         val imageUriString = intent.getStringExtra("IMAGE_URI")
         imageUriString?.let { uriString ->
             val imageUri = Uri.parse(uriString)
-            Log.d(TAG, "Image URI received: $imageUri")
 
             Glide.with(this)
                 .load(imageUri)

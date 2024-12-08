@@ -89,33 +89,36 @@ class HistoryScanActivity : AppCompatActivity() {
         }
     }
 
-    private fun showCustomDialog(
-        title: String,
-        message: String,
-        positiveButtonText: String = "OK",
-        negativeButtonText: String? = "Batal",
-        onPositiveClick: (() -> Unit)? = null,
-        onNegativeClick: (() -> Unit)? = null,
-        customConfig: ((AlertDialog) -> Unit)? = null
-    ) {
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle(title)
-            .setMessage(message)
-            .setPositiveButton(positiveButtonText) { _, _ ->
-                onPositiveClick?.invoke()
+    private fun showDeleteAllHistoryDialog() {
+        showDeleteConfirmationDialog(
+            getString(R.string.sure_delete_all_history),
+            onConfirm = {
+                viewModel.deleteAllHistory()
             }
+        )
+    }
 
-        negativeButtonText?.let {
-            builder.setNegativeButton(it) { _, _ ->
-                onNegativeClick?.invoke()
+    private fun showDeleteSingleHistoryDialog(scanHistory: ScanHistoryEntity) {
+        showDeleteConfirmationDialog(
+            getString(R.string.sure_delete_history, scanHistory.label),
+            onConfirm = {
+                viewModel.deleteSingleHistory(scanHistory)
             }
-        }
+        )
+    }
+
+    private fun showDeleteConfirmationDialog(message: String, onConfirm: () -> Unit) {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(getString(R.string.confirm_delete))
+            .setMessage(message)
+            .setPositiveButton(getString(R.string.delete)) { _, _ ->
+                onConfirm()
+            }
+            .setNegativeButton(getString(R.string.cancel), null)
 
         val dialog = builder.create()
-
         dialog.setOnShowListener { dialogInterface ->
             val alertDialog = dialogInterface as AlertDialog
-
             alertDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
 
             alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
@@ -126,33 +129,8 @@ class HistoryScanActivity : AppCompatActivity() {
             val titleTextView =
                 alertDialog.window?.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)
             titleTextView?.setTextColor(ContextCompat.getColor(this, R.color.caramel_gold))
-
-            customConfig?.invoke(alertDialog)
         }
-
         dialog.show()
-    }
-
-    private fun showDeleteAllHistoryDialog() {
-        showCustomDialog(
-            title = "Hapus Semua Riwayat",
-            message = "Apakah Anda yakin ingin menghapus semua riwayat scan?",
-            positiveButtonText = "Hapus",
-            onPositiveClick = {
-                viewModel.deleteAllHistory()
-            }
-        )
-    }
-
-    private fun showDeleteSingleHistoryDialog(scanHistory: ScanHistoryEntity) {
-        showCustomDialog(
-            title = "Konfirmasi Hapus",
-            message = "Apakah Anda yakin ingin menghapus riwayat scan ${scanHistory.label}?",
-            positiveButtonText = "Hapus",
-            onPositiveClick = {
-                viewModel.deleteSingleHistory(scanHistory)
-            }
-        )
     }
 
     private fun navigateToScanHistoryDetail(scanHistory: ScanHistoryEntity) {

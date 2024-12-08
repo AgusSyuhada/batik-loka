@@ -61,7 +61,7 @@
             android:name=".ui.auth.createnewpassword.CreateNewPasswordActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.main.news.DetailNewsActivity"
+            android:name=".ui.main.news.detail.DetailNewsActivity"
             android:exported="false" />
         <activity
             android:name=".ui.main.catalog.DetailCatalogActivity"

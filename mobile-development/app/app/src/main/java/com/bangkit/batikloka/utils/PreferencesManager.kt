@@ -2,7 +2,8 @@ package com.bangkit.batikloka.utils
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.content.res.Resources
+import android.content.res.Configuration
+import android.os.Build
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
@@ -23,59 +24,38 @@ class PreferencesManager(private val context: Context) {
         private const val KEY_VERIFICATION_OTP = "verification_otp"
         private const val KEY_OTP_TIMESTAMP = "otp_timestamp"
         private const val PREF_PROFILE_IMAGE_URL = "pref_profile_image_url"
+        private const val KEY_APP_THEME = "app_theme"
+        private const val KEY_APP_LANGUAGE = "app_language"
     }
 
     fun saveTheme(theme: AppTheme) {
         sharedPreferences.edit {
-            putString("app_theme", theme.name)
+            putString(KEY_APP_THEME, theme.name)
         }
+        applyTheme(theme)
     }
 
-    fun getSelectedTheme(): AppTheme {
-        val themeName = sharedPreferences.getString("app_theme", AppTheme.SYSTEM.name)
+    fun getCurrentTheme(): AppTheme {
+        val themeName = sharedPreferences.getString(KEY_APP_THEME, AppTheme.SYSTEM.name)
         return AppTheme.valueOf(themeName ?: AppTheme.SYSTEM.name)
     }
 
-    fun applyTheme(theme: AppTheme = getSelectedTheme()) {
+    fun applyTheme(theme: AppTheme = getCurrentTheme()) {
         when (theme) {
-            AppTheme.LIGHT -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            }
-
-            AppTheme.DARK -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            }
-
-            AppTheme.SYSTEM -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-            }
+            AppTheme.LIGHT -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            AppTheme.DARK -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            AppTheme.SYSTEM -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         }
     }
 
-    private fun updateAppLanguage(languageCode: String) {
-        val locale = when (languageCode) {
-            "system" -> {
-                Resources.getSystem().configuration.locales.get(0)
-            }
-
-            "id" -> Locale("id")
-            "en" -> Locale("en")
-            else -> Locale.getDefault()
-        }
-
-        Locale.setDefault(locale)
-        val config = context.resources.configuration
-        config.setLocale(locale)
-        context.createConfigurationContext(config)
-        context.resources.updateConfiguration(config, context.resources.displayMetrics)
-    }
-
-    fun getSelectedLanguage(): String {
-        return sharedPreferences.getString("language", "system") ?: "system"
+    fun getCurrentLanguage(): String {
+        return sharedPreferences.getString(KEY_APP_LANGUAGE, "system") ?: "system"
     }
 
     fun setLanguage(languageCode: String) {
-        sharedPreferences.edit().putString("language", languageCode).apply()
+        sharedPreferences.edit {
+            putString(KEY_APP_LANGUAGE, languageCode)
+        }
         updateAppLanguage(languageCode)
     }
 
@@ -91,11 +71,43 @@ class PreferencesManager(private val context: Context) {
         setLanguage("en")
     }
 
+    private fun updateAppLanguage(languageCode: String) {
+        val locale = when (languageCode) {
+            "system" -> Locale.getDefault()
+            "id" -> Locale("id")
+            "en" -> Locale("en")
+            else -> Locale.getDefault()
+        }
+
+        Locale.setDefault(locale)
+        val resources = context.resources
+        val config = Configuration(resources.configuration)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            config.setLocale(locale)
+        } else {
+            @Suppress("DEPRECATION")
+            config.locale = locale
+        }
+
+        @Suppress("DEPRECATION")
+        resources.updateConfiguration(config, resources.displayMetrics)
+    }
+
     fun applyLanguageFromPreferences() {
-        val languageCode = sharedPreferences.getString("language", "system") ?: "system"
+        val languageCode = getCurrentLanguage()
         updateAppLanguage(languageCode)
     }
 
+
+    fun getSelectedTheme(): AppTheme {
+        val themeName = sharedPreferences.getString("app_theme", AppTheme.SYSTEM.name)
+        return AppTheme.valueOf(themeName ?: AppTheme.SYSTEM.name)
+    }
+
+    fun getSelectedLanguage(): String {
+        return sharedPreferences.getString("language", "system") ?: "system"
+    }
 
     fun saveToken(token: String?) {
         token?.let { nonNullToken ->

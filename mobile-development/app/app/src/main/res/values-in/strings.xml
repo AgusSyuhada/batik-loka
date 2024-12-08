@@ -256,6 +256,13 @@
     <string name="name_empty_error">Nama tidak boleh kosong</string>
     <string name="name_length_error">Nama minimal 3 karakter</string>
     <string name="loading_message">Memproses...</string>
+    <string name="choose_theme">Pilih Tema</string>
+    <string name="choose_language">Pilih Bahasa</string>
+    <string name="take_photo_from_camera">Ambil foto dari kamera</string>
+    <string name="choose_from_gallery">Pilih dari galeri</string>
+    <string name="operation_cancelled">Operasi dibatalkan</string>
+    <string name="crop_error">Kesalahan pemotongan: %1$s</string>
+    <string name="unhandled_request_code">Kode permintaan yang tidak ditangani</string>
 
     <!-- Scan Activity-->
     <string name="short_description">Deskripsi singkat</string>
@@ -271,9 +278,34 @@
     <string name="no_image_selected">Tidak ada gambar yang dipilih</string>
     <string name="failed_to_process_image">Gagal memproses gambar</string>
     <string name="batik_successfully_identified">Batik berhasil diidentifikasi</string>
+    <string name="gallery_canceled">Galeri dibatalkan</string>
+    <string name="camera_start_failed">Gagal memulai kamera</string>
+    <string name="permissions_not_granted">Izin tidak diberikan oleh pengguna</string>
+    <string name="photo_captured">Foto diambil</string>
+    <string name="camera_canceled">Kamera dibatalkan</string>
+    <string name="capturing_photo">Mengambil foto...</string>
+    <string name="photo_capture_failed">Pengambilan foto gagal: %1$s</string>
+    <string name="permissions_not_granted_by_the_user">Izin tidak diberikan oleh pengguna</string>
 
     <!-- History Activity-->
     <string name="delete_all_history">Hapus Semua Riwayat</string>
     <string name="no_history">Tidak Ada Riwayat</string>
     <string name="history_scan">Riwayat Pemindaian</string>
+    <string name="data_not_found">Data tidak ditemukan</string>
+    <string name="delete">Hapus</string>
+    <string name="confirm_delete">Konfirmasi Hapus</string>
+    <string name="sure_delete_history">Apakah Anda yakin ingin menghapus riwayat pemindaian %1$s?</string>
+    <string name="sure_delete_all_history">Apakah Anda yakin ingin menghapus riwayat pemindaian?</string>
+
+    <!-- News Activity-->
+    <string name="failed_to_load_news">Gagal memuat berita: %1$s</string>
+    <string name="no_news_available">Tidak ada berita yang tersedia</string>
+    <string name="news_title_default">Judul Berita</string>
+    <string name="news_date_default">Tanggal tidak tersedia</string>
+    <string name="news_title_unavailable">Judul Tidak Tersedia</string>
+    <string name="news_date_unavailable">Tanggal Tidak Tersedia</string>
+    <string name="news_content_unavailable">Konten Tidak Tersedia</string>
+    <string name="news_source_format">Sumber: %1$s</string>
+    <string name="news_error_load">Gagal Memuat Berita</string>
+    <string name="news_error_description">Tidak dapat mengambil detail berita</string>
 </resources>
