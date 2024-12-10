@@ -9,6 +9,9 @@
     <color name="light_sand">#EADA9E</color>
     <color name="light_cream">#F4ECCD</color>
     <color name="dark_gray">#626262</color>
+    <color name="card_bg">#F4ECCD</color>
+    <color name="card_textbox">#FAF8EC</color>
+    <color name="card_text">#626262</color>
 
     <color name="primary_light">#CD9933</color>
     <color name="primary_dark">#2A3139</color>

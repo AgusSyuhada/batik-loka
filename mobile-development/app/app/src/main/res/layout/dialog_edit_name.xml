@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/light_cream"
+    android:background="@color/card_bg"
     android:padding="20dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -49,6 +49,7 @@
             android:paddingHorizontal="20dp"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:ignore="Autofill,RtlSymmetry" />
