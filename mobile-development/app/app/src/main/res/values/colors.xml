@@ -20,4 +20,9 @@
 
     <color name="selected_color">#CD9933</color>
     <color name="unselected_color">#B7B7B7</color>
+
+    <color name="switch_track_color_unchecked">@color/unselected_color</color>
+    <color name="switch_track_color_checked">@color/caramel_gold</color>
+    <color name="switch_thumb_color_unchecked">@color/unselected_color</color>
+    <color name="switch_thumb_color_checked">@color/caramel_gold</color>
 </resources>

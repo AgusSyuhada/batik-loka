@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.BatikLoka" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
@@ -20,5 +20,10 @@
 
     <style name="Theme.ui.splash.SplashScreen" parent="Base.Theme.BatikLoka">
         <item name="android:windowBackground">@color/caramel_gold</item>
+    </style>
+
+    <style name="CustomNewsNotificationSwitch" parent="Widget.AppCompat.CompoundButton.Switch">
+        <item name="android:trackTint" tools:ignore="NewApi">@drawable/switch_track_color</item>
+        <item name="android:thumbTint">@drawable/switch_thumb_color</item>
     </style>
 </resources>

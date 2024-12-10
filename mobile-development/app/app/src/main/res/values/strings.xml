@@ -151,6 +151,9 @@
     <string name="privacy_policy">Privacy Policy</string>
     <string name="about_developer">About Developer</string>
     <string name="logout">Logout</string>
+    <string name="product_recommendations">Product Recommendations</string>
+    <string name="home">Home</string>
+    <string name="news">News</string>
 
     <!-- VerificationViewModel -->
     <string name="error_otp_required">OTP is required</string>
@@ -263,6 +266,18 @@
     <string name="operation_cancelled">Operation cancelled</string>
     <string name="crop_error">Crop error: %1$s</string>
     <string name="unhandled_request_code">Unhandled request code</string>
+    <string name="system_default">System Default</string>
+    <string name="indonesia">Indonesia</string>
+    <string name="english">English</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
+    <string name="notification_permission_title">Notification Permission Required</string>
+    <string name="notification_permission_rationale">The app requires permission to send news notifications. Do you want to grant permission?</string>
+    <string name="notification_permission_denied">Notification permission denied. You will not receive news notifications.</string>
+    <string name="news_notification_enabled_success">News notification successfully enabled</string>
+    <string name="news_notification_disabled_success">News notification successfully disabled</string>
+    <string name="language_change_success">Language changed successfully</string>
+    <string name="theme_change_success">Theme changed successfully</string>
 
     <!-- Scan Activity-->
     <string name="short_description">Short description</string>
@@ -308,6 +323,26 @@
     <string name="news_source_format">Source: %1$s</string>
     <string name="news_error_load">Failed to Load News</string>
     <string name="news_error_description">Unable to fetch news details</string>
-    <string name="home">Home</string>
-    <string name="news">News</string>
+
+    <!-- News Notification Strings -->
+    <string name="news_notification_enable_confirm">Do you want to enable news notifications?</string>
+    <string name="news_notification_disable_confirm">Do you want to disable news notifications?</string>
+    <string name="news_notification_test_title">News Notification Test</string>
+    <string name="news_notification_test_content">News notification successfully configured</string>
+    <string name="news_notification_test_success">Notification test successful</string>
+    <string name="news_notification_test_failed">Notification test failed</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="latest_news_notification">Latest News Notification Feature</string>
+    <string name="news_and_updates">Batik News and Updates Notifications</string>
+    <string name="latest_news_notification_title">New News: %1$s</string>
+    <string name="latest_news_notification_description">Don\'t forget to activate the notification feature to get the latest notifications about the world of Batik</string>
+    <string name="enable_batik_news_notification">Enable batik news notification?</string>
+    <string name="disable_batik_news_notification">Disable batik news notification?</string>
+
+    <!-- Tour Activity -->
+    <string name="permission_denied_title">Permissions Required</string>
+    <string name="permission_denied_message">The app requires permissions to function properly. Please go to settings and enable permissions.</string>
+    <string name="go_to_settings">Go to Settings</string>
+    <string name="permissions_required">Permissions required to use the app</string>
 </resources>

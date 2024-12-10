@@ -151,6 +151,8 @@
     <string name="privacy_policy">Kebijakan Privasi</string>
     <string name="about_developer">Tentang Pengembang</string>
     <string name="logout">Keluar</string>
+    <string name="home">Beranda</string>
+    <string name="news">Berita</string>
 
     <!-- VerificationViewModel -->
     <string name="error_otp_required">OTP harus diisi</string>
@@ -263,6 +265,18 @@
     <string name="operation_cancelled">Operasi dibatalkan</string>
     <string name="crop_error">Kesalahan pemotongan: %1$s</string>
     <string name="unhandled_request_code">Kode permintaan yang tidak ditangani</string>
+    <string name="system_default">Default Sistem</string>
+    <string name="indonesia">Indonesia</string>
+    <string name="english">Bahasa Inggris</string>
+    <string name="light">Terang</string>
+    <string name="dark">Gelap</string>
+    <string name="notification_permission_title">Izin Notifikasi Diperlukan</string>
+    <string name="notification_permission_rationale">Aplikasi memerlukan izin untuk mengirim notifikasi berita. Apakah Anda ingin memberikan izin?</string>
+    <string name="notification_permission_denied">Izin notifikasi ditolak. Anda tidak akan menerima pemberitahuan berita.</string>
+    <string name="news_notification_enabled_success">Notifikasi berita berhasil diaktifkan</string>
+    <string name="news_notification_disabled_success">Notifikasi berita berhasil dinonaktifkan</string>
+    <string name="language_change_success">Bahasa berhasil diubah</string>
+    <string name="theme_change_success">Tema berhasil diubah</string>
 
     <!-- Scan Activity-->
     <string name="short_description">Deskripsi singkat</string>
@@ -308,4 +322,27 @@
     <string name="news_source_format">Sumber: %1$s</string>
     <string name="news_error_load">Gagal Memuat Berita</string>
     <string name="news_error_description">Tidak dapat mengambil detail berita</string>
+    <string name="product_recommendations">Rekomendasi Produk</string>
+
+    <!-- News Notification Strings -->
+    <string name="news_notification_enable_confirm">Apakah Anda ingin mengaktifkan notifikasi berita?</string>
+    <string name="news_notification_disable_confirm">Apakah Anda ingin menonaktifkan notifikasi berita?</string>
+    <string name="news_notification_test_title">Tes Notifikasi Berita</string>
+    <string name="news_notification_test_content">Notifikasi berita berhasil dikonfigurasi</string>
+    <string name="news_notification_test_success">Tes notifikasi berhasil</string>
+    <string name="news_notification_test_failed">Tes notifikasi gagal</string>
+    <string name="yes">Iya</string>
+    <string name="no">Tidak</string>
+    <string name="latest_news_notification">Fitur Notifikasi Berita Terbaru</string>
+    <string name="news_and_updates">Notifikasi Berita dan Update Batik</string>
+    <string name="latest_news_notification_title">Berita Baru: %1$s</string>
+    <string name="latest_news_notification_description">Jangan lupa aktifkan fitur notifikasi untuk mendapatkan notifikasi terbaru seputar dunia Batik</string>
+    <string name="enable_batik_news_notification">Aktifkan notifikasi berita batik?</string>
+    <string name="disable_batik_news_notification">Nonaktifkan notifikasi berita batik?</string>
+
+    <!-- Tour Activity -->
+    <string name="permission_denied_title">Izin Diperlukan</string>
+    <string name="permission_denied_message">Aplikasi membutuhkan izin untuk berfungsi dengan baik. Silakan buka pengaturan dan aktifkan izin.</string>
+    <string name="go_to_settings">Buka Pengaturan</string>
+    <string name="permissions_required">Izin diperlukan untuk menggunakan aplikasi</string>
 </resources>

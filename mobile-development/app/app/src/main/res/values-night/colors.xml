@@ -19,4 +19,9 @@
 
     <color name="selected_color">#F3F7F8</color>
     <color name="unselected_color">#B7B7B7</color>
+
+    <color name="switch_track_color_unchecked">@color/unselected_color</color>
+    <color name="switch_track_color_checked">@color/pearl_cream</color>
+    <color name="switch_thumb_color_unchecked">@color/unselected_color</color>
+    <color name="switch_thumb_color_checked">@color/pearl_cream</color>
 </resources>

@@ -16,7 +16,7 @@ android {
         minSdk = 21
         targetSdk = 35
         versionCode = 1
-        versionName = "0.2.3"
+        versionName = "0.3.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -104,4 +104,8 @@ implementation(libs.secrets.gradle.plugin)
     // Glide
     implementation(libs.glide)
     annotationProcessor(libs.glide.compiler)
+
+    // WorkManager
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.work.runtime)
 }

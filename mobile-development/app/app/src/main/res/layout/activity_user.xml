@@ -349,6 +349,8 @@
                     android:id="@+id/switch_news_notification"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    style="@style/CustomNewsNotificationSwitch"
+                    android:layout_marginEnd="4dp"
                     app:layout_constraintBottom_toBottomOf="@+id/tv_news_notification"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/tv_news_notification"

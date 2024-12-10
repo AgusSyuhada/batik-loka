@@ -7,7 +7,6 @@ import android.os.Build
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
-import com.bangkit.batikloka.R
 import java.util.Locale
 
 class PreferencesManager(private val context: Context) {
@@ -20,12 +19,19 @@ class PreferencesManager(private val context: Context) {
         private const val KEY_IS_TOUR_COMPLETED = "is_tour_completed"
         private const val KEY_REGISTRATION_STEP = "registration_step"
         private const val KEY_IS_RESET_PASSWORD = "is_reset_password"
-        private const val KEY_LAST_SELECTED_MENU_ITEM = "last_selected_menu_item"
         private const val KEY_VERIFICATION_OTP = "verification_otp"
         private const val KEY_OTP_TIMESTAMP = "otp_timestamp"
         private const val PREF_PROFILE_IMAGE_URL = "pref_profile_image_url"
         private const val KEY_APP_THEME = "app_theme"
         private const val KEY_APP_LANGUAGE = "app_language"
+    }
+
+    fun isNewsNotificationEnabled(): Boolean {
+        return sharedPreferences.getBoolean("news_notification_enabled", false)
+    }
+
+    fun setNewsNotificationEnabled(enabled: Boolean) {
+        sharedPreferences.edit().putBoolean("news_notification_enabled", enabled).apply()
     }
 
     fun saveTheme(theme: AppTheme) {
@@ -99,12 +105,6 @@ class PreferencesManager(private val context: Context) {
         updateAppLanguage(languageCode)
     }
 
-
-    fun getSelectedTheme(): AppTheme {
-        val themeName = sharedPreferences.getString("app_theme", AppTheme.SYSTEM.name)
-        return AppTheme.valueOf(themeName ?: AppTheme.SYSTEM.name)
-    }
-
     fun getSelectedLanguage(): String {
         return sharedPreferences.getString("language", "system") ?: "system"
     }
@@ -152,26 +152,12 @@ class PreferencesManager(private val context: Context) {
         return token
     }
 
-    fun getUserName(): String? {
-        return sharedPreferences.getString("user_name", null)
-    }
-
     fun saveProfileImageUrl(imageUrl: String) {
         sharedPreferences.edit().putString(PREF_PROFILE_IMAGE_URL, imageUrl).apply()
     }
 
     fun getProfileImageUrl(): String? {
         return sharedPreferences.getString(PREF_PROFILE_IMAGE_URL, null)
-    }
-
-    fun saveLastSelectedMenuItem(menuItemId: Int) {
-        val editor = sharedPreferences.edit()
-        editor.putInt(KEY_LAST_SELECTED_MENU_ITEM, menuItemId)
-        editor.apply()
-    }
-
-    fun getLastSelectedMenuItem(): Int {
-        return sharedPreferences.getInt(KEY_LAST_SELECTED_MENU_ITEM, R.id.home)
     }
 
     fun isUserLoggedOut(): Boolean {

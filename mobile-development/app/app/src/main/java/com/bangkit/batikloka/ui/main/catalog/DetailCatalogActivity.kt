@@ -1,8 +1,14 @@
 package com.bangkit.batikloka.ui.main.catalog
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.bangkit.batikloka.R
@@ -38,6 +44,52 @@ class DetailCatalogActivity : AppCompatActivity() {
                 .into(ivProductImage)
 
             tvProductDescription.text = it.description
+
+            val shopeeBtn: LinearLayout = findViewById(R.id.shopee_btn)
+            val tokopediaBtn: LinearLayout = findViewById(R.id.tokopedia_btn)
+
+            shopeeBtn.setOnClickListener {
+                openSocialMediaLink(batik.shopee)
+            }
+
+            tokopediaBtn.setOnClickListener {
+                openSocialMediaLink(batik.tokopedia)
+            }
         }
+    }
+
+    private fun openSocialMediaLink(url: String?) {
+        if (url.isNullOrBlank() || url == "-") {
+            showCustomErrorDialog(getString(R.string.link_not_available))
+            return
+        }
+
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            startActivity(intent)
+        } catch (e: Exception) {
+            showCustomErrorDialog(getString(R.string.unable_to_open_link))
+        }
+    }
+
+    private fun showCustomErrorDialog(message: String) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_crossmark, null)
+        val titleTextView = dialogView.findViewById<TextView>(R.id.dialog_error_title)
+        titleTextView.text = message
+
+        val dialog = AlertDialog.Builder(this).setView(dialogView).setCancelable(true).create()
+
+        dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
+            dialog.setCanceledOnTouchOutside(true)
+        }
+
+        dialog.show()
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (dialog.isShowing) {
+                dialog.dismiss()
+            }
+        }, 2000)
     }
 }

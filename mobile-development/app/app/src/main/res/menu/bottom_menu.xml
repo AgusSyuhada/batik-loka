@@ -2,12 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/home"
+        android:actionLayout="@layout/fragment_home"
         android:icon="@drawable/selector_home_icon"
         android:iconTint="@color/ivory_white"
         android:title="@string/home" />
 
     <item
         android:id="@+id/news"
+        android:actionLayout="@layout/fragment_news"
         android:icon="@drawable/selector_news_icon"
         android:iconTint="@color/ivory_white"
         android:title="@string/news" />
@@ -18,12 +20,14 @@
 
     <item
         android:id="@+id/catalog"
+        android:actionLayout="@layout/fragment_catalog"
         android:icon="@drawable/selector_catalog_icon"
         android:iconTint="@color/ivory_white"
         android:title="@string/catalog" />
 
     <item
         android:id="@+id/user"
+        android:actionLayout="@layout/activity_user"
         android:icon="@drawable/selector_user_icon"
         android:iconTint="@color/ivory_white"
         android:title="@string/user" />

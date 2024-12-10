@@ -254,54 +254,20 @@ class HomeFragment : Fragment() {
         val batikResponse = Gson().fromJson(reader, BatikResponse::class.java)
 
         originalBatikList = batikResponse.batik
-
-        if (::batikAdapter.isInitialized) {
-            batikAdapter.resetToInitialState()
-        } else {
-            setupRandomBatikAdapter()
-        }
+        setupRandomBatikAdapter()
     }
 
     private fun setupRandomBatikAdapter() {
-        val randomBatikList = originalBatikList.shuffled().take(RANDOM_BATIK_COUNT).toMutableList()
-        batikAdapter = BatikAdapter(
-            batikList = randomBatikList,
-            originalBatikList = originalBatikList,
-            onItemClick = { batik ->
-                val intent = Intent(requireContext(), DetailCatalogActivity::class.java).apply {
-                    putExtra("BATIK_DATA", batik)
-                }
-                startActivity(intent)
+        val randomBatikList = originalBatikList.shuffled().take(RANDOM_BATIK_COUNT)
+        batikAdapter = BatikAdapter(randomBatikList) { batik ->
+            val intent = Intent(requireContext(), DetailCatalogActivity::class.java).apply {
+                putExtra("BATIK_DATA", batik)
             }
-        )
+            startActivity(intent)
+        }
 
         binding.rvCatalog.adapter = batikAdapter
         binding.btnSeeMore.visibility = View.GONE
-
-        binding.rvCatalog.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            private var isLoading = false
-
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-
-                val layoutManager = recyclerView.layoutManager as GridLayoutManager
-                val totalItemCount = layoutManager.itemCount
-                val lastVisibleItem = layoutManager.findLastCompletelyVisibleItemPosition()
-
-                if (!isLoading && totalItemCount <= lastVisibleItem + 1 && batikAdapter.currentList.size < originalBatikList.size) {
-                    isLoading = true
-                    val nextBatikList = originalBatikList
-                        .filter { !batikAdapter.currentList.contains(it) }
-                        .shuffled()
-                        .take(RANDOM_BATIK_COUNT)
-
-                    if (nextBatikList.isNotEmpty()) {
-                        batikAdapter.addMoreBatik(nextBatikList)
-                        isLoading = false
-                    }
-                }
-            }
-        })
     }
 
     private fun setupCatalogNavigation() {

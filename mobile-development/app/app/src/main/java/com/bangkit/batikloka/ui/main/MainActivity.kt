@@ -48,10 +48,23 @@ class MainActivity : AppCompatActivity() {
         }
 
         setupBottomNavigation()
+        navigateToNewsFromNotification()
+    }
 
-        val lastSelectedMenuItem = preferencesManager.getLastSelectedMenuItem()
-        bottomNavigationView.selectedItemId = lastSelectedMenuItem
-        setFragmentBasedOnMenuItem(lastSelectedMenuItem)
+    private fun navigateToNewsFromNotification() {
+        bottomNavigationView = findViewById(R.id.bottom_navigation)
+
+        if (intent.hasExtra("OPEN_FRAGMENT")) {
+            when (intent.getStringExtra("OPEN_FRAGMENT")) {
+                "NEWS_FRAGMENT" -> {
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, NewsFragment())
+                        .commit()
+
+                    bottomNavigationView.selectedItemId = R.id.news
+                }
+            }
+        }
     }
 
     private fun navigateToLogin() {
@@ -63,7 +76,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupBottomNavigation() {
         bottomNavigationView.setOnItemSelectedListener { menuItem ->
-            preferencesManager.saveLastSelectedMenuItem(menuItem.itemId)
 
             when (menuItem.itemId) {
                 R.id.home -> replaceFragment(HomeFragment())
@@ -71,9 +83,17 @@ class MainActivity : AppCompatActivity() {
                 R.id.catalog -> replaceFragment(CatalogFragment())
                 R.id.user -> {
                     startActivity(Intent(this, UserActivity::class.java))
-                    true
+                    false
                 }
                 else -> false
+            }
+        }
+
+        bottomNavigationView.setOnItemReselectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.user -> {
+                    startActivity(Intent(this, UserActivity::class.java))
+                }
             }
         }
 
@@ -89,18 +109,8 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-    private fun setFragmentBasedOnMenuItem(menuItemId: Int) {
-        when (menuItemId) {
-            R.id.home -> replaceFragment(HomeFragment())
-            R.id.news -> replaceFragment(NewsFragment())
-            R.id.catalog -> replaceFragment(CatalogFragment())
-            else -> replaceFragment(HomeFragment())
-        }
-    }
-
     fun navigateToCatalogFragment() {
         replaceFragment(CatalogFragment())
         bottomNavigationView.selectedItemId = R.id.catalog
-        preferencesManager.saveLastSelectedMenuItem(R.id.catalog)
     }
 }

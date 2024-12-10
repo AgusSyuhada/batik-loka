@@ -1,8 +1,12 @@
 package com.bangkit.batikloka.ui.main.user
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -11,12 +15,16 @@ import android.text.method.PasswordTransformationMethod
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ListView
+import android.widget.Switch
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.work.WorkManager
 import com.bangkit.batikloka.R
 import com.bangkit.batikloka.data.remote.api.ApiConfig
 import com.bangkit.batikloka.data.remote.response.ChangeAvatarResponse
@@ -36,11 +44,13 @@ import com.bangkit.batikloka.ui.main.user.viewmodel.UserActivityViewModel
 import com.bangkit.batikloka.ui.main.user.viewmodel.UserViewModelFactory
 import com.bangkit.batikloka.utils.AppTheme
 import com.bangkit.batikloka.utils.ImagePickerHelper
+import com.bangkit.batikloka.utils.NewsNotificationHelper
 import com.bangkit.batikloka.utils.PreferencesManager
 import com.bangkit.batikloka.utils.Result
 import com.bumptech.glide.Glide
 import java.io.File
 
+@SuppressLint("UseSwitchCompatOrMaterialCode")
 class UserActivity : BaseActivity() {
 
     private lateinit var binding: ActivityUserBinding
@@ -50,8 +60,13 @@ class UserActivity : BaseActivity() {
     private lateinit var context: Context
     private lateinit var toolbar: Toolbar
     private val imagePickerHelper = ImagePickerHelper(this)
+    private lateinit var switchNewsNotification: Switch
+    private lateinit var newsNotificationHelper: NewsNotificationHelper
+    private lateinit var workManager: WorkManager
 
     companion object {
+        private const val NOTIFICATION_PERMISSION_REQUEST_CODE = 1002
+
         fun createAuthRepository(context: Context): AuthRepository {
             val preferencesManager = PreferencesManager(context)
             val authApiService = ApiConfig.getAuthApiService(context, preferencesManager)
@@ -72,6 +87,11 @@ class UserActivity : BaseActivity() {
         val viewModelFactory = UserViewModelFactory(authRepository, context)
         viewModel = ViewModelProvider(this, viewModelFactory)[UserActivityViewModel::class.java]
 
+        newsNotificationHelper = NewsNotificationHelper(this)
+        workManager = WorkManager.getInstance(this)
+        switchNewsNotification = binding.switchNewsNotification
+
+        setupNewsNotificationSwitch()
         setupToolbar()
         setupObservers()
         setupPrivacyPolicyListener()
@@ -401,6 +421,11 @@ class UserActivity : BaseActivity() {
     }
 
     private fun showCustomAlertDialog(title: String, onDismiss: () -> Unit = {}) {
+        if (isFinishing || isDestroyed) {
+            onDismiss()
+            return
+        }
+
         val dialogView = layoutInflater.inflate(R.layout.dialog_checkmark, null)
         val titleTextView = dialogView.findViewById<TextView>(R.id.dialog_title)
         titleTextView.text = title
@@ -419,13 +444,17 @@ class UserActivity : BaseActivity() {
             onDismiss()
         }
 
-        dialog.show()
+        if (!isFinishing && !isDestroyed) {
+            dialog.show()
 
-        Handler(Looper.getMainLooper()).postDelayed({
-            if (dialog.isShowing) {
-                dialog.dismiss()
-            }
-        }, 2000)
+            Handler(Looper.getMainLooper()).postDelayed({
+                if (dialog.isShowing && !isFinishing && !isDestroyed) {
+                    dialog.dismiss()
+                }
+            }, 2000)
+        } else {
+            onDismiss()
+        }
     }
 
     private fun setupListeners() {
@@ -548,7 +577,10 @@ class UserActivity : BaseActivity() {
     }
 
     private fun showLanguageChangeDialog() {
-        val languages = arrayOf("System Default", "Indonesia", "English")
+        val languages = arrayOf(
+            getString(R.string.system_default),
+            getString(R.string.indonesia), getString(R.string.english)
+        )
 
         val builder = AlertDialog.Builder(this)
         builder.setTitle(getString(R.string.choose_language))
@@ -579,14 +611,23 @@ class UserActivity : BaseActivity() {
                 2 -> preferencesManager.setEnglishLanguage()
             }
             dialog.dismiss()
-            recreateWithTransition()
+            Handler(Looper.getMainLooper()).post {
+                showCustomAlertDialog(getString(R.string.language_change_success)) {
+                    recreateWithTransition()
+                }
+            }
         }
 
         dialog.show()
     }
 
     private fun showThemeChangeDialog() {
-        val themes = arrayOf("Light", "Dark", "System Default")
+        val themes = arrayOf(
+            getString(R.string.system_default), getString(R.string.light),
+            getString(
+                R.string.dark
+            )
+        )
 
         val builder = AlertDialog.Builder(this)
         builder.setTitle(getString(R.string.choose_theme))
@@ -613,19 +654,26 @@ class UserActivity : BaseActivity() {
         listView.setOnItemClickListener { _, _, position, _ ->
             when (position) {
                 0 -> {
-                    preferencesManager.saveTheme(AppTheme.LIGHT)
+                    preferencesManager.saveTheme(AppTheme.SYSTEM)
                 }
 
                 1 -> {
-                    preferencesManager.saveTheme(AppTheme.DARK)
+                    preferencesManager.saveTheme(AppTheme.LIGHT)
                 }
 
                 2 -> {
-                    preferencesManager.saveTheme(AppTheme.SYSTEM)
+                    preferencesManager.saveTheme(AppTheme.DARK)
                 }
             }
             dialog.dismiss()
-            recreateWithTransition()
+            Handler(Looper.getMainLooper()).post {
+                Toast.makeText(
+                    this,
+                    getString(R.string.theme_change_success),
+                    Toast.LENGTH_SHORT
+                ).show()
+                recreateWithTransition()
+            }
         }
 
         dialog.show()
@@ -665,6 +713,101 @@ class UserActivity : BaseActivity() {
 
     private fun showImageSourceOptions() {
         imagePickerHelper.showImageSourceOptions(context)
+    }
+
+    private fun setupNewsNotificationSwitch() {
+        switchNewsNotification.isChecked = preferencesManager.isNewsNotificationEnabled()
+
+        switchNewsNotification.setOnCheckedChangeListener { _, isChecked ->
+            showNewsNotificationConfirmationDialog(isChecked)
+        }
+    }
+
+    private fun showNewsNotificationConfirmationDialog(isChecked: Boolean) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            when {
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    showCustomAlertDialog(getString(R.string.news_notification_enabled_success))
+                }
+
+                ActivityCompat.shouldShowRequestPermissionRationale(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) -> {
+                    showNotificationPermissionRationaleDialog(isChecked)
+                }
+
+                else -> {
+                    requestNotificationPermission(isChecked)
+                }
+            }
+        } else {
+            showCustomErrorDialog(getString(R.string.news_notification_disabled_success))
+        }
+    }
+
+    private fun showNotificationPermissionRationaleDialog(isChecked: Boolean) {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(R.string.notification_permission_title)
+            .setMessage(R.string.notification_permission_rationale)
+            .setPositiveButton(R.string.yes) { _, _ ->
+                requestNotificationPermission(isChecked)
+            }
+            .setNegativeButton(R.string.cancel) { dialog, _ ->
+                dialog.dismiss()
+                switchNewsNotification.isChecked = !isChecked
+            }
+            .create()
+
+        val dialog = builder.create()
+        dialog.setOnShowListener { dialogInterface ->
+            val alertDialog = dialogInterface as AlertDialog
+            alertDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
+
+            alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                ?.setTextColor(ContextCompat.getColor(this, R.color.caramel_gold))
+            alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+                ?.setTextColor(ContextCompat.getColor(this, R.color.black))
+
+            val titleTextView =
+                alertDialog.window?.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)
+            titleTextView?.setTextColor(ContextCompat.getColor(this, R.color.caramel_gold))
+        }
+        dialog.show()
+    }
+
+    private fun requestNotificationPermission(isChecked: Boolean) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                NOTIFICATION_PERMISSION_REQUEST_CODE
+            )
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == NOTIFICATION_PERMISSION_REQUEST_CODE) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (grantResults.isNotEmpty() &&
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED
+                ) {
+                    showCustomAlertDialog(getString(R.string.news_notification_enabled_success))
+                } else {
+                    switchNewsNotification.isChecked = false
+                    showCustomErrorDialog(getString(R.string.notification_permission_denied))
+                }
+            }
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

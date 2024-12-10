@@ -9,4 +9,6 @@ data class Batik(
     val image: String,
     val description: String,
     val category: String,
+    val shopee: String,
+    val tokopedia: String
 ) : Parcelable
