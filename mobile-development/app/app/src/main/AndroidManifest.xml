@@ -107,13 +107,6 @@
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="fullSensor"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-
-        <meta-data
-            android:name="BaseUrlAuth"
-            android:value="${baseUrlAuth}" />
-        <meta-data
-            android:name="BaseUrlService"
-            android:value="${baseUrlService}" />
     </application>
 
 </manifest>

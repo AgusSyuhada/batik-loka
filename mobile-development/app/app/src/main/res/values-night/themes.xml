@@ -3,6 +3,11 @@
     <style name="Base.Theme.BatikLoka" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
         <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <!-- Background Utama -->
+        <item name="android:windowBackground">@color/ivory_white</item>
+
+        <!-- Status Bar -->
+        <item name="android:statusBarColor">@color/white</item>
     </style>
 
     <style name="CircularFAB" parent="Widget.MaterialComponents.FloatingActionButton">
@@ -11,6 +16,6 @@
     </style>
 
     <style name="Theme.ui.splash.SplashScreen" parent="Base.Theme.BatikLoka">
-        <item name="android:windowBackground">@color/gunmetal</item>
+        <item name="android:windowBackground">@color/ivory_white</item>
     </style>
 </resources>
