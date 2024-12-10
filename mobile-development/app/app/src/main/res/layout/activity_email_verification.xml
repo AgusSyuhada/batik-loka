@@ -47,6 +47,7 @@
             android:layout_height="50dp"
             android:background="@drawable/custom_edittext_background"
             android:hint="@string/email_hint"
+            android:textColorHint="@color/text_hint"
             android:paddingHorizontal="20dp"
             android:inputType="textEmailAddress"
             android:textAlignment="center"
