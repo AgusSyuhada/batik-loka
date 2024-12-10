@@ -83,7 +83,6 @@ class TourActivity : AppCompatActivity() {
         requestPermissions()
     }
 
-
     private fun requestPermissions() {
         val permissionsToRequest = listOf(
             Manifest.permission.INTERNET,
