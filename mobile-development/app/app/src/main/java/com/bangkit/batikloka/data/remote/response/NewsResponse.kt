@@ -9,14 +9,6 @@ data class NewsResponse(
     val status: Int
 )
 
-//data class NewsItem(
-//    val body: String? = null,
-//    val gambar: String? = null,
-//    val judul: String? = null,
-//    val link: String? = null,
-//    val waktu: String? = null
-//)
-
 @Parcelize
 data class NewsItem(
     val body: String?,

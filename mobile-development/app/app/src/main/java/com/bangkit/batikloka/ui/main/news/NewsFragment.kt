@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bangkit.batikloka.R
+import com.bangkit.batikloka.data.local.database.NewsDatabase
 import com.bangkit.batikloka.data.remote.api.ApiConfig
 import com.bangkit.batikloka.data.remote.response.NewsItem
 import com.bangkit.batikloka.data.repository.NewsRepository
@@ -42,6 +43,7 @@ class NewsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupDependencies()
+        setupSwipeRefresh()
         setupRecyclerView()
         observeViewModel()
         newsViewModel.fetchNews()
@@ -50,7 +52,8 @@ class NewsFragment : Fragment() {
     private fun setupDependencies() {
         preferencesManager = PreferencesManager(requireContext())
         val newsApiService = ApiConfig.getNewsApiService(requireContext(), preferencesManager)
-        newsRepository = NewsRepository(newsApiService)
+        val newsDao = NewsDatabase.getDatabase(requireContext()).newsDao()
+        newsRepository = NewsRepository(newsApiService, newsDao)
         val factory = NewsViewModelFactory(newsRepository)
 
         newsViewModel = ViewModelProvider(this, factory)[NewsViewModel::class.java]
@@ -61,6 +64,12 @@ class NewsFragment : Fragment() {
         binding.recyclerViewNews.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = newsAdapter
+        }
+    }
+
+    private fun setupSwipeRefresh() {
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            newsViewModel.fetchNews()
         }
     }
 
@@ -75,7 +84,7 @@ class NewsFragment : Fragment() {
 
                 launch {
                     newsViewModel.isLoading.collect { isLoading ->
-                        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+                        binding.swipeRefreshLayout.isRefreshing = isLoading
                     }
                 }
 
@@ -89,19 +98,26 @@ class NewsFragment : Fragment() {
     }
 
     private fun handleNewsState(newsList: List<NewsItem>) {
-        if (newsList.isEmpty()) {
-            showEmptyState()
-        } else {
-            hideErrorState()
+        binding.swipeRefreshLayout.isRefreshing = false
+        if (newsList.isNotEmpty()) {
             newsAdapter.submitList(newsList)
+            binding.textNewsError.visibility = View.GONE
+            binding.recyclerViewNews.visibility = View.VISIBLE
+        } else {
+            showEmptyNewsState()
         }
     }
 
     private fun handleErrorState(error: String?) {
         if (error != null) {
-            showErrorState(error)
+            binding.textNewsError.apply {
+                text = error
+                visibility = View.VISIBLE
+            }
+            binding.recyclerViewNews.visibility = View.GONE
         } else {
-            hideErrorState()
+            binding.textNewsError.visibility = View.GONE
+            binding.recyclerViewNews.visibility = View.VISIBLE
         }
     }
 
@@ -113,7 +129,7 @@ class NewsFragment : Fragment() {
         binding.recyclerViewNews.visibility = View.GONE
     }
 
-    private fun showEmptyState() {
+    private fun showEmptyNewsState() {
         binding.textNewsError.apply {
             text = getString(R.string.no_news_available)
             visibility = View.VISIBLE

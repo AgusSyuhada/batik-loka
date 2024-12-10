@@ -52,12 +52,16 @@ class CatalogFragment : Fragment() {
         val batikResponse = Gson().fromJson(reader, BatikResponse::class.java)
 
         originalBatikList = batikResponse.batik
-        batikAdapter = BatikAdapter(originalBatikList) { batik ->
-            val intent = Intent(requireContext(), DetailCatalogActivity::class.java).apply {
-                putExtra("BATIK_DATA", batik)
+        batikAdapter = BatikAdapter(
+            batikList = originalBatikList.toMutableList(),
+            originalBatikList = originalBatikList,
+            onItemClick = { batik ->
+                val intent = Intent(requireContext(), DetailCatalogActivity::class.java).apply {
+                    putExtra("BATIK_DATA", batik)
+                }
+                startActivity(intent)
             }
-            startActivity(intent)
-        }
+        )
         rvCatalog.adapter = batikAdapter
     }
 
@@ -115,12 +119,16 @@ class CatalogFragment : Fragment() {
             originalBatikList.filter { it.category == category }
         }
 
-        batikAdapter = BatikAdapter(filteredList) { batik ->
-            val intent = Intent(requireContext(), DetailCatalogActivity::class.java).apply {
-                putExtra("BATIK_DATA", batik)
+        batikAdapter = BatikAdapter(
+            batikList = filteredList.toMutableList(),
+            originalBatikList = originalBatikList,
+            onItemClick = { batik ->
+                val intent = Intent(requireContext(), DetailCatalogActivity::class.java).apply {
+                    putExtra("BATIK_DATA", batik)
+                }
+                startActivity(intent)
             }
-            startActivity(intent)
-        }
+        )
         rvCatalog.adapter = batikAdapter
     }
 

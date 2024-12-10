@@ -19,7 +19,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bangkit.batikloka.R
+import com.bangkit.batikloka.data.local.database.NewsDatabase
 import com.bangkit.batikloka.data.model.Batik
 import com.bangkit.batikloka.data.model.BatikResponse
 import com.bangkit.batikloka.data.remote.api.ApiConfig
@@ -47,6 +49,7 @@ class HomeFragment : Fragment() {
     private lateinit var homeViewModel: HomeViewModel
     private lateinit var newsAdapter: NewsCarouselAdapter
     private lateinit var batikAdapter: BatikAdapter
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private var originalBatikList: List<Batik> = listOf()
     private val autoScrollHandler = Handler(Looper.getMainLooper())
     private lateinit var pagerSnapHelper: PagerSnapHelper
@@ -69,7 +72,11 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        swipeRefreshLayout = binding.swipeRefreshLayout
+
         initializeComponents()
+        setupSwipeRefresh()
         setupUiComponents()
         observeData()
     }
@@ -77,7 +84,8 @@ class HomeFragment : Fragment() {
     private fun initializeComponents() {
         preferencesManager = PreferencesManager(requireContext())
         val newsApiService = ApiConfig.getNewsApiService(requireContext(), preferencesManager)
-        newsRepository = NewsRepository(newsApiService)
+        val newsDao = NewsDatabase.getDatabase(requireContext()).newsDao()
+        newsRepository = NewsRepository(newsApiService, newsDao)
         val factory = NewsViewModelFactory(newsRepository)
         homeViewModel = ViewModelProvider(this, factory)[HomeViewModel::class.java]
     }
@@ -86,6 +94,12 @@ class HomeFragment : Fragment() {
         setupBatikCatalog()
         setupNewsCarousel()
         setupCatalogNavigation()
+    }
+
+    private fun setupSwipeRefresh() {
+        swipeRefreshLayout.setOnRefreshListener {
+            refreshData()
+        }
     }
 
     private fun setupBatikCatalog() {
@@ -102,34 +116,80 @@ class HomeFragment : Fragment() {
         setupNewsCarouselSnap()
     }
 
-    private fun observeData() {
+    private suspend fun fetchNewsData() {
+        withContext(Dispatchers.IO) {
+            homeViewModel.fetchNews()
+        }
+    }
+
+    private fun refreshData() {
+        stopAutoScroll()
+
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch { observeLoadingState() }
-                launch { observeNewsResult() }
+            try {
+                withContext(Dispatchers.IO) {
+                    homeViewModel.fetchNews()
+                }
+                withContext(Dispatchers.Main) {
+                    loadBatikData()
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    handleNewsError(e)
+                    swipeRefreshLayout.isRefreshing = false
+                }
             }
         }
-        homeViewModel.fetchNews()
     }
 
-    private suspend fun observeLoadingState() {
-        homeViewModel.isLoading.collect { isLoading ->
-            binding.progressBarUpcoming.visibility = if (isLoading) View.VISIBLE else View.GONE
-            binding.imageCarousel.visibility = if (isLoading) View.INVISIBLE else View.VISIBLE
+    private fun observeData() {
+        binding.progressBarUpcoming.visibility = View.VISIBLE
+        binding.imageCarousel.visibility = View.INVISIBLE
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch { observeNewsState() }
+                launch { observeErrorState() }
+                launch { observeRefreshState() }
+                launch {
+                    kotlinx.coroutines.delay(500)
+                    fetchNewsData()
+                }
+            }
         }
     }
 
-    private suspend fun observeNewsResult() {
-        homeViewModel.newsResult.collect { result ->
-            result?.let {
-                it.onSuccess { newsList ->
-                    withContext(Dispatchers.Main) {
-                        handleNewsResult(newsList)
-                    }
-                }.onFailure { exception ->
-                    withContext(Dispatchers.Main) {
-                        handleNewsError(exception)
-                    }
+    private suspend fun observeRefreshState() {
+        homeViewModel.isRefreshing.collect { isRefreshing ->
+            withContext(Dispatchers.Main) {
+                swipeRefreshLayout.isRefreshing = isRefreshing
+            }
+        }
+    }
+
+    private suspend fun observeNewsState() {
+        homeViewModel.newsState.collect { newsList ->
+            withContext(Dispatchers.Main) {
+                if (newsList.isNotEmpty()) {
+                    val latestNewsList = newsList.take(5)
+                    setupNewsAdapter(latestNewsList)
+                    binding.textNewsError.visibility = View.GONE
+                    binding.progressBarUpcoming.visibility = View.GONE
+                    binding.imageCarousel.visibility = View.VISIBLE
+                    binding.newsIndicator.visibility = View.VISIBLE
+                } else {
+                    showEmptyNewsState()
+                }
+            }
+        }
+    }
+
+    private suspend fun observeErrorState() {
+        homeViewModel.error.collect { errorMessage ->
+            withContext(Dispatchers.Main) {
+                errorMessage?.let {
+                    handleNewsError(Exception(it))
+                    binding.progressBarUpcoming.visibility = View.GONE
                 }
             }
         }
@@ -163,16 +223,6 @@ class HomeFragment : Fragment() {
         })
     }
 
-    private fun handleNewsResult(newsList: List<NewsItem>) {
-        if (newsList.isNotEmpty()) {
-            val latestNewsList = newsList.take(5)
-            setupNewsAdapter(latestNewsList)
-            binding.textNewsError.visibility = View.GONE
-        } else {
-            showEmptyNewsState()
-        }
-    }
-
     private fun handleNewsError(exception: Throwable) {
         binding.imageCarousel.visibility = View.GONE
         binding.newsIndicator.visibility = View.GONE
@@ -188,8 +238,11 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupNewsAdapter(newsList: List<NewsItem>) {
-        newsAdapter = NewsCarouselAdapter(newsList) { stopAutoScroll() }
+        newsAdapter = NewsCarouselAdapter(newsList) {
+            stopAutoScroll()
+        }
         binding.imageCarousel.adapter = newsAdapter
+        binding.newsIndicator.visibility = View.VISIBLE
         setupNewsIndicator(newsList.size)
 
         if (newsList.size > 1) startAutoScroll()
@@ -201,21 +254,54 @@ class HomeFragment : Fragment() {
         val batikResponse = Gson().fromJson(reader, BatikResponse::class.java)
 
         originalBatikList = batikResponse.batik
-        setupRandomBatikAdapter()
+
+        if (::batikAdapter.isInitialized) {
+            batikAdapter.resetToInitialState()
+        } else {
+            setupRandomBatikAdapter()
+        }
     }
 
     private fun setupRandomBatikAdapter() {
-        val randomBatikList = originalBatikList.shuffled().take(RANDOM_BATIK_COUNT)
-        batikAdapter = BatikAdapter(randomBatikList) { batik ->
-            val intent = Intent(requireContext(), DetailCatalogActivity::class.java).apply {
-                putExtra("BATIK_DATA", batik)
+        val randomBatikList = originalBatikList.shuffled().take(RANDOM_BATIK_COUNT).toMutableList()
+        batikAdapter = BatikAdapter(
+            batikList = randomBatikList,
+            originalBatikList = originalBatikList,
+            onItemClick = { batik ->
+                val intent = Intent(requireContext(), DetailCatalogActivity::class.java).apply {
+                    putExtra("BATIK_DATA", batik)
+                }
+                startActivity(intent)
             }
-            startActivity(intent)
-        }
+        )
 
         binding.rvCatalog.adapter = batikAdapter
-        binding.btnSeeMore.visibility =
-            if (randomBatikList.size == RANDOM_BATIK_COUNT) View.VISIBLE else View.GONE
+        binding.btnSeeMore.visibility = View.GONE
+
+        binding.rvCatalog.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            private var isLoading = false
+
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                val layoutManager = recyclerView.layoutManager as GridLayoutManager
+                val totalItemCount = layoutManager.itemCount
+                val lastVisibleItem = layoutManager.findLastCompletelyVisibleItemPosition()
+
+                if (!isLoading && totalItemCount <= lastVisibleItem + 1 && batikAdapter.currentList.size < originalBatikList.size) {
+                    isLoading = true
+                    val nextBatikList = originalBatikList
+                        .filter { !batikAdapter.currentList.contains(it) }
+                        .shuffled()
+                        .take(RANDOM_BATIK_COUNT)
+
+                    if (nextBatikList.isNotEmpty()) {
+                        batikAdapter.addMoreBatik(nextBatikList)
+                        isLoading = false
+                    }
+                }
+            }
+        })
     }
 
     private fun setupCatalogNavigation() {

@@ -21,19 +21,33 @@ class NewsViewModel(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            newsRepository.getLocalNews().collect { localNews ->
+                _newsState.value = localNews
+            }
+        }
+    }
+
     fun fetchNews() {
         viewModelScope.launch {
             _isLoading.value = true
+            _isRefreshing.value = true
             _error.value = null
 
             newsRepository.getNews()
                 .onSuccess { newsList ->
                     _newsState.value = newsList
                     _isLoading.value = false
+                    _isRefreshing.value = false
                 }
                 .onFailure { error ->
                     _error.value = error.message
                     _isLoading.value = false
+                    _isRefreshing.value = false
                 }
         }
     }
