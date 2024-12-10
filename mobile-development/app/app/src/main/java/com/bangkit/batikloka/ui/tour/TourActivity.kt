@@ -1,13 +1,22 @@
 package com.bangkit.batikloka.ui.tour
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
+import android.provider.Settings
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -19,6 +28,7 @@ import com.bangkit.batikloka.ui.auth.login.LoginActivity
 import com.bangkit.batikloka.ui.auth.register.RegisterActivity
 import com.bangkit.batikloka.ui.viewmodel.AppViewModelFactory
 import com.bangkit.batikloka.utils.PreferencesManager
+import java.io.File
 
 class TourActivity : AppCompatActivity() {
 
@@ -30,17 +40,80 @@ class TourActivity : AppCompatActivity() {
     private lateinit var tourViewModel: TourViewModel
     private lateinit var preferencesManager: PreferencesManager
 
+    companion object {
+        private const val PERMISSIONS_REQUEST_CODE = 100
+        private val REQUIRED_PERMISSIONS = arrayOf(
+            Manifest.permission.INTERNET,
+            Manifest.permission.ACCESS_NETWORK_STATE,
+            Manifest.permission.CAMERA,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        )
+    }
+
+    private val permissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val allGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissions.all {
+                when (it.key) {
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE -> {
+                        checkStoragePermission(it.key)
+                    }
+
+                    else -> it.value
+                }
+            }
+        } else {
+            permissions.all { it.value }
+        }
+
+        if (allGranted) {
+            initializeTourActivity()
+        } else {
+            showPermissionRationaleDialog()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tour)
 
+        requestPermissions()
+    }
+
+
+    private fun requestPermissions() {
+        val permissionsToRequest = listOf(
+            Manifest.permission.INTERNET,
+            Manifest.permission.ACCESS_NETWORK_STATE,
+            Manifest.permission.CAMERA,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        )
+
+        val deniedPermissions = permissionsToRequest.filter { permission ->
+            ContextCompat.checkSelfPermission(
+                this,
+                permission
+            ) != PackageManager.PERMISSION_GRANTED
+        }
+
+        if (deniedPermissions.isNotEmpty()) {
+            permissionLauncher.launch(deniedPermissions.toTypedArray())
+        } else {
+            initializeTourActivity()
+        }
+    }
+
+    private fun initializeTourActivity() {
         preferencesManager = PreferencesManager(this)
 
         tourViewModel = ViewModelProvider(
             this,
             AppViewModelFactory(preferencesManager)
         )[TourViewModel::class.java]
-
 
         viewPager = findViewById(R.id.viewPagerWelcomeTour)
         btnNext = findViewById(R.id.btnNext)
@@ -77,6 +150,104 @@ class TourActivity : AppCompatActivity() {
                 preferencesManager.setTourCompleted()
                 startActivity(Intent(this, LoginActivity::class.java))
                 finish()
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private fun checkStoragePermission(permission: String): Boolean {
+        return try {
+            when (permission) {
+                Manifest.permission.READ_EXTERNAL_STORAGE -> {
+                    contentResolver.query(
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        null,
+                        null,
+                        null,
+                        null
+                    )?.use {
+                        it.moveToFirst()
+                        true
+                    } ?: false
+                }
+
+                Manifest.permission.WRITE_EXTERNAL_STORAGE -> {
+                    val tempFile = File(cacheDir, "test_write_permission.txt")
+                    try {
+                        tempFile.createNewFile()
+                        tempFile.writeText("Permission Test")
+                        true
+                    } catch (e: Exception) {
+                        false
+                    } finally {
+                        tempFile.delete()
+                    }
+                }
+
+                else -> false
+            }
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    private fun showPermissionRationaleDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Izin Diperlukan")
+            .setMessage(
+                """
+            Aplikasi memerlukan izin berikut untuk berfungsi:
+            - Akses Internet
+            - Kamera
+            - Penyimpanan
+            
+            Mohon berikan izin penuh untuk pengalaman terbaik.
+        """.trimIndent()
+            )
+            .setPositiveButton("Beri Izin") { _, _ ->
+                // Buka pengaturan aplikasi secara langsung
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                val uri: Uri = Uri.fromParts("package", packageName, null)
+                intent.data = uri
+                startActivity(intent)
+            }
+            .setNegativeButton("Keluar") { _, _ ->
+                finish()
+            }
+            .setCancelable(false)
+            .create()
+            .show()
+    }
+
+    private fun checkAllPermissions(): Boolean {
+        for (permission in REQUIRED_PERMISSIONS) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    permission
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                return false
+            }
+        }
+        return true
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PERMISSIONS_REQUEST_CODE) {
+            if (checkAllPermissions()) {
+                initializeTourActivity()
+            } else {
+                Toast.makeText(
+                    this,
+                    "Beberapa izin diperlukan untuk menggunakan aplikasi",
+                    Toast.LENGTH_LONG
+                ).show()
+                finish() // Tutup aktivitas jika izin ditolak
             }
         }
     }
