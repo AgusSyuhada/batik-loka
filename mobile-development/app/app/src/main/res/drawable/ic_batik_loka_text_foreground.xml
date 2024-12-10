@@ -23,7 +23,7 @@
             android:pathData="M399.26,201.17C336.32,201.17 285.3,252.19 285.3,315.13C285.3,378.07 336.32,429.09 399.26,429.09C462.2,429.09 513.22,378.07 513.22,315.13C513.22,252.19 462.2,201.17 399.26,201.17ZM399.26,201.17"/>
         <path
             android:pathData="M285.3,201.17L513.22,201.17L513.22,429.09L285.3,429.09ZM285.3,201.17"
-            android:fillColor="#cd9933"
+            android:fillColor="@color/primary_light"
             android:fillType="nonZero"/>
       </group>
     </group>
