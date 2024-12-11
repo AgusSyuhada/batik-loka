@@ -21,20 +21,20 @@ Our app provides features such as batik pattern scanning, detailed information a
 
 #### **Android Development**
 
-- **UI Design**: Figma, Jetpack Compose
+- **UI Design**: Figma
 - **Development Tools**: Android Studio, Kotlin Coroutine
 - **Networking**: Retrofit
-- **Database**: Room, Firebase SDK
+- **Database**: Room
 - **Image Handling**: Coil
 - **Dependency Injection**: Hilt
 - **Data Loading**: Paging
 
 #### **Cloud Computing**
 
-- **Storage & Deployment**: Google Cloud Storage, Cloud Run, Docker
-- **Database**: Cloud SQL
+- **Storage & Deployment**: Google Cloud Storage, Virtual Machine, Firestone
+- **Database**: Firestore
 - **Authentication & User Management**: Cloud IAM, JSON Web Token
-- **Development Tools**: Visual Studio Code, JavaScript, Node.js, Express.js
+- **Development Tools**: Visual Studio Code, JavaScript, Node.js, Express.js, Fluxk
 
 #### **Machine Learning**
 
