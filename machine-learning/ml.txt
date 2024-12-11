@@ -1,1 +1,16 @@
-mlasdad
+#MACHINE LEARNING GUIDES
+
+##SHORT DESCRIPTION
+This project focused on the classification of batik patterns using a transfer learning approach
+
+##TOOLS
+We use Python, TensorFlow, and Keras to build our model. We also used TensorFlow Lite to deploy the model.
+
+##DATASET
+We used dataset from Kaggle (Indonesian Batik Motifs Corak App) which contains 15 batik motifs. But we cleaned the dataset to prevent the model from getting confused and ended up with only 10 motifs that are easy to distinguish.
+The dataset contains 700 training images and 20% of it are used for the validation set. And 200 images for testing set.
+
+##MODEL ARCHITECTURE
+We used transfer learning with pre trained model EfiicientNetV2s. We fine tuned the models by freezing all layers except the last 20 layers. We also applied image augmentation including flipping, adjusting the contrast, zoom, adn rotation to increase the model robustness,
+
+The model ended up with 92% accuracy on both training and validation and achieve 0.88 for the F1 score.
