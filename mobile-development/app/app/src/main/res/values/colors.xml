@@ -14,6 +14,7 @@
     <color name="card_textbox2">#FAF8EC</color>
     <color name="tourtext_primary">#CD9933</color>
     <color name="tourtext_secondary">#FF000000</color>
+    <color name="text_hint">#888888</color>
 
     <color name="primary_light">#CD9933</color>
     <color name="primary_dark">#2A3139</color>

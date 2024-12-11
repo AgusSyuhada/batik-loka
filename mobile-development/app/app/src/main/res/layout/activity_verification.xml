@@ -47,6 +47,7 @@
             android:layout_height="50dp"
             android:background="@drawable/custom_edittext_background"
             android:hint="@string/enter_verification_code_hint"
+            android:textColorHint="@color/text_hint"
             android:inputType="number"
             android:textAlignment="center"
             android:textSize="14sp"
