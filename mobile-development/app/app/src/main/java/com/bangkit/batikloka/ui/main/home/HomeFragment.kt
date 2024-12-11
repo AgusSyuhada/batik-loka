@@ -32,7 +32,7 @@ import com.bangkit.batikloka.ui.adapter.BatikAdapter
 import com.bangkit.batikloka.ui.adapter.NewsCarouselAdapter
 import com.bangkit.batikloka.ui.main.MainActivity
 import com.bangkit.batikloka.ui.main.catalog.DetailCatalogActivity
-import com.bangkit.batikloka.ui.main.news.viewmodel.NewsViewModelFactory
+import com.bangkit.batikloka.ui.main.news.NewsViewModelFactory
 import com.bangkit.batikloka.utils.PreferencesManager
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers

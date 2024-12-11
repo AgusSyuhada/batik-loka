@@ -17,7 +17,6 @@ import com.bangkit.batikloka.data.remote.response.NewsItem
 import com.bangkit.batikloka.data.repository.NewsRepository
 import com.bangkit.batikloka.databinding.FragmentNewsBinding
 import com.bangkit.batikloka.ui.adapter.NewsAdapter
-import com.bangkit.batikloka.ui.main.news.viewmodel.NewsViewModelFactory
 import com.bangkit.batikloka.utils.PreferencesManager
 import kotlinx.coroutines.launch
 

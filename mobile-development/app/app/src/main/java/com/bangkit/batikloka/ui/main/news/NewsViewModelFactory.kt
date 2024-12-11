@@ -1,10 +1,9 @@
-package com.bangkit.batikloka.ui.main.news.viewmodel
+package com.bangkit.batikloka.ui.main.news
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.bangkit.batikloka.data.repository.NewsRepository
 import com.bangkit.batikloka.ui.main.home.HomeViewModel
-import com.bangkit.batikloka.ui.main.news.NewsViewModel
 
 class NewsViewModelFactory(
     private val newsRepository: NewsRepository
