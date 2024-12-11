@@ -99,7 +99,7 @@
 
     <string name="email_required">Email diperlukan</string>
     <string name="reset_password_prompt">Masukkan kode 6 digit untuk mereset kata sandi Anda</string>
-    <string name="verification_subtitle">Masukkan kode verifikasi yang telah dikirim ke %1$s</string>
+    <string name="verification_subtitle">Masukkan kode verifikasi yang telah dikirim ke </string>
     <string name="required_otp">Kode OTP harus diisi</string>
     <string name="invalid_otp">Kode OTP harus 6 digit</string>
     <string name="invalid_otp_error">OTP tidak valid, silakan coba lagi</string>
@@ -263,7 +263,7 @@
     <string name="take_photo_from_camera">Ambil foto dari kamera</string>
     <string name="choose_from_gallery">Pilih dari galeri</string>
     <string name="operation_cancelled">Operasi dibatalkan</string>
-    <string name="crop_error">Kesalahan pemotongan: %1$s</string>
+    <string name="crop_error">Kesalahan pemotongan: </string>
     <string name="unhandled_request_code">Kode permintaan yang tidak ditangani</string>
     <string name="system_default">Default Sistem</string>
     <string name="indonesia">Indonesia</string>
@@ -277,6 +277,13 @@
     <string name="news_notification_disabled_success">Notifikasi berita berhasil dinonaktifkan</string>
     <string name="language_change_success">Bahasa berhasil diubah</string>
     <string name="theme_change_success">Tema berhasil diubah</string>
+    <string name="confirm_send_otp">Kirim Kode OTP</string>
+    <string name="confirm_send_otp_message">Apakah Anda ingin mengirim kode OTP ke email %1$s?</string>
+    <string name="otp_sent_success">Kode OTP telah dikirim ke email Anda</string>
+    <string name="sending_otp">Mengirim kode OTP...</string>
+    <string name="otp_sending_success">Kode OTP berhasil dikirim</string>
+    <string name="otp_sent_title">OTP Terkirim</string>
+    <string name="ok">Ok</string>
 
     <!-- Scan Activity-->
     <string name="short_description">Deskripsi singkat</string>

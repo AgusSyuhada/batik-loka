@@ -99,7 +99,7 @@
 
     <string name="email_required">Email is required</string>
     <string name="reset_password_prompt">Enter the 6-digit code to reset your password</string>
-    <string name="verification_subtitle">Enter verification code that was sent to %1$s</string>
+    <string name="verification_subtitle">Enter verification code that was sent to </string>
     <string name="required_otp">OTP code must be filled in</string>
     <string name="invalid_otp">OTP code must be 6 digits</string>
     <string name="invalid_otp_error">Invalid OTP, please try again</string>
@@ -264,7 +264,7 @@
     <string name="take_photo_from_camera">Take photo from camera</string>
     <string name="choose_from_gallery">Choose from gallery</string>
     <string name="operation_cancelled">Operation cancelled</string>
-    <string name="crop_error">Crop error: %1$s</string>
+    <string name="crop_error">Crop error: </string>
     <string name="unhandled_request_code">Unhandled request code</string>
     <string name="system_default">System Default</string>
     <string name="indonesia">Indonesia</string>
@@ -278,6 +278,13 @@
     <string name="news_notification_disabled_success">News notification successfully disabled</string>
     <string name="language_change_success">Language changed successfully</string>
     <string name="theme_change_success">Theme changed successfully</string>
+    <string name="confirm_send_otp">Send OTP Code</string>
+    <string name="confirm_send_otp_message">Do you want to send OTP code to email %1$s?</string>
+    <string name="otp_sent_success">OTP code has been sent to your email</string>
+    <string name="sending_otp">Sending OTP code...</string>
+    <string name="otp_sending_success">OTP code successfully sent</string>
+    <string name="otp_sent_title">OTP Sent</string>
+    <string name="ok">Ok</string>
 
     <!-- Scan Activity-->
     <string name="short_description">Short description</string>

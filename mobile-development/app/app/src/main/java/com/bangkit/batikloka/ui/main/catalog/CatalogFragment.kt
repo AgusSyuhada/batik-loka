@@ -84,7 +84,7 @@ class CatalogFragment : Fragment() {
                 setTextColor(
                     ContextCompat.getColor(
                         requireContext(),
-                        if (index == 0) R.color.caramel_gold else R.color.black
+                        if (index == 0) R.color.filter_selected else R.color.filter_unselected
                     )
                 )
 
@@ -101,9 +101,9 @@ class CatalogFragment : Fragment() {
         for (i in 0 until tabContainer.childCount) {
             val tab = tabContainer.getChildAt(i) as TextView
             if (i == selectedIndex) {
-                tab.setTextColor(ContextCompat.getColor(requireContext(), R.color.caramel_gold))
+                tab.setTextColor(ContextCompat.getColor(requireContext(), R.color.filter_selected))
             } else {
-                tab.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+                tab.setTextColor(ContextCompat.getColor(requireContext(), R.color.filter_unselected))
             }
         }
     }

@@ -45,6 +45,12 @@ class NewsWorker(
     }
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
+        val preferencesManager = PreferencesManager(context)
+
+        if (!preferencesManager.isNewsNotificationEnabled()) {
+            return@withContext Result.success()
+        }
+
         try {
             val newsResult = repository.getNews()
             newsResult.onSuccess { newsList ->

@@ -47,6 +47,7 @@ import com.bangkit.batikloka.utils.ImagePickerHelper
 import com.bangkit.batikloka.utils.NewsNotificationHelper
 import com.bangkit.batikloka.utils.PreferencesManager
 import com.bangkit.batikloka.utils.Result
+import com.bangkit.batikloka.worker.NewsWorkerScheduler
 import com.bumptech.glide.Glide
 import java.io.File
 
@@ -62,6 +63,7 @@ class UserActivity : BaseActivity() {
     private val imagePickerHelper = ImagePickerHelper(this)
     private lateinit var switchNewsNotification: Switch
     private lateinit var newsNotificationHelper: NewsNotificationHelper
+    private lateinit var newsWorkerScheduler: NewsWorkerScheduler
     private lateinit var workManager: WorkManager
 
     companion object {
@@ -88,6 +90,7 @@ class UserActivity : BaseActivity() {
         viewModel = ViewModelProvider(this, viewModelFactory)[UserActivityViewModel::class.java]
 
         newsNotificationHelper = NewsNotificationHelper(this)
+        newsWorkerScheduler = NewsWorkerScheduler()
         workManager = WorkManager.getInstance(this)
         switchNewsNotification = binding.switchNewsNotification
 
@@ -196,11 +199,8 @@ class UserActivity : BaseActivity() {
                     val avatarUrl = (result.data as ChangeAvatarResponse).avatarUrl
                     preferencesManager.saveProfileImageUrl(avatarUrl)
 
-                    Glide.with(this)
-                        .load(avatarUrl)
-                        .placeholder(R.drawable.ic_avatar_outlined_250)
-                        .error(R.drawable.ic_avatar_outlined_250)
-                        .into(binding.ivProfilePicture)
+                    Glide.with(this).load(avatarUrl).placeholder(R.drawable.ic_avatar_outlined_250)
+                        .error(R.drawable.ic_avatar_outlined_250).into(binding.ivProfilePicture)
 
                     showCustomAlertDialog(getString(R.string.avatar_update_success)) {
                         // Optional: Handle success
@@ -226,8 +226,7 @@ class UserActivity : BaseActivity() {
                 is Result.Success -> {
                     dismissLoadingDialog()
                     if (result.data is ForgetPasswordResponse) {
-                        val userEmail = binding.tvShowEmail.text.toString().trim()
-                        showResetPasswordDialog(userEmail)
+                        showOtpSentDialog()
                     } else {
                         showCustomAlertDialog(getString(R.string.password_reset_success)) {
                             navigateToLogin()
@@ -241,7 +240,7 @@ class UserActivity : BaseActivity() {
                 }
 
                 is Result.Loading -> {
-                    showLoadingDialog(getString(R.string.loading_message))
+                    //
                 }
 
                 null -> {
@@ -268,17 +267,13 @@ class UserActivity : BaseActivity() {
         ivShowConfirmNewPassword.setOnClickListener {
             isConfirmPasswordVisible = !isConfirmPasswordVisible
             togglePasswordVisibility(
-                etConfirmNewPassword,
-                ivShowConfirmNewPassword,
-                isConfirmPasswordVisible
+                etConfirmNewPassword, ivShowConfirmNewPassword, isConfirmPasswordVisible
             )
         }
     }
 
     private fun togglePasswordVisibility(
-        editText: EditText,
-        imageView: ImageView,
-        isVisible: Boolean
+        editText: EditText, imageView: ImageView, isVisible: Boolean
     ) {
         val cursorPosition = editText.selectionStart
 
@@ -306,7 +301,66 @@ class UserActivity : BaseActivity() {
             return
         }
 
-        viewModel.forgetPassword(userEmail)
+        val confirmDialog = AlertDialog.Builder(this).setTitle(getString(R.string.confirm_send_otp))
+            .setMessage(getString(R.string.confirm_send_otp_message, userEmail))
+            .setPositiveButton(getString(R.string.yes)) { dialog, _ ->
+                dialog.dismiss()
+
+                showLoadingDialog(getString(R.string.sending_otp))
+
+                viewModel.forgetPassword(userEmail)
+            }.setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
+                dialog.dismiss()
+            }.create()
+
+        confirmDialog.setOnShowListener { dialogInterface ->
+            val alertDialog = dialogInterface as AlertDialog
+            alertDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
+
+            alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                ?.setTextColor(ContextCompat.getColor(this, R.color.caramel_gold))
+            alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+                ?.setTextColor(ContextCompat.getColor(this, R.color.black))
+
+            val titleTextView =
+                alertDialog.window?.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)
+            titleTextView?.setTextColor(ContextCompat.getColor(this, R.color.caramel_gold))
+        }
+
+        confirmDialog.show()
+    }
+
+    private fun showOtpSentDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_checkmark, null)
+        val titleTextView = dialogView.findViewById<TextView>(R.id.dialog_title)
+        titleTextView.text = getString(R.string.otp_sent_success)
+
+        val dialog = AlertDialog.Builder(this).setView(dialogView).setCancelable(true).create()
+
+        dialog.setOnShowListener { dialogInterface ->
+            val alertDialog = dialogInterface as AlertDialog
+            alertDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
+
+            alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                ?.setTextColor(ContextCompat.getColor(this, R.color.caramel_gold))
+
+            val titleTextView =
+                alertDialog.window?.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)
+            titleTextView?.setTextColor(ContextCompat.getColor(this, R.color.caramel_gold))
+        }
+
+        dialog.setOnDismissListener {
+            val userEmail = binding.tvShowEmail.text.toString().trim()
+            showResetPasswordDialog(userEmail)
+        }
+
+        dialog.show()
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (dialog.isShowing && !isFinishing && !isDestroyed) {
+                dialog.dismiss()
+            }
+        }, 2000)
     }
 
     private var loadingDialog: ProgressDialog? = null
@@ -345,16 +399,10 @@ class UserActivity : BaseActivity() {
         val tvCancel = dialogView.findViewById<TextView>(R.id.tv_cancel_change_password)
 
         setupPasswordVisibilityListeners(
-            etNewPassword,
-            etConfirmNewPassword,
-            ivShowNewPassword,
-            ivShowConfirmPassword
+            etNewPassword, etConfirmNewPassword, ivShowNewPassword, ivShowConfirmPassword
         )
 
-        val dialog = AlertDialog.Builder(this)
-            .setView(dialogView)
-            .setCancelable(true)
-            .create()
+        val dialog = AlertDialog.Builder(this).setView(dialogView).setCancelable(true).create()
 
         dialog.setOnShowListener {
             dialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
@@ -388,9 +436,7 @@ class UserActivity : BaseActivity() {
 
                 else -> {
                     viewModel.resetPassword(
-                        email,
-                        verificationCode,
-                        newPassword
+                        email, verificationCode, newPassword
                     )
                     dialog.dismiss()
                 }
@@ -430,10 +476,7 @@ class UserActivity : BaseActivity() {
         val titleTextView = dialogView.findViewById<TextView>(R.id.dialog_title)
         titleTextView.text = title
 
-        val dialog = AlertDialog.Builder(this)
-            .setView(dialogView)
-            .setCancelable(true)
-            .create()
+        val dialog = AlertDialog.Builder(this).setView(dialogView).setCancelable(true).create()
 
         dialog.setOnShowListener {
             dialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
@@ -491,11 +534,9 @@ class UserActivity : BaseActivity() {
             val savedAvatarUrl = preferencesManager.getProfileImageUrl()
 
             if (!savedAvatarUrl.isNullOrEmpty()) {
-                Glide.with(this@UserActivity)
-                    .load(savedAvatarUrl)
+                Glide.with(this@UserActivity).load(savedAvatarUrl)
                     .placeholder(R.drawable.ic_avatar_outlined_250)
-                    .error(R.drawable.ic_avatar_outlined_250)
-                    .into(ivProfilePicture)
+                    .error(R.drawable.ic_avatar_outlined_250).into(ivProfilePicture)
             }
         }
     }
@@ -521,10 +562,8 @@ class UserActivity : BaseActivity() {
                         val profile = result.data as ProfileResponse
                         etName.setText(profile.name)
 
-                        val dialog = AlertDialog.Builder(this@UserActivity)
-                            .setView(dialogView)
-                            .setCancelable(true)
-                            .create()
+                        val dialog = AlertDialog.Builder(this@UserActivity).setView(dialogView)
+                            .setCancelable(true).create()
 
                         dialog.setOnShowListener {
                             dialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
@@ -579,7 +618,8 @@ class UserActivity : BaseActivity() {
     private fun showLanguageChangeDialog() {
         val languages = arrayOf(
             getString(R.string.system_default),
-            getString(R.string.indonesia), getString(R.string.english)
+            getString(R.string.indonesia),
+            getString(R.string.english)
         )
 
         val builder = AlertDialog.Builder(this)
@@ -623,8 +663,7 @@ class UserActivity : BaseActivity() {
 
     private fun showThemeChangeDialog() {
         val themes = arrayOf(
-            getString(R.string.system_default), getString(R.string.light),
-            getString(
+            getString(R.string.system_default), getString(R.string.light), getString(
                 R.string.dark
             )
         )
@@ -668,9 +707,7 @@ class UserActivity : BaseActivity() {
             dialog.dismiss()
             Handler(Looper.getMainLooper()).post {
                 Toast.makeText(
-                    this,
-                    getString(R.string.theme_change_success),
-                    Toast.LENGTH_SHORT
+                    this, getString(R.string.theme_change_success), Toast.LENGTH_SHORT
                 ).show()
                 recreateWithTransition()
             }
@@ -684,10 +721,7 @@ class UserActivity : BaseActivity() {
         val titleTextView = dialogView.findViewById<TextView>(R.id.dialog_error_title)
         titleTextView.text = message
 
-        val dialog = AlertDialog.Builder(this)
-            .setView(dialogView)
-            .setCancelable(true)
-            .create()
+        val dialog = AlertDialog.Builder(this).setView(dialogView).setCancelable(true).create()
 
         dialog.setOnShowListener {
             dialog.window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
@@ -719,33 +753,40 @@ class UserActivity : BaseActivity() {
         switchNewsNotification.isChecked = preferencesManager.isNewsNotificationEnabled()
 
         switchNewsNotification.setOnCheckedChangeListener { _, isChecked ->
-            showNewsNotificationConfirmationDialog(isChecked)
-        }
-    }
-
-    private fun showNewsNotificationConfirmationDialog(isChecked: Boolean) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            when {
-                ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) == PackageManager.PERMISSION_GRANTED -> {
+            if (isChecked) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    when {
+                        ContextCompat.checkSelfPermission(
+                            this,
+                            Manifest.permission.POST_NOTIFICATIONS
+                        ) == PackageManager.PERMISSION_GRANTED -> {
+                            preferencesManager.setNewsNotificationEnabled(true)
+                            newsNotificationHelper.showDummyNotifications()
+                            NewsWorkerScheduler().scheduleNewsCheck(this)
+                            showCustomAlertDialog(getString(R.string.news_notification_enabled_success))
+                        }
+                        ActivityCompat.shouldShowRequestPermissionRationale(
+                            this,
+                            Manifest.permission.POST_NOTIFICATIONS
+                        ) -> {
+                            showNotificationPermissionRationaleDialog(true)
+                        }
+                        else -> {
+                            requestNotificationPermission(true)
+                        }
+                    }
+                } else {
+                    preferencesManager.setNewsNotificationEnabled(true)
+                    newsNotificationHelper.showDummyNotifications()
+                    NewsWorkerScheduler().scheduleNewsCheck(this)
                     showCustomAlertDialog(getString(R.string.news_notification_enabled_success))
                 }
-
-                ActivityCompat.shouldShowRequestPermissionRationale(
-                    this,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) -> {
-                    showNotificationPermissionRationaleDialog(isChecked)
-                }
-
-                else -> {
-                    requestNotificationPermission(isChecked)
-                }
+            } else {
+                preferencesManager.setNewsNotificationEnabled(false)
+                WorkManager.getInstance(this).cancelUniqueWork("news_check_worker")
+                newsNotificationHelper.clearAllNotifications()
+                showCustomAlertDialog(getString(R.string.news_notification_disabled_success))
             }
-        } else {
-            showCustomErrorDialog(getString(R.string.news_notification_disabled_success))
         }
     }
 
@@ -798,12 +839,14 @@ class UserActivity : BaseActivity() {
 
         if (requestCode == NOTIFICATION_PERMISSION_REQUEST_CODE) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                if (grantResults.isNotEmpty() &&
-                    grantResults[0] == PackageManager.PERMISSION_GRANTED
-                ) {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    preferencesManager.setNewsNotificationEnabled(true)
+                    newsNotificationHelper.showDummyNotifications()
+                    NewsWorkerScheduler().scheduleNewsCheck(this)
                     showCustomAlertDialog(getString(R.string.news_notification_enabled_success))
                 } else {
                     switchNewsNotification.isChecked = false
+                    preferencesManager.setNewsNotificationEnabled(false)
                     showCustomErrorDialog(getString(R.string.notification_permission_denied))
                 }
             }

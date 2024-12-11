@@ -2,6 +2,7 @@
 <resources>
     <color name="black">#F3F7F8</color> <!-- Changed to gips -->
     <color name="white">#FFFFFFFF</color>
+
     <color name="caramel_gold">#87919B</color> <!-- Changed to night fury -->
     <color name="ivory_white">#2A3139</color> <!-- Changed to darker gray -->
     <color name="pearl_cream">#87919B</color> <!-- Changed to clay -->
@@ -15,8 +16,13 @@
     <color name="tourtext_secondary">#F3F7F8</color>
     <color name="text_hint">#626262</color>
 
+    <color name="fab_color">#FFFFFF</color>
+
     <color name="primary_light">#CD9933</color>
     <color name="primary_dark">#2A3139</color>
+
+    <color name="filter_selected">#000000</color>
+    <color name="filter_unselected">#FFFFFF</color>
 
     <color name="selected_color">#F3F7F8</color>
     <color name="unselected_color">#B7B7B7</color>

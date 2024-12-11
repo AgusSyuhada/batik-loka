@@ -45,7 +45,7 @@
         app:layout_constraintStart_toStartOf="@+id/bottom_navigation"
         app:layout_constraintTop_toTopOf="@+id/bottom_navigation"
         app:srcCompat="@drawable/selector_fab_icon"
-        app:tint="@color/ivory_white"
+        app:tint="@color/fab_color"
         tools:ignore="ContentDescription" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

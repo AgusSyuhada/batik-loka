@@ -143,7 +143,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun observeData() {
-        binding.progressBarUpcoming.visibility = View.VISIBLE
+        binding.progressBarUpcoming.visibility = View.GONE
         binding.imageCarousel.visibility = View.INVISIBLE
 
         viewLifecycleOwner.lifecycleScope.launch {

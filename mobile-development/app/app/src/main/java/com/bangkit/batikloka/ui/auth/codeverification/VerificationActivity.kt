@@ -77,7 +77,7 @@ class VerificationActivity : AppCompatActivity() {
             return
         }
 
-        val subtitle = getString(R.string.verification_subtitle)
+        val subtitle = getString(R.string.verification_subtitle).plus(" $email")
         binding.tvVerificationSubtitle.text = subtitle
 
         setupListeners(email, registrationStep)
