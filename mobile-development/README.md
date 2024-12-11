@@ -2,9 +2,8 @@
 
 ### 📜 Backgrounder Mobile Development  
 
-**BatikLoka** is a mobile application project aimed at preserving and promoting the cultural heritage of Indonesian batik. By leveraging technology, we address the declining recognition of batik among younger generations due to the lack of accessible and engaging resources.  
+The **Mobile Development** aspect of the project focused on **creating a dynamic and user-friendly application** that adhered to **modern development standards.** **Using the MVVM (Model-View-ViewModel) architecture**, the app ensured a clear separation of concerns, facilitating scalability and ease of testing. The app's **interface was designed with a focus on usability**, incorporating **intuitive navigation and visually appealing elements**. **Networking calls** were implemented to interact with APIs, including the deployed batik recognition model and the news API, **ensuring real-time updates and reliable data retrieval**. Authentication features were enhanced by **implementing OTP (One-Time Password) verification** during user registration, ensuring a secure and straightforward onboarding process. Additionally, **local data persistence using Room databases** enabled offline access to user data. This comprehensive approach resulted in a responsive, efficient, and user-centric mobile application.
 
-Our app provides features such as batik pattern scanning, detailed information about batik styles, a comprehensive catalog, and updates on batik-related news. It acts as both an educational tool and a digital repository, fostering a deeper appreciation for batik's artistic and historical significance. Through this initiative, we aim to connect the younger generation with their cultural roots and empower them to embrace and promote batik as a living tradition.  
 
 ---
 
