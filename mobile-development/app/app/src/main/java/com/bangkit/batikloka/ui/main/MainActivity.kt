@@ -2,6 +2,7 @@ package com.bangkit.batikloka.ui.main
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.bangkit.batikloka.R
@@ -33,13 +34,6 @@ class MainActivity : AppCompatActivity() {
         authRepository = AuthRepository(authApiService, preferencesManager)
 
         bottomNavigationView = findViewById(R.id.bottom_navigation)
-        val fab: FloatingActionButton = findViewById(R.id.fab)
-
-        fab.setOnClickListener {
-            val intent = Intent(this, ScanActivity::class.java)
-            startActivity(intent)
-        }
-
         val token = preferencesManager.getToken()
 
         if (!authRepository.isUserLoggedIn()) {
@@ -75,14 +69,39 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupBottomNavigation() {
-        bottomNavigationView.setOnItemSelectedListener { menuItem ->
+        val fab: FloatingActionButton = findViewById(R.id.fab)
 
+        fab.setOnClickListener {
+            val intent = Intent(this, ScanActivity::class.java)
+            val scaleUpAnimation = AnimationUtils.loadAnimation(this, R.anim.scale_up_animation)
+            fab.startAnimation(scaleUpAnimation)
+
+            startActivity(intent)
+        }
+
+        bottomNavigationView.setOnItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.home -> replaceFragment(HomeFragment())
-                R.id.news -> replaceFragment(NewsFragment())
-                R.id.catalog -> replaceFragment(CatalogFragment())
+                R.id.home -> replaceFragmentWithAnimation(
+                    HomeFragment(),
+                    R.anim.slide_in_right,
+                    R.anim.slide_out_left
+                )
+
+                R.id.news -> replaceFragmentWithAnimation(
+                    NewsFragment(),
+                    R.anim.slide_in_right,
+                    R.anim.slide_out_left
+                )
+
+                R.id.catalog -> replaceFragmentWithAnimation(
+                    CatalogFragment(),
+                    R.anim.slide_in_right,
+                    R.anim.slide_out_left
+                )
                 R.id.user -> {
-                    startActivity(Intent(this, UserActivity::class.java))
+                    val intent = Intent(this, UserActivity::class.java)
+                    startActivity(intent)
+                    overridePendingTransition(R.anim.user_slide_up, R.anim.user_slide_down)
                     false
                 }
                 else -> false
@@ -98,19 +117,30 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (supportFragmentManager.fragments.isEmpty()) {
-            replaceFragment(HomeFragment())
+            replaceFragmentWithAnimation(HomeFragment())
         }
     }
 
-    private fun replaceFragment(fragment: Fragment): Boolean {
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, fragment)
-            .commit()
+    private fun replaceFragmentWithAnimation(
+        fragment: Fragment,
+        enterAnim: Int = R.anim.slide_in_right,
+        exitAnim: Int = R.anim.slide_out_left
+    ): Boolean {
+        val fragmentTransaction = supportFragmentManager.beginTransaction()
+
+        fragmentTransaction.setCustomAnimations(
+            enterAnim,
+            exitAnim
+        )
+
+        fragmentTransaction.replace(R.id.fragment_container, fragment)
+        fragmentTransaction.commit()
+
         return true
     }
 
     fun navigateToCatalogFragment() {
-        replaceFragment(CatalogFragment())
+        replaceFragmentWithAnimation(CatalogFragment())
         bottomNavigationView.selectedItemId = R.id.catalog
     }
 }

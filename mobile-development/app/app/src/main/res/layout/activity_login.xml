@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingHorizontal="16dp"
-    android:paddingVertical="32dp">
+    android:paddingVertical="32dp"
+    tools:context=".ui.auth.login.LoginActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout2"
@@ -67,7 +68,8 @@
                 android:layout_height="50dp"
                 android:background="@drawable/custom_edittext_background"
                 android:hint="@string/email_hint"
-                android:textColorHint="@color/text_hint"
+                android:textColor="@color/color_text"
+                android:textColorHint="@color/color_hint"
                 android:inputType="textEmailAddress"
                 android:paddingHorizontal="20dp"
                 android:textSize="14sp"
@@ -89,7 +91,8 @@
                     android:layout_height="50dp"
                     android:background="@drawable/custom_edittext_background"
                     android:hint="@string/password_hint"
-                    android:textColorHint="@color/text_hint"
+                    android:textColor="@color/color_text"
+                    android:textColorHint="@color/color_hint"
                     android:inputType="textPassword"
                     android:paddingStart="20dp"
                     android:paddingEnd="64dp"

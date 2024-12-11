@@ -5,6 +5,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.dynamicanimation.animation.SpringAnimation
+import androidx.dynamicanimation.animation.SpringForce
 import androidx.recyclerview.widget.RecyclerView
 import com.bangkit.batikloka.R
 import com.bangkit.batikloka.data.local.entity.TourItem
@@ -20,6 +22,28 @@ class TourAdapter(private val tourItems: List<TourItem>) :
 
     override fun onBindViewHolder(holder: TourViewHolder, position: Int) {
         holder.bind(tourItems[position])
+
+        animateItemEntry(holder.itemView, position)
+    }
+
+    private fun animateItemEntry(itemView: View, position: Int) {
+        val springAnimation = SpringAnimation(itemView, SpringAnimation.TRANSLATION_Y)
+            .setStartValue(-itemView.height.toFloat())
+            .setSpring(
+                SpringForce()
+                    .setFinalPosition(0f)
+                    .setDampingRatio(SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY)
+                    .setStiffness(SpringForce.STIFFNESS_LOW)
+            )
+
+        itemView.alpha = 0f
+        springAnimation.start()
+
+        itemView.animate()
+            .alpha(1f)
+            .setStartDelay((position * 100).toLong())
+            .setDuration(500)
+            .start()
     }
 
     override fun getItemCount() = tourItems.size

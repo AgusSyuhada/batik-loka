@@ -41,6 +41,7 @@ class ScanActivity : AppCompatActivity() {
 
     private val launcherIntentCamera = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
+
     ) { result ->
         when (result.resultCode) {
             RESULT_OK -> {
@@ -161,6 +162,9 @@ class ScanActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        overridePendingTransition(R.anim.scale_enter_animation, R.anim.no_animation)
+
         binding = ActivityScanBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -334,5 +338,10 @@ class ScanActivity : AppCompatActivity() {
                 showCustomErrorDialog(getString(R.string.permissions_not_granted_by_the_user))
             }
         }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        overridePendingTransition(R.anim.no_animation, R.anim.scale_exit_animation)
     }
 }

@@ -16,6 +16,8 @@
     <color name="tourtext_secondary">#F3F7F8</color>
     <color name="text_hint">#626262</color>
 
+    <color name="text_highlight">#6991BE</color>
+
     <color name="fab_color">#FFFFFF</color>
 
     <color name="primary_light">#CD9933</color>
@@ -23,6 +25,9 @@
 
     <color name="filter_selected">#000000</color>
     <color name="filter_unselected">#FFFFFF</color>
+
+    <color name="color_hint">#818181</color>
+    <color name="color_text">#000000</color>
 
     <color name="selected_color">#F3F7F8</color>
     <color name="unselected_color">#B7B7B7</color>

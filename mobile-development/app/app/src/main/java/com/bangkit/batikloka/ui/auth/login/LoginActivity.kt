@@ -7,6 +7,7 @@ import android.os.Handler
 import android.os.Looper
 import android.text.method.PasswordTransformationMethod
 import android.text.method.SingleLineTransformationMethod
+import android.view.animation.DecelerateInterpolator
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -48,6 +49,7 @@ class LoginActivity : AppCompatActivity() {
         setupBinding()
         setupObservers()
         setupListeners()
+        animateLoginItems()
     }
 
     private fun initializeViewModel() {
@@ -298,18 +300,40 @@ class LoginActivity : AppCompatActivity() {
     private fun navigateToRegister() {
         val intent = Intent(this, RegisterActivity::class.java)
         startActivity(intent)
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         finish()
     }
 
     private fun navigateToEmailVerificationActivity() {
         val intent = Intent(this, EmailVerificationActivity::class.java)
         startActivity(intent)
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
     }
 
     private fun navigateToMainActivity() {
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         finish()
+    }
+
+    private fun animateLoginItems() {
+        val views = listOf(
+            binding.constraintLayout2,
+            binding.constraintLayout3
+        )
+
+        views.forEachIndexed { index, view ->
+            view.translationY = 100f
+            view.alpha = 0f
+            view.animate()
+                .translationY(0f)
+                .alpha(1f)
+                .setDuration(500)
+                .setStartDelay(index * 200L)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+        }
     }
 }

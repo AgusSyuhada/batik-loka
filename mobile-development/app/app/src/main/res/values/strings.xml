@@ -352,4 +352,10 @@
     <string name="permission_denied_message">The app requires permissions to function properly. Please go to settings and enable permissions.</string>
     <string name="go_to_settings">Go to Settings</string>
     <string name="permissions_required">Permissions required to use the app</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="verification_code">Verification Code</string>
+    <string name="new_password">New Password</string>
+    <string name="confirm_new_password">Confirm New Password</string>
+    <string name="image_view">Image View</string>
+    <string name="item_title">Item Title</string>
 </resources>

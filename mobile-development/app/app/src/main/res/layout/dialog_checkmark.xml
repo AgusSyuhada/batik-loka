@@ -21,7 +21,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:contentDescription="Checkmark Icon"
+        android:contentDescription="@string/image_view"
         android:src="@drawable/ic_checkmark"
         android:layout_marginTop="20dp" />
 </LinearLayout>

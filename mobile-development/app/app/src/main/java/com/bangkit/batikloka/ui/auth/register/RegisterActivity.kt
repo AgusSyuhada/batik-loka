@@ -7,6 +7,7 @@ import android.os.Handler
 import android.os.Looper
 import android.text.method.PasswordTransformationMethod
 import android.text.method.SingleLineTransformationMethod
+import android.view.animation.DecelerateInterpolator
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -35,6 +36,7 @@ class RegisterActivity : AppCompatActivity() {
         setupBinding()
         setupObservers()
         setupListeners()
+        animateLoginItems()
     }
 
     private fun initializeViewModel() {
@@ -285,6 +287,7 @@ class RegisterActivity : AppCompatActivity() {
         val intent = Intent(this, LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(intent)
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         finish()
     }
 
@@ -296,6 +299,26 @@ class RegisterActivity : AppCompatActivity() {
         )
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(intent)
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         finish()
+    }
+
+    private fun animateLoginItems() {
+        val views = listOf(
+            binding.constraintLayout2,
+            binding.constraintLayout3
+        )
+
+        views.forEachIndexed { index, view ->
+            view.translationY = 100f
+            view.alpha = 0f
+            view.animate()
+                .translationY(0f)
+                .alpha(1f)
+                .setDuration(500)
+                .setStartDelay(index * 200L)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+        }
     }
 }

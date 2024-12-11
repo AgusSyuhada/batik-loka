@@ -7,6 +7,8 @@
         <!-- Background Utama -->
         <item name="android:windowBackground">@color/ivory_white</item>
 
+        <item name="android:textColorHighlight">@color/text_highlight</item>
+
         <!-- Status Bar -->
         <item name="android:statusBarColor">@color/black</item>
     </style>

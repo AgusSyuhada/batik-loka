@@ -67,26 +67,36 @@ class SplashScreen : AppCompatActivity() {
             when {
                 preferencesManager.isUserLoggedOut() -> {
                     startActivity(Intent(this, LoginActivity::class.java))
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
                     finish()
                     return@postDelayed
                 }
 
                 preferencesManager.isUserLoggedIn() -> {
                     when (preferencesManager.getRegistrationStep()) {
-                        "profile_completed" -> startActivity(Intent(this, MainActivity::class.java))
+                        "profile_completed" -> {
+                            startActivity(Intent(this, MainActivity::class.java))
+                            overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+                        }
 
-                        else -> startActivity(Intent(this, LoginActivity::class.java))
+                        else -> {
+                            startActivity(Intent(this, LoginActivity::class.java))
+                            overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+                        }
                     }
                 }
 
                 preferencesManager.isTourCompleted() -> {
                     startActivity(Intent(this, LoginActivity::class.java))
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
                 }
 
                 else -> {
                     startActivity(Intent(this, TourActivity::class.java))
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
                 }
             }
+
             finish()
         }, SPLASH_SCREEN_DURATION)
     }

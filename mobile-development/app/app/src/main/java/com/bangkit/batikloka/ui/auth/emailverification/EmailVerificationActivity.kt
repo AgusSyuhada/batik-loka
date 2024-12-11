@@ -223,12 +223,14 @@ class EmailVerificationActivity : AppCompatActivity() {
             putExtra(EXTRA_FROM_EMAIL_VERIFY, true)
         }
         startActivity(intent)
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         finish()
     }
 
     private fun navigateToRegister() {
         val intent = Intent(this, RegisterActivity::class.java)
         startActivity(intent)
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         finish()
     }
 }

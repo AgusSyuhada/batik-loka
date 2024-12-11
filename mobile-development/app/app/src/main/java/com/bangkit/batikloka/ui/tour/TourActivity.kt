@@ -6,10 +6,16 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
+import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -18,6 +24,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.bangkit.batikloka.R
 import com.bangkit.batikloka.ui.adapter.TourAdapter
@@ -69,6 +76,7 @@ class TourActivity : AppCompatActivity() {
         tourAdapter = TourAdapter(tourViewModel.tourItems)
         viewPager.adapter = tourAdapter
 
+        animateEntranceElements()
         setupDotsIndicator()
         checkPermissions()
 
@@ -77,11 +85,142 @@ class TourActivity : AppCompatActivity() {
                 super.onPageSelected(position)
                 updateButtonState(position)
                 updateDotsIndicator(position)
+
+                val currentView = (viewPager.getChildAt(0) as RecyclerView)
+                    .findViewHolderForAdapterPosition(position)?.itemView
+
+                currentView?.let { view ->
+                    animatePageItem(view)
+                }
+
+                val imageView = currentView?.findViewById<ImageView>(R.id.imageViewWelcomeTour)
+                imageView?.let {
+                    startImageAnimation(it)
+                }
             }
         })
 
         btnNext.setOnClickListener { onNextButtonClicked() }
         btnSkip.setOnClickListener { onSkipButtonClicked() }
+    }
+
+    private fun startImageAnimation(imageView: ImageView) {
+        fun animateView() {
+            imageView.animate()
+                .translationX(30f)
+                .translationY(10f)
+                .setDuration(3000)
+                .setInterpolator(AccelerateDecelerateInterpolator())
+                .withEndAction {
+                    imageView.animate()
+                        .translationX(-20f)
+                        .translationY(-15f)
+                        .setDuration(3000)
+                        .setInterpolator(AccelerateDecelerateInterpolator())
+                        .withEndAction {
+                            imageView.animate()
+                                .translationX(5f)
+                                .translationY(-5f)
+                                .setDuration(3000)
+                                .setInterpolator(AccelerateDecelerateInterpolator())
+                                .withEndAction {
+                                    imageView.postDelayed({
+                                        animateView()
+                                    }, 0)
+                                }
+                        }
+                }
+        }
+
+        animateView()
+    }
+
+    private fun animatePageItem(itemView: View) {
+        itemView.alpha = 0f
+        itemView.animate()
+            .alpha(1f)
+            .setDuration(500)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+
+        val titleView = itemView.findViewById<TextView>(R.id.textAboveImage)
+        val imageView = itemView.findViewById<ImageView>(R.id.imageViewWelcomeTour)
+        val descView = itemView.findViewById<TextView>(R.id.textBelowImage)
+
+        titleView?.translationY = 100f
+        titleView?.alpha = 0f
+
+        imageView?.translationY = 100f
+        imageView?.alpha = 0f
+
+        descView?.translationY = 100f
+        descView?.alpha = 0f
+
+        titleView?.animate()
+            ?.translationY(0f)
+            ?.alpha(1f)
+            ?.setDuration(500)
+            ?.setStartDelay(200)
+            ?.setInterpolator(DecelerateInterpolator())
+            ?.start()
+
+        imageView?.animate()
+            ?.translationY(0f)
+            ?.alpha(1f)
+            ?.setDuration(500)
+            ?.setStartDelay(400)
+            ?.setInterpolator(DecelerateInterpolator())
+            ?.start()
+
+        descView?.animate()
+            ?.translationY(0f)
+            ?.alpha(1f)
+            ?.setDuration(500)
+            ?.setStartDelay(600)
+            ?.setInterpolator(DecelerateInterpolator())
+            ?.start()
+    }
+
+    private fun animateEntranceElements() {
+        viewPager.translationY = viewPager.height.toFloat()
+        viewPager.alpha = 0f
+        viewPager.animate()
+            .translationY(0f)
+            .alpha(1f)
+            .setDuration(800)
+            .setStartDelay(100)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+
+        dotsIndicator.translationY = dotsIndicator.height.toFloat()
+        dotsIndicator.alpha = 0f
+        dotsIndicator.animate()
+            .translationY(0f)
+            .alpha(1f)
+            .setDuration(800)
+            .setStartDelay(300)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+
+        btnNext.translationY = btnNext.height.toFloat()
+        btnNext.alpha = 0f
+        btnNext.animate()
+            .translationY(0f)
+            .alpha(1f)
+            .setDuration(800)
+            .setStartDelay(500)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+
+        btnSkip.translationY = btnSkip.height.toFloat()
+        btnSkip.alpha = 0f
+        btnSkip.animate()
+            .translationY(0f)
+            .alpha(1f)
+            .setDuration(800)
+            .setStartDelay(700)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
     }
 
     private fun checkPermissions() {
@@ -118,10 +257,23 @@ class TourActivity : AppCompatActivity() {
 
     private fun onNextButtonClicked() {
         if (viewPager.currentItem < tourViewModel.getTourItemCount() - 1) {
-            viewPager.currentItem++
+            Handler(Looper.getMainLooper()).postDelayed({
+                viewPager.setCurrentItem(viewPager.currentItem + 1, true)
+
+                Handler(Looper.getMainLooper()).postDelayed({
+                    val nextView = (viewPager.getChildAt(0) as RecyclerView)
+                        .findViewHolderForAdapterPosition(viewPager.currentItem)?.itemView
+
+                    val imageView = nextView?.findViewById<ImageView>(R.id.imageViewWelcomeTour)
+                    imageView?.let {
+                        startImageAnimation(it)
+                    }
+                }, 300)
+            }, 200)
         } else {
             preferencesManager.setTourCompleted()
             startActivity(Intent(this, RegisterActivity::class.java))
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
             finish()
         }
     }
@@ -132,6 +284,7 @@ class TourActivity : AppCompatActivity() {
         } else {
             preferencesManager.setTourCompleted()
             startActivity(Intent(this, LoginActivity::class.java))
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
             finish()
         }
     }
@@ -209,6 +362,7 @@ class TourActivity : AppCompatActivity() {
                 )
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 startActivity(intent)
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
             }
             .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
                 dialog.dismiss()
