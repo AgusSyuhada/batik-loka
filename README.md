@@ -67,6 +67,13 @@ Our app provides features such as batik pattern scanning, detailed information a
 
 ---
 
+### 📱Mockup Application
+
+![Group 330](https://github.com/user-attachments/assets/9e0f350a-08a0-45a4-a922-7938af1d3084)
+![Group 331](https://github.com/user-attachments/assets/51802e51-9f02-4605-99c1-8399eab6018f)
+
+---
+
 <!-- ### 📥 Contribution
 We welcome contributions! Follow these steps:
 1. Fork the repository.
